@@ -27,11 +27,10 @@ function getHermesRoot(): string {
 
 export const HERMES_ROOT = getHermesRoot();
 
-export const getSessionsPath = () => path.join(HERMES_ROOT, 'agents/main/sessions');
+export const getSessionsPath = () => path.join(HERMES_ROOT, 'sessions');
 export const getCronPath = () => path.join(HERMES_ROOT, 'cron');
-export const getToolsPath = () => path.join(HERMES_ROOT, 'tools');
 
-export const getWorkspacePath = () => path.join(HERMES_ROOT, 'workspace');
+export const getWorkspacePath = () => HERMES_ROOT;
 export const getFavoritesPath = () => path.join(getWorkspacePath(), 'cmd_favorites.json');
 export const getSkillsPath = () => path.join(getWorkspacePath(), 'skills');
 

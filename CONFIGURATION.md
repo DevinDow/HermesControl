@@ -56,12 +56,11 @@ The app resolves the Hermes path in this order:
 
 Once `HERMES_PATH` is set, all of these paths are automatically resolved relative to it:
 
-- `agents/main/sessions` - Session files
+- `sessions` - Session files
 - `cron` - Cron job configuration and runs
-- `tools` - Tool scripts and executables
-- `workspace` - Workspace data, including:
-  - `cmd_favorites.json` - Command favorites
-  - `skills` - Local skill definitions
+- `logs` - Logs
+- `memories` - Memories
+- `skills` - Skills
 - `.env` - The Hermes environment file (for API keys, etc.)
 
 ## Notes

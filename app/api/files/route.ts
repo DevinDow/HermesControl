@@ -33,8 +33,8 @@ export async function GET(request: Request) {
             // but we don't want to return directory objects themselves, just the files within them.
             return await getFiles(fullPath);
           } else if (mode === 'docs') {
-            // Docs usually doesn't need to recurse into memory/OLD/specs
-            if (entry.name === 'memory' || entry.name === 'OLD' || entry.name === 'specs') return null;
+            // Don't recurse into subfolders for docs mode
+            return null;
           }
 
           const children = await getFiles(fullPath);
@@ -129,55 +129,10 @@ export async function GET(request: Request) {
       }
     }
 
-    // Special handling for Docs mode to add groupable READMEs
     if (mode === 'docs') {
-      const readmeChildren = [];
       const workspaceChildren = fileTree.filter(f => f.type === 'file');
-      const otherChildren = fileTree.filter(f => f.type === 'directory');
-
-      // Helper to add a virtual file if it exists
-      const addVirtualFile = async (filePath: string, displayName: string, virtualPath: string) => {
-        try {
-          const stats = await fs.stat(filePath);
-          readmeChildren.push({
-            name: displayName,
-            type: 'file',
-            path: virtualPath,
-            isExternal: true,
-            updatedAt: stats.mtimeMs
-          });
-        } catch (e) {
-          // Silently skip if file doesn't exist
-        }
-      };
-
-      // Add root README
-      await addVirtualFile(path.join(HERMES_ROOT, 'README.md'), 'README.md', '__ROOT__/README.md');
-
-      // Add root TODO.md
-      await addVirtualFile(path.join(HERMES_ROOT, 'TODO.md'), 'TODO.md', '__TODO__/TODO.md');
-
       fileTree = [];
-
-      if (readmeChildren.length > 0) {
-        fileTree.push({
-          name: 'README',
-          type: 'directory',
-          path: '__VIRTUAL__/README',
-          children: readmeChildren
-        });
-      }
-
-      if (workspaceChildren.length > 0) {
-        fileTree.push({
-          name: 'WORKSPACE',
-          type: 'directory',
-          path: '__VIRTUAL__/WORKSPACE',
-          children: workspaceChildren
-        });
-      }
-
-      fileTree.push(...otherChildren);
+      fileTree.push(...workspaceChildren);
     }
 
     return NextResponse.json(fileTree);
