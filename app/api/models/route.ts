@@ -1,102 +1,72 @@
 ﻿import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import yaml from 'js-yaml';
 import { HERMES_ROOT } from '../../lib/paths';
 
 export async function GET() {
   try {
-    // Load hermes.json from the configured Hermes root directory
+    // Load config.yaml from the configured Hermes root directory
     const configPath = path.join(HERMES_ROOT, 'config.yaml');
     const configData = await fs.readFile(configPath, 'utf-8');
-    const hermesConfig = JSON.parse(configData);
+    const hermesConfig = yaml.load(configData);
 
-    // Extract models data from the configuration
-    const modelsData = hermesConfig.agents.defaults.models;
+    // Extract model configuration
+    const modelConfig = hermesConfig.model;
+    
+    if (!modelConfig) {
+      return NextResponse.json(
+        { error: 'No model configuration found in config.yaml' },
+        { status: 400 }
+      );
+    }
 
-    // Format the data for the UI
-    const formattedData = Object.entries(modelsData).map(([modelId, config]: [string, any]) => ({
-      id: modelId,
-      alias: config.alias || '',
-      contextWindow: config.params?.contextWindow || 0,
-      // Format contextWindow with 'k' suffix
-      contextWindowFormatted: config.params?.contextWindow
-        ? `${Math.round(config.params.contextWindow / 1000)}k`
-        : '0k'
-    }));
+    // Extract host from base_url domain
+    let host = '';
+    if (modelConfig.base_url) {
+      try {
+        const url = new URL(modelConfig.base_url);
+        host = url.hostname;
+      } catch (e) {
+        host = modelConfig.base_url;
+      }
+    }
 
-    // we will build a hierarchical tree structure to support nested models.
-    // Model IDs are typically structured as "provider/model" or "host/provider/model".
-    // Educational Context: We extract the primary and fallback configurations 
-    // to identify how each model is prioritized in the agent's workflow.
-    const primaryModelId = hermesConfig.agents?.defaults?.model?.primary;
-    const fallbackList = hermesConfig.agents?.defaults?.model?.fallbacks || [];
-    const tree: any[] = [];
+    // Extract provider and model from default (format: "provider/model")
+    let provider = '';
+    let model = '';
+    if (modelConfig.default) {
+      const parts = modelConfig.default.split('/');
+      if (parts.length >= 2) {
+        provider = parts[0];
+        model = parts.slice(1).join('/'); // Handle models with slashes
+      } else {
+        model = modelConfig.default;
+      }
+    }
 
-    formattedData.forEach(modelEntry => {
-      const parts = modelEntry.id.split('/');
-      let currentLevel = tree;
+    // Use provider from split default, fallback to provider field if needed
+    if (!provider && modelConfig.provider) {
+      provider = modelConfig.provider;
+    }
 
-      parts.forEach((part, index) => {
-        const isLeafNode = index === parts.length - 1;
+    const modelData = {
+      host: host,
+      provider: provider,
+      model: model,
+      baseUrl: modelConfig.base_url,
+      apiMode: modelConfig.api_mode,
+      default: modelConfig.default
+    };
 
-        // Define roles for educational clarity
-        let role = "folder";
-        if (parts.length === 3) {
-          if (index === 0) role = "host";
-          else if (index === 1) role = "provider";
-          else role = "model";
-        } else if (parts.length === 2) {
-          if (index === 0) role = "provider";
-          else role = "model";
-        }
-
-        let node = currentLevel.find(n => n.name === part && n.type === (isLeafNode ? 'model' : 'directory'));
-
-        if (!node) {
-          if (isLeafNode) {
-            // Check if this specific model is the configured primary or a fallback.
-            const isPrimary = modelEntry.id === primaryModelId;
-            const fbIndex = fallbackList.indexOf(modelEntry.id);
-            const fallbackRank = fbIndex !== -1 ? fbIndex + 1 : null;
-
-            node = {
-              ...modelEntry,
-              name: part,
-              type: 'model',
-              role: role,
-              isPrimary: isPrimary,
-              fallbackRank: fallbackRank
-            };
-            currentLevel.push(node);
-          } else {
-            node = {
-              name: part,
-              type: 'directory',
-              role: role,
-              children: []
-            };
-            currentLevel.push(node);
-          }
-        }
-
-        if (!isLeafNode) {
-          currentLevel = node.children;
-        }
-      });
-    });
-
-    return NextResponse.json({
-      models: formattedData,
-      tree: tree, // The new hierarchical structure
-      platform: process.platform
-    });
+    return NextResponse.json(modelData);
   } catch (error) {
-    const configPath = path.join(HERMES_ROOT, 'hermes.json');
-    console.error('Failed to fetch models data:', error);
+    const configPath = path.join(HERMES_ROOT, 'config.yaml');
+    console.error('Failed to fetch model data:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       {
-        error: 'Failed to load models data',
+        error: 'Failed to load model data',
         details: errorMessage,
         configPath: configPath
       },

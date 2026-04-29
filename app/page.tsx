@@ -303,10 +303,7 @@ export default function HermesControl() {
         } else if (endpoint.includes('logType=model')) {
           setModelHealthLog(data.content || '');
         }
-      } else if (endpoint === '/api/cmd') {
-        setter(data);
-        return data;
-      } else if (endpoint === '/api/git' || endpoint === '/api/model' || endpoint === '/api/skills' || endpoint === '/api/models' || endpoint === '/api/status' || endpoint === '/api/heartbeat' || endpoint === '/api/heartbeat/last' || endpoint === '/api/online' || endpoint === '/api/update' || endpoint.startsWith('/api/help')) {
+      } else if (endpoint === '/api/cmd' || endpoint === '/api/git' || endpoint === '/api/model' || endpoint === '/api/skills' || endpoint === '/api/models' || endpoint === '/api/status' || endpoint === '/api/heartbeat' || endpoint === '/api/heartbeat/last' || endpoint === '/api/online' || endpoint === '/api/update' || endpoint.startsWith('/api/help')) {
         setter(data);
         return data;
       } else {
