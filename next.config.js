@@ -4,6 +4,7 @@ const nextConfig = {
     appIsrStatus: false,
     buildActivity: false,
   },
+  allowedDevOrigins: ['samsungzorin'],
 };
 
 module.exports = nextConfig;
