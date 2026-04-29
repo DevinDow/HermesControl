@@ -9,14 +9,14 @@ export async function GET(request: Request) {
 
   try {
     const workspacePath = getWorkspacePath();
-    
+
     async function getFiles(dir: string): Promise<any[]> {
       const normalDir = dir.replace(/\\/g, '/');
       const entries = await fs.readdir(dir, { withFileTypes: true });
       const files = await Promise.all(entries.map(async (entry) => {
         const fullPath = path.join(dir, entry.name);
         const relativePath = path.relative(workspacePath, fullPath);
-        
+
         if (entry.isDirectory()) {
           // Internal folders to always skip
           if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.next') {
@@ -54,15 +54,15 @@ export async function GET(request: Request) {
           const isSpec = (entry.name.endsWith('_spec.md') || normalDir.includes('/specs')) && !isCode;
           const isOld = normalDir.includes('/OLD') || normalDir.includes('/memory/archive');
           const isDailyLog = normalDir.includes('/memory') || entry.name === 'MEMORY.md' || entry.name.match(/^\d{4}-\d{2}-\d{2}\.md$/);
-          
+
           if (mode === 'specs') {
             return isSpec ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
-          
+
           if (mode === 'old') {
             return isOld ? { name: entry.name, type: 'file', path: relativePath, isArchived: true, updatedAt: stats.mtimeMs } : null;
           }
-          
+
           if (mode === 'memory') {
             // Collect all daily logs and MEMORY.md, including those in OLD folders
             return (isDailyLog && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
     }
 
     let fileTree = await getFiles(workspacePath);
-    
+
     // Mode-specific sorting
     if (mode === 'old') {
       const allOldFiles: any[] = [];
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
 
       // Sort everything alphabetically descending (which puts newest dates at top)
       fileTree.sort((a, b) => b.name.localeCompare(a.name));
-      
+
       // Ensure MEMORY.md is always absolute top
       const memoryMdIndex = fileTree.findIndex(f => f.name === 'MEMORY.md');
       if (memoryMdIndex !== -1) {
@@ -128,48 +128,45 @@ export async function GET(request: Request) {
         fileTree.unshift(memoryMd);
       }
     }
-    
-      // Special handling for Docs mode to add groupable READMEs
-      if (mode === 'docs') {
-        const readmeChildren = [];
-        const workspaceChildren = fileTree.filter(f => f.type === 'file');
-        const otherChildren = fileTree.filter(f => f.type === 'directory');
 
-        // Helper to add a virtual file if it exists
-        const addVirtualFile = async (filePath: string, displayName: string, virtualPath: string) => {
-          try {
-            const stats = await fs.stat(filePath);
-            readmeChildren.push({
-              name: displayName,
-              type: 'file',
-              path: virtualPath,
-              isExternal: true,
-              updatedAt: stats.mtimeMs
-            });
-          } catch (e) {
-            // Silently skip if file doesn't exist
-          }
-        };
+    // Special handling for Docs mode to add groupable READMEs
+    if (mode === 'docs') {
+      const readmeChildren = [];
+      const workspaceChildren = fileTree.filter(f => f.type === 'file');
+      const otherChildren = fileTree.filter(f => f.type === 'directory');
 
-        // Add root README
-        await addVirtualFile(path.join(HERMES_ROOT, 'README.md'), 'Darvis README.md', '__ROOT__/README.md');
-        
-        // Add Hermes Control README
-        await addVirtualFile(path.join(HERMES_ROOT, 'tools', 'mc', 'README.md'), 'Hermes Control README.md', '__MC__/README.md');
-        
-        // Add root TODO.md
-        await addVirtualFile(path.join(HERMES_ROOT, 'TODO.md'), 'TODO.md', '__TODO__/TODO.md');
-
-        fileTree = [];
-
-        if (readmeChildren.length > 0) {
-          fileTree.push({
-            name: 'README',
-            type: 'directory',
-            path: '__VIRTUAL__/README',
-            children: readmeChildren
+      // Helper to add a virtual file if it exists
+      const addVirtualFile = async (filePath: string, displayName: string, virtualPath: string) => {
+        try {
+          const stats = await fs.stat(filePath);
+          readmeChildren.push({
+            name: displayName,
+            type: 'file',
+            path: virtualPath,
+            isExternal: true,
+            updatedAt: stats.mtimeMs
           });
+        } catch (e) {
+          // Silently skip if file doesn't exist
         }
+      };
+
+      // Add root README
+      await addVirtualFile(path.join(HERMES_ROOT, 'README.md'), 'README.md', '__ROOT__/README.md');
+
+      // Add root TODO.md
+      await addVirtualFile(path.join(HERMES_ROOT, 'TODO.md'), 'TODO.md', '__TODO__/TODO.md');
+
+      fileTree = [];
+
+      if (readmeChildren.length > 0) {
+        fileTree.push({
+          name: 'README',
+          type: 'directory',
+          path: '__VIRTUAL__/README',
+          children: readmeChildren
+        });
+      }
 
       if (workspaceChildren.length > 0) {
         fileTree.push({
