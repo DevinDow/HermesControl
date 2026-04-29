@@ -54,7 +54,7 @@ We maximize code efficiency by reusing specialized components across multiple to
 *   **`JobsTool`:** Manages cron jobs and scheduled tasks.
 *   **`CmdTool`:** A persistent terminal emulator with "Favorites" support (persisted in `cmd_favorites.json`).
 *   **`GitTool`:** Interactive Git client for staging, committing, and viewing diffs.
-*   **`LogsTool`:** Direct stream of the system health JSONL logs.
+*   **`LogsTool`:** Viewer for log files from the logs directory.
 *   **`SkillsTool` / `HelpTool`:** Specialized modules for agent capabilities, scheduling, and documentation.
 
 ## 🛠️ Development & Safety

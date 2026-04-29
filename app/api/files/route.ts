@@ -24,16 +24,17 @@ export async function GET(request: Request) {
           }
 
           // Mode-specific directory filtering
-          if (mode === 'specs') {
+          if (mode === 'docs') {
+            // Don't recurse into subfolders for docs mode
+            return null;
+          } else if (mode === 'memory') {
+            if (entry.name !== 'memories' && !normalDir.includes('/memories')) return null;
+          } else if (mode === 'logs') {
+            if (entry.name !== 'logs' && !normalDir.includes('/logs')) return null;
+          } else if (mode === 'specs') {
             if (entry.name !== 'specs' && !normalDir.includes('/specs')) return null;
           } else if (mode === 'old') {
             if (entry.name !== 'OLD' && !normalDir.includes('/OLD')) return null;
-          } else if (mode === 'memory') {
-            // Only recurse into the memories folder at root level, but allow recursion within memories
-            if (!normalDir.includes('/memories') && entry.name !== 'memories') return null;
-          } else if (mode === 'docs') {
-            // Don't recurse into subfolders for docs mode
-            return null;
           }
 
           const children = await getFiles(fullPath);
@@ -54,22 +55,24 @@ export async function GET(request: Request) {
           const isOld = normalDir.includes('/OLD') || normalDir.includes('/memory/archive');
           const isMemoryFile = normalDir.includes('/memories');
 
+          if (mode === 'docs') {
+            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
+          }
+
+          if (mode === 'memory') {
+            return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
+          }
+
+          if (mode === 'logs') {
+            return entry.name.endsWith('.log') ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
+          }
+
           if (mode === 'specs') {
             return isSpec ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'old') {
             return isOld ? { name: entry.name, type: 'file', path: relativePath, isArchived: true, updatedAt: stats.mtimeMs } : null;
-          }
-
-          if (mode === 'memory') {
-            // Return markdown files from memories folder
-            return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
-          }
-
-          if (mode === 'docs') {
-            // Include all markdown files in the current directory (which is filtered in the directory logic above)
-            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
 
           return null;

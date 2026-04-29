@@ -132,15 +132,15 @@ export default function HermesControl() {
   const [helpShortcuts, setHelpShortcuts] = useState<any[]>([]);
   const [helpCli, setHelpCli] = useState<string>('');
   const [skills, setSkills] = useState<{ workspace: any[], system: any[] }>({ workspace: [], system: [] });
-  const [healthLog, setHealthLog] = useState<string>('');
-  const [modelHealthLog, setModelHealthLog] = useState<string>('');
+  const [logs, setLogs] = useState<any[]>([]);
+  const [logContent, setLogContent] = useState<string>('');
   const [modelsData, setModelsData] = useState<any>(null);
 
   // Stores the user's input for the middle column search/filter bar
   const [filterText, setFilterText] = useState<string>('');
 
   // Tracks the overall health of the Hermes system (Online status, heartbeat, versions)
-  const [selectedLog, setSelectedLog] = useState<string>('system_health_log');
+  const [selectedLog, setSelectedLog] = useState<string>('');
   const [gatewayStatus, setGatewayStatus] = useState<{
     online: boolean,
     version?: string,
@@ -297,11 +297,14 @@ export default function HermesControl() {
       if (endpoint.includes('sessions') || endpoint.includes('history') || endpoint.includes('content')) {
         console.log(`[Frontend] Fetched ${endpoint} in ${Date.now() - fetchStart}ms`);
       }
-      if (endpoint.startsWith('/api/logs')) {
-        if (endpoint.includes('logType=system')) {
-          setHealthLog(data.content || '');
-        } else if (endpoint.includes('logType=model')) {
-          setModelHealthLog(data.content || '');
+      if (endpoint.includes('/api/files?mode=logs')) {
+        if (endpoint.includes('&file=')) {
+          // Fetching specific log file content
+          setLogContent(data.content || '');
+        } else {
+          // Fetching list of log files
+          setter(data);
+          return data;
         }
       } else if (endpoint === '/api/cmd' || endpoint === '/api/git' || endpoint === '/api/model' || endpoint === '/api/skills' || endpoint === '/api/models' || endpoint === '/api/status' || endpoint === '/api/heartbeat' || endpoint === '/api/heartbeat/last' || endpoint === '/api/online' || endpoint === '/api/update' || endpoint.startsWith('/api/help')) {
         setter(data);
@@ -388,8 +391,7 @@ export default function HermesControl() {
     fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/tasks', setTasks, 'tasks');
     fetchData('/api/skills', setSkills, 'skills');
-    fetchData('/api/logs?logType=system', setHealthLog, 'logs');
-    fetchData('/api/logs?logType=model', setModelHealthLog, 'logs');
+    fetchData('/api/files?mode=logs', setLogs, 'logs');
     fetchData('/api/git', setGitStatus, 'git');
     fetchData('/api/model', setModelStatus, 'model');
     fetchData('/api/help/links', setHelpLinks, 'help');
@@ -751,7 +753,7 @@ export default function HermesControl() {
   // Dynamic tool rendering
   const renderLeft = () => {
     switch (activeTab) {
-      case 'Logs': return <LogsToolLeft fetchData={fetchData} setHealthLog={setHealthLog} setModelHealthLog={setModelHealthLog} selectedLog={selectedLog} setSelectedLog={setSelectedLog} />;
+      case 'Logs': return <LogsToolLeft fetchData={fetchData} setLogContent={setLogContent} logs={logs} selectedLog={selectedLog} setSelectedLog={setSelectedLog} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
       case 'Specs': return <SpecsToolLeft specsTree={specsTree} renderFileTree={renderFileTree} />;
       case 'System': return <SystemToolLeft systemTree={systemTree} renderFileTree={renderFileTree} />;
@@ -780,7 +782,7 @@ export default function HermesControl() {
 
   const renderRight = () => {
     switch (activeTab) {
-      case 'Logs': return <LogsToolRight healthLog={healthLog} modelHealthLog={modelHealthLog} loading={loading} selectedLog={selectedLog} />;
+      case 'Logs': return <LogsToolRight logContent={logContent} loading={loading} selectedLog={selectedLog} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
       case 'Specs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
@@ -868,8 +870,8 @@ export default function HermesControl() {
                   setSelectedFilePath(null);
                 }
                 if (item.name === 'Logs') {
-                  setSelectedLog('model_health_log');
-                  if (!modelHealthLog) fetchData('/api/logs?logType=model', setModelHealthLog, 'logs');
+                  if (logs.length === 0) fetchData('/api/files?mode=logs', setLogs, 'logs');
+                  else if (!selectedLog && logs.length > 0) setSelectedLog(logs[0].name);
                 }
                 if (item.name === 'Help') setSelectedHelpId('Links');
                 if (item.name === 'Git') setSelectedGitFile(null);
