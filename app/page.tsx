@@ -654,9 +654,6 @@ export default function HermesControl() {
   }, [selectedFilePath, selectedSessionId, selectedSkillId, selectedSkillFile, activeTab, historyLimit, viewingJobLog, selectedGitFile, selectedGitCommit, gitFingerprint]);
 
   const selectedJob = jobs.find(j => j.id === selectedJobId);
-  const selectedSession = sessions.find(s => s.sessionId === selectedSessionId || s.fileId === selectedSessionId || s.id === selectedSessionId) || history.find(s => s.fileId === selectedSessionId || s.id === selectedSessionId);
-  const selectedTask = tasks.find(t => t.id === selectedTaskId);
-  const selectedEvent = events.find(e => e.id === selectedEventId);
   const selectedSkill = (skills?.workspace || []).find(s => s.id === selectedSkillId) || (skills?.system || []).find(s => s.id === selectedSkillId);
   const selectedCmd = (cmdHistory || []).find(c => c.id === selectedCmdId);
 
