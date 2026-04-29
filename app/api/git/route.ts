@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { NextResponse } from 'next/server';
-import { OPENCLAW_ROOT } from '../../lib/paths';
+import { HERMES_ROOT } from '../../lib/paths';
 
 // Promisify exec to use async/await for cleaner control flow
 const execAsync = promisify(exec);
@@ -18,7 +18,7 @@ export async function GET() {
     // We use a custom delimiter (|) to make parsing robust.
     // %h: short hash, %s: subject, %an: author name, %ar: relative date
     const { stdout: logStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} log -n 5 --pretty=format:"%h|%s|%an|%ar"`,
+      `git -C ${HERMES_ROOT} log -n 5 --pretty=format:"%h|%s|%an|%ar"`,
       { encoding: 'utf8' }
     );
 
@@ -29,13 +29,13 @@ export async function GET() {
 
     // Current branch (or short hash when detached)
     const { stdout: branchStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} branch --show-current`,
+      `git -C ${HERMES_ROOT} branch --show-current`,
       { encoding: 'utf8' }
     );
     let branch = branchStdout.trim();
     if (!branch) {
       const { stdout: shortHead } = await execAsync(
-        `git -C ${OPENCLAW_ROOT} rev-parse --short HEAD`,
+        `git -C ${HERMES_ROOT} rev-parse --short HEAD`,
         { encoding: 'utf8' }
       );
       branch = `detached @ ${shortHead.trim()}`;
@@ -44,7 +44,7 @@ export async function GET() {
     // 2. Determine if the local branch is 'ahead' of origin/main
     // This count is used to enable/disable the 'Push' button in the UI.
     const { stdout: revStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} rev-list origin/main..main --count`,
+      `git -C ${HERMES_ROOT} rev-list origin/main..main --count`,
       { encoding: 'utf8' }
     );
     const aheadCount = parseInt(revStdout.trim(), 10) || 0;
@@ -52,7 +52,7 @@ export async function GET() {
     // 3. Parse the current status of the working tree using --porcelain
     // Porcelain mode is stable across git versions and designed for script consumption.
     const { stdout: statusStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} status --porcelain`,
+      `git -C ${HERMES_ROOT} status --porcelain`,
       { encoding: 'utf8' }
     );
 
@@ -78,7 +78,7 @@ export async function GET() {
     // 4. Fetch the full hash of the remote HEAD
     // This allows the UI to highlight which local commit matches the remote.
     const { stdout: remoteStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} rev-parse origin/main`,
+      `git -C ${HERMES_ROOT} rev-parse origin/main`,
       { encoding: 'utf8' }
     );
     const remoteHash = remoteStdout.trim();
@@ -118,12 +118,12 @@ export async function POST(request: Request) {
     switch (action) {
       case 'stage':
         // 'add .' stages all changes; 'add [file]' stages a specific path
-        command = file ? `git -C ${OPENCLAW_ROOT} add "${file}"` : `git -C ${OPENCLAW_ROOT} add .`;
+        command = file ? `git -C ${HERMES_ROOT} add "${file}"` : `git -C ${HERMES_ROOT} add .`;
         break;
       case 'unstage':
         // 'restore --staged' is the modern way to remove files from the index
         // 'reset' is used for bulk unstaging
-        command = file ? `git -C ${OPENCLAW_ROOT} restore --staged "${file}"` : `git -C ${OPENCLAW_ROOT} reset`;
+        command = file ? `git -C ${HERMES_ROOT} restore --staged "${file}"` : `git -C ${HERMES_ROOT} reset`;
         break;
       case 'commit':
         if (!message) {
@@ -131,11 +131,11 @@ export async function POST(request: Request) {
         }
         // Execute commit with the provided message
         // We escape double quotes to prevent shell injection/breakage
-        command = `git -C ${OPENCLAW_ROOT} commit -m "${message.replace(/"/g, '\\"')}"`;
+        command = `git -C ${HERMES_ROOT} commit -m "${message.replace(/"/g, '\\"')}"`;
         break;
       case 'push':
         // Standard push to origin main
-        command = `git -C ${OPENCLAW_ROOT} push origin main`;
+        command = `git -C ${HERMES_ROOT} push origin main`;
         break;
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

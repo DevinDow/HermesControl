@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export async function GET() {
   try {
-    const { stdout } = await execAsync('openclaw status --json');
+    const { stdout } = await execAsync('hermes status --json');
     const data = JSON.parse(stdout);
     return NextResponse.json(data);
   } catch (error) {

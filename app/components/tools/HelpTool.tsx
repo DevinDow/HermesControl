@@ -46,7 +46,7 @@ export function HelpToolRight({ selectedHelpId, helpLinks, helpShortcuts, helpCl
                        'CLI Reference'}
                     </h2>
                   </div>
-                  <div className="text-[11px] font-mono text-[#666666]">OpenClaw v{gatewayStatus.version}</div>
+                  <div className="text-[11px] font-mono text-[#666666]">Hermes v{gatewayStatus.version}</div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-6 bg-[#080808]">
                   {selectedHelpId === 'Links' && (
@@ -84,7 +84,7 @@ export function HelpToolRight({ selectedHelpId, helpLinks, helpShortcuts, helpCl
                     <div className="max-w-2xl mx-auto">
                       <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
                         <div className="text-[11px] font-bold text-[#5E6AD2] uppercase tracking-widest mb-6 flex items-center gap-2">
-                          <Terminal size={14} /> Mission Control Shortcuts
+                          <Terminal size={14} /> Hermes Control Shortcuts
                         </div>
                         <div className="space-y-1">
                           {helpShortcuts.map((s: any) => (
@@ -101,7 +101,7 @@ export function HelpToolRight({ selectedHelpId, helpLinks, helpShortcuts, helpCl
                   {selectedHelpId === 'CLI' && (
                     <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
                       <div className="text-[11px] font-bold text-[#5E6AD2] uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <Zap size={14} /> OpenClaw CLI Documentation
+                        <Zap size={14} /> Hermes CLI Documentation
                       </div>
                       <pre className="bg-[#080808] border border-[#1F1F1F] p-6 rounded-lg text-[13px] font-mono text-white overflow-x-auto leading-relaxed scrollbar-thin scrollbar-thumb-[#1F1F1F]">
                         {helpCli}

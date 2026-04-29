@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { OPENCLAW_ROOT } from '../../../lib/paths';
+import { HERMES_ROOT } from '../../../lib/paths';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const baseDir = OPENCLAW_ROOT;
+    const baseDir = HERMES_ROOT;
     const fullPath = path.join(baseDir, filePath);
 
     // Security check: ensure the path is within the base dir

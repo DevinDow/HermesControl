@@ -61,18 +61,15 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { formatRelativeTime } from './components/tools/utils/dateFormatting';
 import { LogsToolLeft, LogsToolRight } from './components/tools/LogsTool';
-import { TasksToolLeft, TasksToolRight } from './components/tools/TasksTool';
 import { SystemStatus } from './components/SystemStatus';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SpecsToolLeft } from './components/tools/SpecsTool';
-import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
 import { SystemToolLeft } from './components/tools/SystemTool';
 import { ScriptsToolLeft } from './components/tools/ScriptsTool';
 import { CodeToolLeft } from './components/tools/CodeTool';
 import { FileViewerRight } from './components/tools/FileViewer';
 import { CmdToolLeft, CmdToolRight } from './components/tools/CmdTool';
 import { GitToolLeft, GitToolRight } from './components/tools/GitTool';
-import { CalendarToolLeft, CalendarToolRight } from './components/tools/CalendarTool';
 import { SkillsToolLeft, SkillsToolRight } from './components/tools/SkillsTool';
 import { HelpToolLeft, HelpToolRight } from './components/tools/HelpTool';
 import { OldToolLeft } from './components/tools/OldTool';
@@ -85,7 +82,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export default function MissionControl() {
+export default function HermesControl() {
   // ============================================================================
   // GLOBAL STATE MANAGEMENT
   // ============================================================================
@@ -142,7 +139,7 @@ export default function MissionControl() {
   // Stores the user's input for the middle column search/filter bar
   const [filterText, setFilterText] = useState<string>('');
 
-  // Tracks the overall health of the OpenClaw system (Online status, heartbeat, versions)
+  // Tracks the overall health of the Hermes system (Online status, heartbeat, versions)
   const [selectedLog, setSelectedLog] = useState<string>('system_health_log');
   const [gatewayStatus, setGatewayStatus] = useState<{
     online: boolean,
@@ -177,13 +174,9 @@ export default function MissionControl() {
   // ============================================================================
   const [loading, setLoading] = useState<Record<string, boolean>>({
     jobs: false,
-    tasks: false,
-    calendar: false,
-    sessions: false,
     files: false,
     content: false,
     logs: false,
-    heartbeat: false,
     models: false
   });
 
@@ -259,15 +252,11 @@ export default function MissionControl() {
     { name: 'Jobs', icon: Clock },
     { name: 'Specs', icon: ScrollText },
     { name: 'Logs', icon: Activity },
-    { name: 'Sessions', icon: Users },
-    { name: 'History', icon: History },
     { name: 'System', icon: Settings },
     { name: 'Scripts', icon: Parentheses },
     { name: 'Code', icon: Code2 },
     { name: 'Cmd', icon: Terminal },
     { name: 'Git', icon: GitBranch },
-    { name: 'Calendar', icon: CalendarIcon },
-    { name: 'Tasks', icon: CheckSquare },
     { name: 'Skills', icon: Wrench },
     { name: 'Help', icon: HelpCircle },
     { name: 'Old', icon: Archive },
@@ -401,9 +390,6 @@ export default function MissionControl() {
     fetchData('/api/system', setSystemTree, 'files');
     fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/tasks', setTasks, 'tasks');
-    fetchData('/api/calendar', setEvents, 'calendar');
-    fetchData('/api/sessions', setSessions, 'sessions');
-    fetchData('/api/history', setHistory, 'history');
     fetchData('/api/skills', setSkills, 'skills');
     fetchData('/api/logs?logType=system', setHealthLog, 'logs');
     fetchData('/api/logs?logType=model', setModelHealthLog, 'logs');
@@ -416,38 +402,6 @@ export default function MissionControl() {
 
     // 1. Online Check: lightweight connectivity probe (No console.log)
     fetchData('/api/online', (data: any) => setGatewayStatus(prev => ({ ...prev, online: data.online })), 'status');
-
-    // 2. Heartbeat Config (lightweight) + Last Event (heavy, called separately)
-    fetchData('/api/heartbeat', (data: any) => {
-      console.log('Heartbeat config:', data);
-      // Store just the config for now; will merge with last event
-      setGatewayStatus(prev => ({
-        ...prev,
-        heartbeatInterval: data.interval,
-        heartbeatActiveHours: data.activeHours ?? null
-      }));
-    }, 'status');
-
-    // Fetch last heartbeat event separately (heavier operation)
-    fetchData('/api/heartbeat/last', (data: any) => {
-      console.log('Last heartbeat:', data);
-      if (data?.ts) {
-        setGatewayStatus(prev => ({
-          ...prev,
-          lastHeartbeat: {
-            ts: data.ts,
-            status: data.status,
-            silent: data.silent,
-            reason: data.reason,
-            durationMs: data.durationMs,
-            channel: data.channel,
-            accountId: data.accountId,
-            indicatorType: data.indicatorType,
-            lastHeartbeatText: data.lastHeartbeatText ?? null
-          }
-        }));
-      }
-    }, 'heartbeat');
 
     // 3. Status Check: full gateway metadata (version, runtime info, etc.)
     fetchData('/api/status', (data: any) => {
@@ -492,29 +446,6 @@ export default function MissionControl() {
         .catch(() => { });
     }, 10000);
 
-    // Interval 2: Heartbeat Check (10m) - only fetch the heavy /last endpoint infrequently
-    const heartbeatInterval = setInterval(() => {
-      fetchData('/api/heartbeat/last', (data: any) => {
-        console.log('Heartbeat check (interval):', data);
-        if (data?.ts) {
-          setGatewayStatus(prev => ({
-            ...prev,
-            lastHeartbeat: {
-              ts: data.ts,
-              status: data.status,
-              silent: data.silent,
-              reason: data.reason,
-              durationMs: data.durationMs,
-              channel: data.channel,
-              accountId: data.accountId,
-              indicatorType: data.indicatorType,
-              lastHeartbeatText: data.lastHeartbeatText ?? null
-            }
-          }));
-        }
-      }, 'heartbeat');
-    }, 600000);
-
     // Interval 3: Update Check (6h)
     const updateInterval = setInterval(() => {
       fetchData('/api/update', (data: any) => {
@@ -527,20 +458,6 @@ export default function MissionControl() {
         }));
       }, 'status');
     }, 21600000);
-
-    // Interval 4: Full Session List Refresh (60s) - Slower to save CPU
-    const listInterval = setInterval(() => {
-      const currentTab = activeTab;
-      if (currentTab === 'Sessions' || currentTab === 'History') {
-        fetch('/api/sessions')
-          .then(res => res.json())
-          .then(data => {
-            const sessionsList = Array.isArray(data) ? data : (data.sessions || []);
-            setSessions(sessionsList);
-          })
-          .catch(() => { });
-      }
-    }, 60000);
 
     // Interval 5: Git Status Refresh (60s) - Always on
     const gitStatusInterval = setInterval(() => {
@@ -560,9 +477,7 @@ export default function MissionControl() {
 
     return () => {
       clearInterval(onlineInterval);
-      clearInterval(heartbeatInterval);
       clearInterval(updateInterval);
-      clearInterval(listInterval);
       clearInterval(gitStatusInterval);
       clearInterval(modelStatusInterval);
     };
@@ -840,21 +755,8 @@ export default function MissionControl() {
   const renderLeft = () => {
     switch (activeTab) {
       case 'Logs': return <LogsToolLeft fetchData={fetchData} setHealthLog={setHealthLog} setModelHealthLog={setModelHealthLog} selectedLog={selectedLog} setSelectedLog={setSelectedLog} />;
-      case 'Tasks': return <TasksToolLeft tasks={tasks} matchesFilter={matchesFilter} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedEventId={setSelectedEventId} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
       case 'Specs': return <SpecsToolLeft specsTree={specsTree} renderFileTree={renderFileTree} />;
-      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setHistoryLimit={setHistoryLimit} setSessionSearch={setSessionSearch} handleRefresh={() => fetchData('/api/sessions', setSessions, 'sessions')} isRefreshing={loading.sessions} />;
-      case 'History':
-        const now = Date.now();
-        const oneDayMs = 24 * 60 * 60 * 1000;
-        const oneWeekMs = 7 * oneDayMs;
-
-        const filteredHistory = history.filter(h => {
-          const isWithinWeek = h.updatedAt >= (now - oneWeekMs);
-          return isWithinWeek;
-        });
-
-        return <SessionsToolLeft sessions={filteredHistory} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setHistoryLimit={setHistoryLimit} setSessionSearch={setSessionSearch} handleRefresh={() => fetchData('/api/history', setHistory, 'history')} isRefreshing={loading.history} />;
       case 'System': return <SystemToolLeft systemTree={systemTree} renderFileTree={renderFileTree} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} renderFileTree={renderFileTree} setActiveTab={setActiveTab} />;
       case 'Code': return <CodeToolLeft loading={loading} setLoading={setLoading} codeFolderData={codeFolderData} setCodeFolderData={setCodeFolderData} expandedCodeFolders={expandedCodeFolders} setExpandedCodeFolders={setExpandedCodeFolders} codeTree={codeTree} setCodeTree={setCodeTree} fetchData={fetchData} matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} />;
@@ -869,7 +771,6 @@ export default function MissionControl() {
           }).catch(() => { });
         }
       }} />;
-      case 'Calendar': return <CalendarToolLeft events={events} matchesFilter={matchesFilter} setSelectedEventId={setSelectedEventId} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} selectedEventId={selectedEventId} />;
       case 'Skills': return <SkillsToolLeft skills={skills} matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setSelectedSessionId={setSelectedSessionId} selectedSkillId={selectedSkillId} />;
       case 'Help': return <HelpToolLeft setSelectedHelpId={setSelectedHelpId} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setSelectedSessionId={setSelectedSessionId} selectedHelpId={selectedHelpId} />;
       case 'Old': return <OldToolLeft oldTree={oldTree} renderFileTree={renderFileTree} />;
@@ -883,17 +784,13 @@ export default function MissionControl() {
   const renderRight = () => {
     switch (activeTab) {
       case 'Logs': return <LogsToolRight healthLog={healthLog} modelHealthLog={modelHealthLog} loading={loading} selectedLog={selectedLog} />;
-      case 'Tasks': return <TasksToolRight selectedTask={selectedTask} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
       case 'Specs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      case 'Sessions': return <SessionsToolRight selectedSession={selectedSession} loading={loading} fileContent={fileContent} contentError={contentError} historyLimit={historyLimit} setHistoryLimit={setHistoryLimit} sessionSearch={sessionSearch} setSessionSearch={setSessionSearch} sessionStale={sessionStale} sessionNewLineCount={sessionNewLineCount} handleRefreshSession={handleRefreshSession} activeTab={activeTab} onNavigateToModel={navigateToModel} />;
-      case 'History': return <SessionsToolRight selectedSession={selectedSession} loading={loading} fileContent={fileContent} contentError={contentError} historyLimit={historyLimit} setHistoryLimit={setHistoryLimit} sessionSearch={sessionSearch} setSessionSearch={setSessionSearch} sessionStale={sessionStale} sessionNewLineCount={sessionNewLineCount} handleRefreshSession={handleRefreshSession} activeTab={activeTab} onNavigateToModel={navigateToModel} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Scripts': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Code': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Cmd': return <CmdToolRight selectedCmd={selectedCmd} />;
       case 'Git': return <GitToolRight selectedGitFile={selectedGitFile} selectedGitCommit={selectedGitCommit} loading={loading} gitDiff={gitDiff} selectedGitType={selectedGitType} />;
-      case 'Calendar': return <CalendarToolRight selectedEvent={selectedEvent} />;
       case 'Skills': return <SkillsToolRight selectedSkill={selectedSkill} selectedSkillFile={selectedSkillFile} setSelectedSkillFile={setSelectedSkillFile} loading={loading} fileContent={fileContent} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} />;
       case 'Help': return <HelpToolRight selectedHelpId={selectedHelpId} helpLinks={helpLinks} helpShortcuts={helpShortcuts} helpCli={helpCli} gatewayStatus={gatewayStatus} />;
       case 'Old': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
@@ -938,7 +835,7 @@ export default function MissionControl() {
           <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center bg-[#111111] border border-[#1F1F1F] shrink-0">
             <img src="/avatars/darvis_head.jpg" alt="Darvis" className="w-full h-full object-cover" />
           </div>
-          <span className="hidden md:block text-[13px] font-semibold tracking-tight text-[#5E6AD2] truncate">Mission Control</span>
+          <span className="hidden md:block text-[13px] font-semibold tracking-tight text-[#5E6AD2] truncate">Hermes Control</span>
         </div>
 
         <nav className="flex-1 px-1.5 md:px-2 space-y-0.5 overflow-y-auto scrollbar-thin scrollbar-thumb-[#1F1F1F] scrollbar-track-transparent">
@@ -993,21 +890,11 @@ export default function MissionControl() {
                 }
                 if (item.name === 'Docs') setSelectedFilePath('__TODO__/TODO.md');
                 if (item.name === 'Jobs' && (jobs?.length || 0) > 0) setSelectedJobId(jobs[0].id);
-                if (item.name === 'Sessions') {
-                  const mainSession = sessions?.find(s => s.key === 'agent:main:main' || s.key?.endsWith(':main'));
-                  if (mainSession) setSelectedSessionId(mainSession.sessionId);
-                  else if ((sessions?.length || 0) > 0) setSelectedSessionId(sessions[0].sessionId);
-                }
-                if (item.name === 'History') {
-                  if ((history?.length || 0) > 0) setSelectedSessionId(history[0].fileId);
-                }
-                if (item.name === 'Calendar' && (events?.length || 0) > 0) setSelectedEventId(events[0].id);
                 if (item.name === 'Scripts') {
                   setSelectedFilePath('scripts/system_health_stats.py');
                 }
-                if (item.name === 'Tasks' && (tasks?.length || 0) > 0) setSelectedTaskId(tasks[0].id);
                 if (item.name === 'System' && (systemTree?.length || 0) > 0) {
-                  setSelectedFilePath('openclaw.json');
+                  setSelectedFilePath('hermes.json');
                 }
                 if (item.name === 'Skills') {
                   const birdSkill = skills.workspace?.find(s => s.name === 'bird') || skills.workspace?.[0] || skills.system?.[0];

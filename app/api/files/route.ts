@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, OPENCLAW_ROOT } from '../../lib/paths';
+import { getWorkspacePath, HERMES_ROOT } from '../../lib/paths';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -152,13 +152,13 @@ export async function GET(request: Request) {
         };
 
         // Add root README
-        await addVirtualFile(path.join(OPENCLAW_ROOT, 'README.md'), 'Darvis README.md', '__ROOT__/README.md');
+        await addVirtualFile(path.join(HERMES_ROOT, 'README.md'), 'Darvis README.md', '__ROOT__/README.md');
         
-        // Add Mission Control README
-        await addVirtualFile(path.join(OPENCLAW_ROOT, 'tools', 'mc', 'README.md'), 'Mission Control README.md', '__MC__/README.md');
+        // Add Hermes Control README
+        await addVirtualFile(path.join(HERMES_ROOT, 'tools', 'mc', 'README.md'), 'Hermes Control README.md', '__MC__/README.md');
         
         // Add root TODO.md
-        await addVirtualFile(path.join(OPENCLAW_ROOT, 'TODO.md'), 'TODO.md', '__TODO__/TODO.md');
+        await addVirtualFile(path.join(HERMES_ROOT, 'TODO.md'), 'TODO.md', '__TODO__/TODO.md');
 
         fileTree = [];
 

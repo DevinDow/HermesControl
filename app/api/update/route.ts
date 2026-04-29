@@ -10,7 +10,7 @@ const execAsync = promisify(exec);
  */
 export async function GET() {
   try {
-    const { stdout: updateOut } = await execAsync('openclaw update status --json');
+    const { stdout: updateOut } = await execAsync('hermes update status --json');
     const updateData = JSON.parse(updateOut);
     
     return NextResponse.json({
@@ -29,12 +29,12 @@ export async function GET() {
 
 /**
  * POST /api/update
- * Executes 'openclaw update' on the host.
+ * Executes 'hermes update' on the host.
  */
 export async function POST() {
   try {
-    // Note: 'openclaw update' often pulls from pnpm/npm and may restart the gateway service.
-    const { stdout, stderr } = await execAsync('openclaw update');
+    // Note: 'hermes update' often pulls from pnpm/npm and may restart the gateway service.
+    const { stdout, stderr } = await execAsync('hermes update');
     
     return NextResponse.json({
       success: true,

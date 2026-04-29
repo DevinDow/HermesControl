@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { OPENCLAW_ROOT } from '../../lib/paths';
+import { HERMES_ROOT } from '../../lib/paths';
 
 export async function GET() {
   try {
-    // Load openclaw.json from the configured OpenClaw root directory
-    const configPath = path.join(OPENCLAW_ROOT, 'openclaw.json');
+    // Load hermes.json from the configured Hermes root directory
+    const configPath = path.join(HERMES_ROOT, 'hermes.json');
     const configData = await fs.readFile(configPath, 'utf-8');
-    const openclawConfig = JSON.parse(configData);
+    const hermesConfig = JSON.parse(configData);
     
     // Extract models data from the configuration
-    const modelsData = openclawConfig.agents.defaults.models;
+    const modelsData = hermesConfig.agents.defaults.models;
     
     // Format the data for the UI
     const formattedData = Object.entries(modelsData).map(([modelId, config]: [string, any]) => ({
@@ -28,8 +28,8 @@ export async function GET() {
     // Model IDs are typically structured as "provider/model" or "host/provider/model".
     // Educational Context: We extract the primary and fallback configurations 
     // to identify how each model is prioritized in the agent's workflow.
-    const primaryModelId = openclawConfig.agents?.defaults?.model?.primary;
-    const fallbackList = openclawConfig.agents?.defaults?.model?.fallbacks || [];
+    const primaryModelId = hermesConfig.agents?.defaults?.model?.primary;
+    const fallbackList = hermesConfig.agents?.defaults?.model?.fallbacks || [];
     const tree: any[] = [];
 
     formattedData.forEach(modelEntry => {
@@ -91,7 +91,7 @@ export async function GET() {
       platform: process.platform
     });
   } catch (error) {
-    const configPath = path.join(OPENCLAW_ROOT, 'openclaw.json');
+    const configPath = path.join(HERMES_ROOT, 'hermes.json');
     console.error('Failed to fetch models data:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(

@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { OPENCLAW_ROOT, getWorkspacePath } from '../../../lib/paths';
+import { HERMES_ROOT, getWorkspacePath } from '../../../lib/paths';
 
 const OPENCLAW_WORKSPACE = getWorkspacePath();
 
@@ -10,16 +10,16 @@ const OPENCLAW_WORKSPACE = getWorkspacePath();
  */
 function resolveFilePath(filePath: string): string | null {
   if (filePath.startsWith('__ROOT__/')) {
-    return path.join(OPENCLAW_ROOT, filePath.replace('__ROOT__/', ''));
+    return path.join(HERMES_ROOT, filePath.replace('__ROOT__/', ''));
   }
   if (filePath.startsWith('__MC__/')) {
-    return path.join(OPENCLAW_ROOT, 'tools/mc', filePath.replace('__MC__/', ''));
+    return path.join(HERMES_ROOT, 'tools/mc', filePath.replace('__MC__/', ''));
   }
   if (filePath.startsWith('__TODO__/')) {
-    return path.join(OPENCLAW_ROOT, filePath.replace('__TODO__/', ''));
+    return path.join(HERMES_ROOT, filePath.replace('__TODO__/', ''));
   }
   if (filePath.startsWith('__TOOLS__/')) {
-    return path.join(OPENCLAW_ROOT, 'tools', filePath.replace('__TOOLS__/', ''));
+    return path.join(HERMES_ROOT, 'tools', filePath.replace('__TOOLS__/', ''));
   }
   
   const absolutePath = path.resolve(OPENCLAW_WORKSPACE, filePath);

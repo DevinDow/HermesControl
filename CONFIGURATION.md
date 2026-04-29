@@ -1,10 +1,10 @@
-# Mission Control Configuration
+# Hermes Control Configuration
 
 ## Overview
 
-Mission Control now supports being run as a separate repository while still accessing your OpenClaw folder's data and resources.
+Hermes Control now supports being run as a separate repository while still accessing your Hermes folder's data and resources.
 
-## Configuring the OpenClaw Path
+## Configuring the Hermes Path
 
 ### Quick Start
 
@@ -13,24 +13,24 @@ Mission Control now supports being run as a separate repository while still acce
    cp .env.example .env.local
    ```
 
-2. Edit `.env.local` and set the `OPENCLAW_PATH` to your OpenClaw folder:
+2. Edit `.env.local` and set the `HERMES_PATH` to your Hermes folder:
 
    **macOS/Linux:**
    ```
-   OPENCLAW_PATH=/Users/username/.openclaw
+   HERMES_PATH=/Users/username/.hermes
    ```
    or with tilde expansion:
    ```
-   OPENCLAW_PATH=~/.openclaw
+   HERMES_PATH=~/.hermes
    ```
 
    **Windows:**
    ```
-   OPENCLAW_PATH=C:\Users\username\.openclaw
+   HERMES_PATH=C:\Users\username\.hermes
    ```
    or:
    ```
-   OPENCLAW_PATH=C:\OpenClaw
+   HERMES_PATH=C:\Hermes
    ```
 
 3. Restart the development server:
@@ -40,21 +40,21 @@ Mission Control now supports being run as a separate repository while still acce
 
 ### Environment Variables
 
-- **`OPENCLAW_PATH`** (optional)
-  - Full path to your OpenClaw folder
+- **`HERMES_PATH`** (optional)
+  - Full path to your Hermes folder
   - Supports tilde (`~`) expansion on Unix-like systems
-  - If not set, falls back to relative path resolution (for running from `tools/mc` within OpenClaw)
+  - If not set, falls back to relative path resolution (for running from `tools/mc` within Hermes)
 
 ### Path Resolution Priority
 
-The app resolves the OpenClaw path in this order:
+The app resolves the Hermes path in this order:
 
-1. **`OPENCLAW_PATH` environment variable** - If set, use this exact path
+1. **`HERMES_PATH` environment variable** - If set, use this exact path
 2. **Relative path fallback** - Navigate up two directories from the app's location (assumes running from `tools/mc`)
 
 ### What Gets Configured
 
-Once `OPENCLAW_PATH` is set, all of these paths are automatically resolved relative to it:
+Once `HERMES_PATH` is set, all of these paths are automatically resolved relative to it:
 
 - `agents/main/sessions` - Session files
 - `cron` - Cron job configuration and runs
@@ -62,7 +62,7 @@ Once `OPENCLAW_PATH` is set, all of these paths are automatically resolved relat
 - `workspace` - Workspace data, including:
   - `cmd_favorites.json` - Command favorites
   - `skills` - Local skill definitions
-- `.env` - The OpenClaw environment file (for API keys, etc.)
+- `.env` - The Hermes environment file (for API keys, etc.)
 
 ## Notes
 

@@ -1,10 +1,6 @@
-# Mission Control (MC) Dashboard
+# Hermes Control (HC) Dashboard
 
-Mission Control is my custom UI for easier looking at files and data that I like to view to learn and investigate. It runs on the OpenClaw computer, and the port can be accessed from across the network.
-
-It was vibe-coded with 🦾Darvis in a single day while I watched TV, which was an amazing experience! Whenever I think of another "Tool" to add to the left pane, I prompt and he builds. It aggregates data from Google Sheets (Tasks), Google Calendar, local session logs (Sessions), and workspace documentation.
-
-## Tech Stack
+Hermes Control is my custom UI for easier looking at files and data that I like to view to learn and investigate. It runs on the Hermes computer, and the port can be accessed from across the network.
 
 - **[Next.js](https://nextjs.org/docs)** (App Router): The core framework providing server-side rendering and client-side interactivity.
 - **[React](https://react.dev/)**: Used for building the UI components.
@@ -14,14 +10,14 @@ It was vibe-coded with 🦾Darvis in a single day while I watched TV, which was 
 
 ## ⚙️ Configuration
 
-Mission Control now runs as a separate repository. To connect it to your OpenClaw folder:
+Hermes Control now runs as a separate repository. To connect it to your Hermes folder:
 
 1. Copy `.env.example` to `.env.local`
-2. Edit `.env.local` and set `OPENCLAW_PATH` to your OpenClaw folder location
+2. Edit `.env.local` and set `HERMES_PATH` to your Hermes folder location
 
 **Example (.env.local):**
 ```
-OPENCLAW_PATH=~/.openclaw
+HERMES_PATH=~/.hermes
 ```
 
 See [CONFIGURATION.md](CONFIGURATION.md) for detailed setup instructions.
@@ -30,7 +26,7 @@ See [CONFIGURATION.md](CONFIGURATION.md) for detailed setup instructions.
 
 The application follows a three-column layout pattern:
 
-1.  **Global Sidebar (Left):** Manages the `activeTab` state, allowing the user to switch between different tools (Docs, Memory, Jobs, etc.). It also displays global system health and OpenClaw status.
+1.  **Global Sidebar (Left):** Manages the `activeTab` state, allowing the user to switch between different tools (Docs, Memory, Jobs, etc.). It also displays global system health and Hermes status.
 2.  **Tool List (Middle):** Dynamically renders the "Left" component of the active tool. This column usually contains a filterable list or a navigation tree.
 3.  **Detail View (Right):** Dynamically renders the "Right" component of the active tool. This is where file content, logs, or detailed data objects are displayed.
 
@@ -56,16 +52,15 @@ We maximize code efficiency by reusing specialized components across multiple to
 ### Individual Tool Modules
 
 *   **`JobsTool`:** Manages cron jobs and scheduled tasks.
-*   **`TasksTool`:** Interfaces with the Task Prioritization spreadsheet.
 *   **`CmdTool`:** A persistent terminal emulator with "Favorites" support (persisted in `cmd_favorites.json`).
 *   **`GitTool`:** Interactive Git client for staging, committing, and viewing diffs.
 *   **`LogsTool`:** Direct stream of the system health JSONL logs.
-*   **`SkillsTool` / `CalendarTool` / `HelpTool`:** Specialized modules for agent capabilities, scheduling, and documentation.
+*   **`SkillsTool` / `HelpTool`:** Specialized modules for agent capabilities, scheduling, and documentation.
 
 ## 🛠️ Development & Safety
 
 *   **State Management:** Global UI state (selection, navigation, search) is maintained in `app/page.tsx` and passed to tool components via props.
-*   **Error Isolation:** By moving implementation details into separate files, a syntax error in one tool's UI code will only prevent that specific component from rendering, rather than crashing the entire Mission Control dashboard.
+*   **Error Isolation:** By moving implementation details into separate files, a syntax error in one tool's UI code will only prevent that specific component from rendering, rather than crashing the entire Hermes Control dashboard.
 
 ## File Map (Where to Edit)
 
@@ -77,23 +72,23 @@ We maximize code efficiency by reusing specialized components across multiple to
 ### Backend (The Data Handlers)
 The app uses **Next.js Route Handlers** to talk to the machine. These are located in `app/api/`:
 - **`app/api/tasks/route.ts`**: Fetches the Google Sheets "TODO" list using the `gog` CLI.
-- **`app/api/jobs/route.ts`**: Lists OpenClaw jobs and execution metadata.
-- **`app/api/sessions/route.ts`**: Lists OpenClaw sessions.
+- **`app/api/jobs/route.ts`**: Lists Hermes jobs and execution metadata.
+- **`app/api/sessions/route.ts`**: Lists Hermes sessions.
 - **`app/api/files/route.ts`**: Scans the workspace directory to build file trees.
 
 ## How to Launch
 
-Mission Control runs on port **3000** by default. You can launch it using the helper script in the root directory:
+Hermes Control runs on port **3000** by default. You can launch it using the helper script in the root directory:
 
 1. **Launch from the root:**
    ```bash
-   cd ~/.openclaw
+   cd ~/.hermes
    ./mc.sh
    ```
 
 2. **Manual Start (Advanced):**
    ```bash
-   cd ~/.openclaw/tools/mc
+   cd ~/.hermes/tools/mc
    npm run dev
    ```
    *Note: If the port is already in use, you can clear it with: `fuser -k 3000/tcp`*

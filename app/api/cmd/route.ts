@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
-import { OPENCLAW_ROOT } from '../../lib/paths';
+import { HERMES_ROOT } from '../../lib/paths';
 import fs from 'fs';
 import path from 'path';
 
@@ -14,7 +14,7 @@ const execAsync = promisify(exec);
  * platforms (like Windows), we want to be bulletproof about key availability.
  */
 function getExtendedEnv() {
-  const envPath = path.join(OPENCLAW_ROOT, '.env');
+  const envPath = path.join(HERMES_ROOT, '.env');
   const envVars = { ...process.env };
   
   try {
@@ -54,7 +54,7 @@ let commandHistory: Array<{
   timestamp: number;
 }> = [];
 
-let currentCwd = OPENCLAW_ROOT;
+let currentCwd = HERMES_ROOT;
 
 const MAX_HISTORY = 10;
 
@@ -73,10 +73,10 @@ export async function POST(request: Request) {
     let output = '';
     let exitCode = 0;
 
-    // Sanitize Chrome auto-capitalization of OpenClaw
+    // Sanitize Chrome auto-capitalization of Hermes
     let sanitizedCommand = command;
-    if (command.startsWith('OpenClaw')) {
-      sanitizedCommand = 'openclaw' + command.slice(8);
+    if (command.startsWith('Hermes')) {
+      sanitizedCommand = 'hermes' + command.slice(8);
     }
 
     // Diagnostic data for the user
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
           shell: DEFAULT_SHELL,
           env: {
             ...extendedEnv,
-            // Ensure OpenClaw is in the path. Include home dir npm globally installed path for Linux.
+            // Ensure Hermes is in the path. Include home dir npm globally installed path for Linux.
             PATH: isWindows 
               ? process.env.PATH 
               : `${process.env.PATH}:${os.homedir()}/.npm-global/bin`
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
           output += `\n\n[DEBUG HINT]: Shell error detected. Current platform: ${debugInfo.platform}, target shell: ${debugInfo.shell}`;
       }
       if (!debugInfo.hasKey && command.includes('test_model.py')) {
-          output += `\n\n[DEBUG HINT]: OPENROUTER_API_KEY appears to be missing from the environment. Check ${path.join(OPENCLAW_ROOT, '.env')}`;
+          output += `\n\n[DEBUG HINT]: OPENROUTER_API_KEY appears to be missing from the environment. Check ${path.join(HERMES_ROOT, '.env')}`;
       }
       exitCode = error.code || 1;
     }

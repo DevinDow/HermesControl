@@ -74,7 +74,7 @@ export function SystemStatus({
         {gatewayStatus.updateAvailable && (
           <button 
             onClick={async () => {
-              if (!confirm(`Update OpenClaw to v${gatewayStatus.latestVersion}? This will restart the gateway.`)) return;
+              if (!confirm(`Update Hermes to v${gatewayStatus.latestVersion}? This will restart the gateway.`)) return;
               setUpdating(true);
               try {
                 const res = await fetch('/api/update', { method: 'POST' });

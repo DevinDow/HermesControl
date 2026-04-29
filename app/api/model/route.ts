@@ -2,7 +2,7 @@ import { readdir, readFile } from 'fs/promises';
 import { stat } from 'fs/promises';
 import { join } from 'path';
 import { NextResponse } from 'next/server';
-import { OPENCLAW_ROOT } from '../../lib/paths';
+import { HERMES_ROOT } from '../../lib/paths';
 
 /**
  * GET /api/model
@@ -12,7 +12,7 @@ import { OPENCLAW_ROOT } from '../../lib/paths';
  */
 export async function GET() {
   try {
-    const sessionsDir = join(OPENCLAW_ROOT, 'agents/main/sessions');
+    const sessionsDir = join(HERMES_ROOT, 'agents/main/sessions');
     
     // Read all files in the sessions directory
     const files = await readdir(sessionsDir);

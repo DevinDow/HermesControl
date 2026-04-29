@@ -1,6 +1,6 @@
 {
-  "name": "Mission Control",
-  "short_name": "Mission Control",
+  "name": "Hermes Control",
+  "short_name": "Hermes Control",
   "description": "Personal Command Center",
   "start_url": "/",
   "display": "standalone",

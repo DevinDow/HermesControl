@@ -3,7 +3,7 @@ import { promisify } from 'util';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { NextResponse } from 'next/server';
-import { OPENCLAW_ROOT } from '../../../lib/paths';
+import { HERMES_ROOT } from '../../../lib/paths';
 
 const execAsync = promisify(exec);
 
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
       // `git show [hash] --patch` displays the commit message and the full patch
       // We'll parse this into chunks per file for the UI to handle collapsing
       const { stdout } = await execAsync(
-        `git -C ${OPENCLAW_ROOT} show ${commit} --patch`,
+        `git -C ${HERMES_ROOT} show ${commit} --patch`,
         { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 } // Increase maxBuffer to 10MB
       );
       
@@ -59,25 +59,25 @@ export async function GET(request: Request) {
 
     // Standard file-level diff logic (Staged vs Unstaged)
     const { stdout: unstagedStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} diff "${file}"`,
+      `git -C ${HERMES_ROOT} diff "${file}"`,
       { encoding: 'utf8' }
     );
 
     const { stdout: stagedStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} diff --staged "${file}"`,
+      `git -C ${HERMES_ROOT} diff --staged "${file}"`,
       { encoding: 'utf8' }
     );
 
     // Check if the file is untracked
     const { stdout: statusStdout } = await execAsync(
-      `git -C ${OPENCLAW_ROOT} status --porcelain "${file}"`,
+      `git -C ${HERMES_ROOT} status --porcelain "${file}"`,
       { encoding: 'utf8' }
     );
 
     let untracked = null;
     if (statusStdout.startsWith('??')) {
       try {
-        const fullPath = join(OPENCLAW_ROOT, file);
+        const fullPath = join(HERMES_ROOT, file);
         const content = await readFile(fullPath, 'utf8');
         // Format as a pseudo-diff of additions
         untracked = content.split('\n').map(line => `+${line}`).join('\n');
