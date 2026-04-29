@@ -60,10 +60,13 @@ import {
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { formatRelativeTime } from './components/tools/utils/dateFormatting';
-import { LogsToolLeft, LogsToolRight } from './components/tools/LogsTool';
-import { SystemStatus } from './components/SystemStatus';
+import { DocsToolLeft } from './components/tools/DocsTool';
+import { MemoryToolLeft } from './components/tools/MemoryTool';
+import { ModelsToolLeft, ModelsToolRight } from './components/tools/ModelsTool';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SpecsToolLeft } from './components/tools/SpecsTool';
+import { LogsToolLeft } from './components/tools/LogsTool';
+import { SystemStatus } from './components/SystemStatus';
 import { SystemToolLeft } from './components/tools/SystemTool';
 import { ScriptsToolLeft } from './components/tools/ScriptsTool';
 import { CodeToolLeft } from './components/tools/CodeTool';
@@ -73,9 +76,6 @@ import { GitToolLeft, GitToolRight } from './components/tools/GitTool';
 import { SkillsToolLeft, SkillsToolRight } from './components/tools/SkillsTool';
 import { HelpToolLeft, HelpToolRight } from './components/tools/HelpTool';
 import { OldToolLeft } from './components/tools/OldTool';
-import { DocsToolLeft } from './components/tools/DocsTool';
-import { MemoryToolLeft } from './components/tools/MemoryTool';
-import { ModelsToolLeft, ModelsToolRight } from './components/tools/ModelsTool';
 
 
 function cn(...inputs: ClassValue[]) {
@@ -103,6 +103,7 @@ export default function HermesControl() {
   const [memoryTree, setMemoryTree] = useState<any[]>([]);
   const [specsTree, setSpecsTree] = useState<any[]>([]);
   const [docsTree, setDocsTree] = useState<any[]>([]);
+  const [logsTree, setLogsTree] = useState<any[]>([]);
   const [oldTree, setOldTree] = useState<any[]>([]);
   const [systemTree, setSystemTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
@@ -386,6 +387,7 @@ export default function HermesControl() {
     });
     fetchData('/api/files?mode=specs', setSpecsTree, 'files');
     fetchData('/api/files?mode=docs', setDocsTree, 'files');
+    fetchData('/api/files?mode=logs', setLogsTree, 'files');
     fetchData('/api/files?mode=old', setOldTree, 'files');
     fetchData('/api/system', setSystemTree, 'files');
     fetchData('/api/scripts', setScriptsTree, 'files');
@@ -753,11 +755,15 @@ export default function HermesControl() {
   // Dynamic tool rendering
   const renderLeft = () => {
     switch (activeTab) {
-      case 'Logs': return <LogsToolLeft fetchData={fetchData} setLogContent={setLogContent} logs={logs} selectedLog={selectedLog} setSelectedLog={setSelectedLog} />;
-      case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
+      case 'Docs': return <DocsToolLeft docsTree={docsTree} renderFileTree={renderFileTree} />;
+      case 'Models': return <ModelsToolLeft modelsData={modelsData} modelsLoading={loading.models} onSelectModel={setSelectedModel} selectedModelId={selectedModel?.id} />;
+      case 'Memory': return <MemoryToolLeft memoryTree={memoryTree} renderFileTree={renderFileTree} />;
+      case 'Logs': return <LogsToolLeft logsTree={logsTree} renderFileTree={renderFileTree} />;
       case 'Specs': return <SpecsToolLeft specsTree={specsTree} renderFileTree={renderFileTree} />;
       case 'System': return <SystemToolLeft systemTree={systemTree} renderFileTree={renderFileTree} />;
+      case 'Old': return <OldToolLeft oldTree={oldTree} renderFileTree={renderFileTree} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} renderFileTree={renderFileTree} setActiveTab={setActiveTab} />;
+      case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
       case 'Code': return <CodeToolLeft loading={loading} setLoading={setLoading} codeFolderData={codeFolderData} setCodeFolderData={setCodeFolderData} expandedCodeFolders={expandedCodeFolders} setExpandedCodeFolders={setExpandedCodeFolders} codeTree={codeTree} setCodeTree={setCodeTree} fetchData={fetchData} matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
       case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
@@ -772,17 +778,13 @@ export default function HermesControl() {
       }} />;
       case 'Skills': return <SkillsToolLeft skills={skills} matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setSelectedSessionId={setSelectedSessionId} selectedSkillId={selectedSkillId} />;
       case 'Help': return <HelpToolLeft setSelectedHelpId={setSelectedHelpId} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setSelectedSessionId={setSelectedSessionId} selectedHelpId={selectedHelpId} />;
-      case 'Old': return <OldToolLeft oldTree={oldTree} renderFileTree={renderFileTree} />;
-      case 'Docs': return <DocsToolLeft docsTree={docsTree} renderFileTree={renderFileTree} />;
-      case 'Models': return <ModelsToolLeft modelsData={modelsData} modelsLoading={loading.models} onSelectModel={setSelectedModel} selectedModelId={selectedModel?.id} />;
-      case 'Memory': return <MemoryToolLeft memoryTree={memoryTree} renderFileTree={renderFileTree} />;
       default: return null;
     }
   };
 
   const renderRight = () => {
     switch (activeTab) {
-      case 'Logs': return <LogsToolRight logContent={logContent} loading={loading} selectedLog={selectedLog} />;
+      case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
       case 'Specs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
