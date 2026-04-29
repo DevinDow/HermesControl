@@ -244,7 +244,7 @@ export function FileViewerRight({
                   return (
                     <li className={cn("flex gap-3 text-[14px] text-[#FFF8DC] mb-2", listType === 'ordered' && "[counter-increment:li]")} {...props}>
                       <span className="text-[#FFBF00] mt-1.5 font-mono min-w-[1.5em] text-right">
-                        {listType === 'ordered' ? <span className="before:content-[counter(li)'.']" /> : 'â€¢'}
+                        {listType === 'ordered' ? <span className="before:content-[counter(li)'.']" /> : '•'}
                       </span>
                       <div className="flex-1">
                         {highlightMatches(children, fileSearch)}
