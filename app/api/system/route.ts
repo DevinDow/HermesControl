@@ -43,8 +43,8 @@ async function getJsonFiles(dir: string, baseDir: string): Promise<any[]> {
 
 export async function GET() {
   try {
-    const { HERMES_ROOT: OPENCLAW_ROOT } = await import('../../lib/paths');
-    const baseDir = OPENCLAW_ROOT;
+    const { HERMES_ROOT } = await import('../../lib/paths');
+    const baseDir = HERMES_ROOT;
     const files = await getJsonFiles(baseDir, baseDir);
     return NextResponse.json(files);
   } catch (error) {

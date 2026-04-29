@@ -3,7 +3,7 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { HERMES_ROOT, getWorkspacePath } from '../../../lib/paths';
 
-const OPENCLAW_WORKSPACE = getWorkspacePath();
+const HERMES_WORKSPACE = getWorkspacePath();
 
 /**
  * Resolves a virtual or relative path to an absolute physical path.
@@ -22,8 +22,8 @@ function resolveFilePath(filePath: string): string | null {
     return path.join(HERMES_ROOT, 'tools', filePath.replace('__TOOLS__/', ''));
   }
   
-  const absolutePath = path.resolve(OPENCLAW_WORKSPACE, filePath);
-  if (absolutePath.startsWith(OPENCLAW_WORKSPACE)) {
+  const absolutePath = path.resolve(HERMES_WORKSPACE, filePath);
+  if (absolutePath.startsWith(HERMES_WORKSPACE)) {
     return absolutePath;
   }
   
