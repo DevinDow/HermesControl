@@ -241,7 +241,7 @@ export function GitToolLeft({ gitStatus, selectedGitFile, setSelectedGitFile, se
                                 disabled={gitLoading}
                                 className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-green-500/20 text-green-500 hover:bg-green-500/30 transition-all text-[9px] font-black"
                               >
-                                <Send size={10} /> {gitStatus.aheadCount} AHEAD Â· PUSH
+                                <Send size={10} /> {gitStatus.aheadCount} AHEAD · PUSH
                               </button>
                             )}
                           </div>
