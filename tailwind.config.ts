@@ -11,6 +11,11 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "primary-gold": "var(--primary-gold)",
+        "accent-amber": "var(--accent-amber)",
+        "body-cornsilk": "var(--body-cornsilk)",
+        "dimmed-darkgoldenrod": "var(--dimmed-darkgoldenrod)",
+        "notes-lightyellow": "var(--notes-lightyellow)",
       },
     },
   },

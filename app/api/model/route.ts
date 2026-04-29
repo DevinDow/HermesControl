@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'fs/promises';
+﻿import { readdir, readFile } from 'fs/promises';
 import { stat } from 'fs/promises';
 import { join } from 'path';
 import { NextResponse } from 'next/server';
@@ -92,3 +92,4 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

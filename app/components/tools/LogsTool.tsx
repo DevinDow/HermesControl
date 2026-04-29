@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Activity, Loader2, Brain, ChevronRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -12,11 +12,11 @@ export function LogsToolLeft({ fetchData, setHealthLog, setModelHealthLog, selec
         }}
         className={cn(
           "w-full text-left p-3 rounded-lg border transition-all group flex items-center gap-3",
-          selectedLog === 'system_health_log' ? "border-[#5E6AD2] bg-[#111111]" : "border-transparent hover:bg-[#111111]/50"
+          selectedLog === 'system_health_log' ? "border-[#FFBF00] bg-[#111111]" : "border-transparent hover:bg-[#111111]/50"
         )}
       >
-        <div className={cn("p-1.5 rounded bg-[#161616] border", selectedLog === 'system_health_log' ? "border-[#5E6AD2] text-[#5E6AD2]" : "border-[#1F1F1F] text-[#8A8A8A]")}><Activity size={14} /></div>
-        <span className={cn("text-[13px] font-medium", selectedLog === 'system_health_log' ? "text-[#EDEDED]" : "text-[#8A8A8A]")}>system_health_log.jsonl</span>
+        <div className={cn("p-1.5 rounded bg-[#161616] border", selectedLog === 'system_health_log' ? "border-[#FFBF00] text-[#FFBF00]" : "border-[#1F1F1F] text-[#B8860B]")}><Activity size={14} /></div>
+        <span className={cn("text-[13px] font-medium", selectedLog === 'system_health_log' ? "text-[#FFF8DC]" : "text-[#B8860B]")}>system_health_log.jsonl</span>
       </button>
       <button
         onClick={() => {
@@ -25,11 +25,11 @@ export function LogsToolLeft({ fetchData, setHealthLog, setModelHealthLog, selec
         }}
         className={cn(
           "w-full text-left p-3 rounded-lg border transition-all group flex items-center gap-3",
-          selectedLog === 'model_health_log' ? "border-[#5E6AD2] bg-[#111111]" : "border-transparent hover:bg-[#111111]/50"
+          selectedLog === 'model_health_log' ? "border-[#FFBF00] bg-[#111111]" : "border-transparent hover:bg-[#111111]/50"
         )}
       >
-        <div className={cn("p-1.5 rounded bg-[#161616] border", selectedLog === 'model_health_log' ? "border-[#5E6AD2] text-[#5E6AD2]" : "border-[#1F1F1F] text-[#8A8A8A]")}><Brain size={14} /></div>
-        <span className={cn("text-[13px] font-medium", selectedLog === 'model_health_log' ? "text-[#EDEDED]" : "text-[#8A8A8A]")}>model_health_log.jsonl</span>
+        <div className={cn("p-1.5 rounded bg-[#161616] border", selectedLog === 'model_health_log' ? "border-[#FFBF00] text-[#FFBF00]" : "border-[#1F1F1F] text-[#B8860B]")}><Brain size={14} /></div>
+        <span className={cn("text-[13px] font-medium", selectedLog === 'model_health_log' ? "text-[#FFF8DC]" : "text-[#B8860B]")}>model_health_log.jsonl</span>
       </button>
     </div>
   );
@@ -43,10 +43,10 @@ export function LogsToolRight({ healthLog, modelHealthLog, loading, selectedLog 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="p-6 border-b border-[#1F1F1F] bg-[#0D0D0D] flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-white">{title}</h2>
+        <h2 className="text-lg font-semibold text-body-cornsilk">{title}</h2>
       </div>
       <div className="flex-1 overflow-y-auto p-6 bg-[#080808]">
-        {loading.logs ? <Loader2 size={32} className="text-[#5E6AD2] animate-spin mx-auto mt-20" /> :
+        {loading.logs ? <Loader2 size={32} className="text-[#FFBF00] animate-spin mx-auto mt-20" /> :
           renderHealthLogEntries(currentLogContent, 10, logType)
         }
       </div>
@@ -74,12 +74,12 @@ export function renderHealthLogEntries(content: string, limit: number, logType: 
 
           return (
             <details key={idx} className="group bg-[#0D0D0D] border rounded-lg overflow-hidden transition-all">
-              <summary className="px-4 py-2 text-[11px] font-mono text-white cursor-pointer hover:bg-[#161616] flex items-center gap-2 select-none">
-                <ChevronRight size={12} className="group-open:rotate-90 transition-transform text-[#5E6AD2]" />
+              <summary className="px-4 py-2 text-[11px] font-mono text-body-cornsilk cursor-pointer hover:bg-[#161616] flex items-center gap-2 select-none">
+                <ChevronRight size={12} className="group-open:rotate-90 transition-transform text-[#FFBF00]" />
                 <span className="truncate flex-1">{summary}</span>
               </summary>
               <div className="px-4 py-3 bg-[#080808] border-t border-[#1F1F1F]">
-                <pre className="text-[11px] font-mono text-white whitespace-pre-wrap leading-relaxed">
+                <pre className="text-[11px] font-mono text-body-cornsilk whitespace-pre-wrap leading-relaxed">
                   {JSON.stringify(parsed, null, 2)}
                 </pre>
               </div>
@@ -92,3 +92,5 @@ export function renderHealthLogEntries(content: string, limit: number, logType: 
     </div>
   );
 }
+
+

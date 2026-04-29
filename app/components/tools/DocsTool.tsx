@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 export function DocsToolLeft({ docsTree, renderFileTree }: any) {
   return (
     <>
@@ -6,3 +6,5 @@ export function DocsToolLeft({ docsTree, renderFileTree }: any) {
     </>
   );
 }
+
+

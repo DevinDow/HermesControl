@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -52,3 +52,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to load system files' }, { status: 500 });
   }
 }
+

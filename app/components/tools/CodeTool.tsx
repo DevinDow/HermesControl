@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ChevronRight, Folder, FileText, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -70,11 +70,11 @@ export function CodeToolLeft({
               style={{ paddingLeft }}
               className={cn(
                 "w-full flex items-center gap-2 py-1.5 text-[12px] transition-all hover:bg-[#111111]/50 group",
-                isExpanded ? "text-[#5E6AD2] font-bold" : "text-[#8A8A8A] hover:text-[#EDEDED]"
+                isExpanded ? "text-[#FFBF00] font-bold" : "text-[#B8860B] hover:text-[#FFF8DC]"
               )}
             >
-              <ChevronRight size={14} className={cn("transition-transform", isExpanded ? "rotate-90 text-[#5E6AD2]" : "text-[#666666]")} />
-              <Folder size={12} className={isExpanded ? "text-[#5E6AD2]" : "text-[#666666] group-hover:text-[#8A8A8A]"} />
+              <ChevronRight size={14} className={cn("transition-transform", isExpanded ? "rotate-90 text-[#FFBF00]" : "text-[#B8860B]")} />
+              <Folder size={12} className={isExpanded ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#B8860B]"} />
               <span className="truncate">{node.name}</span>
             </button>
             {isExpanded && children.length > 0 && (
@@ -94,16 +94,16 @@ export function CodeToolLeft({
             className={cn(
               "w-full text-left py-1.5 pr-2 text-[12px] transition-all flex items-center gap-2 group",
               selectedFilePath === node.path
-                ? "bg-[#111111] text-white"
-                : "text-[#8A8A8A] hover:text-[#EDEDED] hover:bg-[#111111]/50"
+                ? "bg-[#111111] text-body-cornsilk"
+                : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#111111]/50"
             )}
           >
             <FileText size={12} className={cn(
               "shrink-0 transition-colors",
-              selectedFilePath === node.path ? "text-[#5E6AD2]" : "text-[#666666] group-hover:text-[#8A8A8A]"
+              selectedFilePath === node.path ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#B8860B]"
             )} />
             <span className="truncate flex-1">{node.name}</span>
-            {node.size && <span className="text-[9px] text-[#555555] font-mono shrink-0">{(node.size / 1024).toFixed(1)} KB</span>}
+            {node.size && <span className="text-[9px] text-[#B8860B] font-mono shrink-0">{(node.size / 1024).toFixed(1)} KB</span>}
           </button>
         );
       }
@@ -114,7 +114,7 @@ export function CodeToolLeft({
     <div className="space-y-1 pr-2">
       {loading.code && Object.keys(codeFolderData).length === 0 ? (
         <div className="flex items-center justify-center py-10">
-          <Loader2 size={20} className="text-[#5E6AD2] animate-spin" />
+          <Loader2 size={20} className="text-[#FFBF00] animate-spin" />
         </div>
       ) : (
         renderCodeTree(codeTree)
@@ -122,3 +122,5 @@ export function CodeToolLeft({
     </div>
   );
 }
+
+

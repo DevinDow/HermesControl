@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+﻿import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { getSkillsPath, getSystemSkillsPath } from '../../lib/paths';
@@ -73,3 +73,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to load skills' }, { status: 500 });
   }
 }
+

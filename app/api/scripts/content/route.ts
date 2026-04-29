@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+﻿import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { getWorkspacePath } from '../../../lib/paths';
@@ -27,3 +27,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Failed to read script' }, { status: 500 });
   }
 }
+

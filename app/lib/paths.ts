@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import os from 'os';
 
 /**
@@ -38,3 +38,4 @@ export const getSkillsPath = () => path.join(getWorkspacePath(), 'skills');
 // For system-installed skills, it may still fallback or install locally.
 // E.g., on Windows, the user likely won't have these, but we can resolve it gracefully.
 export const getSystemSkillsPath = () => path.join(os.homedir(), '.npm-global/lib/node_modules/hermes/skills');
+

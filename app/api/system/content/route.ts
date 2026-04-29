@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { HERMES_ROOT } from '../../../lib/paths';
@@ -36,3 +36,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Failed to read system file' }, { status: 500 });
   }
 }
+

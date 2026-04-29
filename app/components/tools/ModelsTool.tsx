@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Folder, BrainCog, ChevronRight, History, Users, Activity, Play, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -65,7 +65,7 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
             {/* Category Header Button */}
             <button
               onClick={() => toggleFolder(currentPath)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#5E6AD2] transition-all hover:bg-[#111111]/50 group"
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] transition-all hover:bg-[#111111]/50 group"
             >
               {/* Chevron indicates if the branch is open (90deg rotation) or closed */}
               <ChevronRight size={12} className={cn("transition-transform", isExpanded ? "rotate-90" : "")} />
@@ -74,7 +74,7 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
 
               {/* Educational Hint: Displays the 'role' as defined by the API for learning purposes */}
               {node.role && (
-                <span className="text-[9px] text-[#555555] ml-auto font-mono uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[9px] text-[#B8860B] ml-auto font-mono uppercase opacity-0 group-hover:opacity-100 transition-opacity">
                   {node.role}
                 </span>
               )}
@@ -99,15 +99,15 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
             className={cn(
               "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex flex-col gap-0.5 border border-transparent group",
               selectedModelId === node.id
-                ? "bg-[#111111] border-[#1F1F1F] text-white shadow-sm"
-                : "text-[#8A8A8A] hover:text-[#EDEDED] hover:bg-[#111111]/50"
+                ? "bg-[#111111] border-[#1F1F1F] text-body-cornsilk shadow-sm"
+                : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#111111]/50"
             )}
           >
             <div className="flex items-center gap-2 w-full">
               {/* Visual icon for Brain/AI indicates a leaf model node */}
               <BrainCog size={14} className={cn(
                 "transition-colors",
-                selectedModelId === node.id ? "text-[#5E6AD2]" : "text-[#666666] group-hover:text-[#8A8A8A]"
+                selectedModelId === node.id ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#B8860B]"
               )} />
               <span className="truncate flex-1 font-medium">{node.name}</span>
 
@@ -126,11 +126,11 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
 
             {/* Context window and Alias meta-data in a compact monospaced font */}
             <div className="flex items-center gap-2 w-full text-[10px] font-mono">
-              <span className="text-[#555555] opacity-80">{node.contextWindowFormatted} tokens</span>
+              <span className="text-[#B8860B] opacity-80">{node.contextWindowFormatted} tokens</span>
               {node.alias && (
                 <>
-                  <span className="text-[#555555] mx-1">|</span>
-                  <span className="text-[#5E6AD2]/80">{node.alias}</span>
+                  <span className="text-[#B8860B] mx-1">|</span>
+                  <span className="text-[#FFBF00]/80">{node.alias}</span>
                 </>
               )}
             </div>
@@ -145,8 +145,8 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
     return (
       <div className="p-4">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-[#5E6AD2] border-t-transparent rounded-full animate-spin" />
-          <span className="text-[13px] text-[#5E6AD2]">Initializing model tree...</span>
+          <div className="w-4 h-4 border-2 border-[#FFBF00] border-t-transparent rounded-full animate-spin" />
+          <span className="text-[13px] text-[#FFBF00]">Initializing model tree...</span>
         </div>
       </div>
     );
@@ -156,7 +156,7 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
   if (!modelsData?.tree) {
     return (
       <div className="p-4">
-        <span className="text-[13px] text-[#8A8A8A]">No models hierarchy available</span>
+        <span className="text-[13px] text-[#B8860B]">No models hierarchy available</span>
       </div>
     );
   }
@@ -165,7 +165,7 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
   return (
     <div className="p-4 space-y-3">
       <div className="flex items-center gap-2 pb-2 border-b border-[#1F1F1F]">
-        <span className="text-[13px] font-medium text-[#5E6AD2]">Available Models</span>
+        <span className="text-[13px] font-medium text-[#FFBF00]">Available Models</span>
       </div>
 
       {/* Start the recursive render from the top-level 'tree' returned by the API */}
@@ -223,7 +223,7 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
   };
 
   if (!selectedModel) {
-    return <div className="p-4 text-[#555555] text-[13px]">Select a model to view details</div>;
+    return <div className="p-4 text-[#B8860B] text-[13px]">Select a model to view details</div>;
   }
 
   const isOpenRouter = selectedModel.id.startsWith('openrouter/');
@@ -231,7 +231,7 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
     <div className="flex-1 overflow-y-auto p-6 space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-[18px] font-semibold text-[#EDEDED]">{selectedModel.name}</h2>
+          <h2 className="text-[18px] font-semibold text-[#FFF8DC]">{selectedModel.name}</h2>
           {selectedModel.isPrimary && (
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1B2B1B] text-[#4ADE80] border border-[#2B4B2B] uppercase tracking-wider shadow-sm">Primary</span>
           )}
@@ -251,7 +251,7 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
               value={testPrompt}
               onChange={(e) => setTestPrompt(e.target.value)}
               placeholder="Test Prompt..."
-              className="w-full bg-[#080808] border border-[#1F1F1F] rounded-md px-3 py-1.5 text-[12px] text-[#EDEDED] focus:outline-none focus:border-[#5E6AD2]/50 resize-none h-[48px] scrollbar-thin scrollbar-thumb-[#1F1F1F] scrollbar-track-transparent"
+              className="w-full bg-[#080808] border border-[#1F1F1F] rounded-md px-3 py-1.5 text-[12px] text-[#FFF8DC] focus:outline-none focus:border-[#FFBF00]/50 resize-none h-[48px] scrollbar-thin scrollbar-thumb-[#1F1F1F] scrollbar-track-transparent"
             />
             <button
               onClick={handleTestModel}
@@ -259,8 +259,8 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
               className={cn(
                 "flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border",
                 isTesting
-                  ? "bg-[#1A1A1A] border-[#1F1F1F] text-[#555555] cursor-not-allowed"
-                  : "bg-[#5E6AD2]/10 border-[#5E6AD2]/20 text-[#5E6AD2] hover:bg-[#5E6AD2]/20 shadow-[0_0_15px_-5px_#5E6AD233]"
+                  ? "bg-[#1A1A1A] border-[#1F1F1F] text-[#B8860B] cursor-not-allowed"
+                  : "bg-[#FFBF00]/10 border-[#FFBF00]/20 text-[#FFBF00] hover:bg-[#FFBF00]/20 shadow-[0_0_15px_-5px_#FFBF0033]"
               )}
             >
               {isTesting ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} fill="currentColor" />}
@@ -269,15 +269,15 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
           </div>
         )}
       </div>
-      <p className="text-[13px] text-[#8A8A8A] font-mono">{selectedModel.id}</p>
+      <p className="text-[13px] text-[#B8860B] font-mono">{selectedModel.id}</p>
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-[#111111] p-4 rounded-lg border border-[#1F1F1F]">
-          <span className="text-[11px] uppercase text-[#555555]">Context Window</span>
-          <div className="text-[14px] text-[#EDEDED]">{selectedModel.contextWindowFormatted}</div>
+          <span className="text-[11px] uppercase text-[#B8860B]">Context Window</span>
+          <div className="text-[14px] text-[#FFF8DC]">{selectedModel.contextWindowFormatted}</div>
         </div>
         <div className="bg-[#111111] p-4 rounded-lg border border-[#1F1F1F]">
-          <span className="text-[11px] uppercase text-[#555555]">Alias</span>
-          <div className="text-[14px] text-[#EDEDED]">{selectedModel.alias || 'None'}</div>
+          <span className="text-[11px] uppercase text-[#B8860B]">Alias</span>
+          <div className="text-[14px] text-[#FFF8DC]">{selectedModel.alias || 'None'}</div>
         </div>
       </div>
 
@@ -286,17 +286,17 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
         <div className="space-y-4 pt-6 border-t border-[#1F1F1F] animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Activity size={16} className="text-[#5E6AD2]" />
-              <h3 className="text-[14px] font-semibold text-[#EDEDED]">OpenRouter Connectivity Test Result</h3>
+              <Activity size={16} className="text-[#FFBF00]" />
+              <h3 className="text-[14px] font-semibold text-[#FFF8DC]">OpenRouter Connectivity Test Result</h3>
             </div>
             <button
               onClick={() => setTestResult(null)}
-              className="text-[10px] text-[#555555] hover:text-[#EDEDED] uppercase font-bold tracking-tight"
+              className="text-[10px] text-[#B8860B] hover:text-[#FFF8DC] uppercase font-bold tracking-tight"
             >
               Clear Result
             </button>
           </div>
-          <pre className="bg-[#080808] border border-[#1F1F1F] p-4 rounded-xl overflow-x-auto whitespace-pre-wrap break-words text-[11px] font-mono text-[#EDEDED] leading-relaxed max-h-[300px] shadow-inner">
+          <pre className="bg-[#080808] border border-[#1F1F1F] p-4 rounded-xl overflow-x-auto whitespace-pre-wrap break-words text-[11px] font-mono text-[#FFF8DC] leading-relaxed max-h-[300px] shadow-inner">
             {testResult}
           </pre>
         </div>
@@ -310,8 +310,8 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
       */}
       <div className="space-y-4 pt-6 border-t border-[#1F1F1F]">
         <div className="flex items-center gap-2">
-          <History size={16} className="text-[#5E6AD2]" />
-          <h3 className="text-[14px] font-semibold text-[#EDEDED]">Recent Sessions using this Model</h3>
+          <History size={16} className="text-[#FFBF00]" />
+          <h3 className="text-[14px] font-semibold text-[#FFF8DC]">Recent Sessions using this Model</h3>
         </div>
 
         {(() => {
@@ -331,7 +331,7 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
           if (matchingSessions.length === 0) {
             return (
               <div className="bg-[#111111] p-8 rounded-lg border border-[#1F1F1F] border-dashed text-center">
-                <span className="text-[13px] text-[#555555]">No session history found for this model.</span>
+                <span className="text-[13px] text-[#B8860B]">No session history found for this model.</span>
               </div>
             );
           }
@@ -353,24 +353,24 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
                   <button
                     key={session.sessionId}
                     onClick={() => onNavigateToSession(session.sessionId, targetTab)}
-                    className="w-full text-left p-3 rounded-xl bg-[#111111] border border-[#191919] hover:border-[#5E6AD2]/50 hover:bg-[#151515] transition-all group"
+                    className="w-full text-left p-3 rounded-xl bg-[#111111] border border-[#191919] hover:border-[#FFBF00]/50 hover:bg-[#151515] transition-all group"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 overflow-hidden">
                           <Icon size={12} className={cn(
                             "transition-colors",
-                            isToday ? "text-[#4ADE80]" : "text-[#555555] opacity-60"
+                            isToday ? "text-[#4ADE80]" : "text-[#B8860B] opacity-60"
                           )} />
-                          <span className="text-[13px] text-[#EDEDED] font-medium truncate group-hover:text-[#5E6AD2] transition-colors">
+                          <span className="text-[13px] text-[#FFF8DC] font-medium truncate group-hover:text-[#FFBF00] transition-colors">
                             {session.label}
                           </span>
                         </div>
-                        <span className="text-[10px] text-[#555555] font-mono shrink-0">
+                        <span className="text-[10px] text-[#B8860B] font-mono shrink-0">
                           {new Date(session.updatedAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <div className="text-[11px] text-[#8A8A8A] font-mono truncate mt-1 opacity-60 ml-5">
+                      <div className="text-[11px] text-[#B8860B] font-mono truncate mt-1 opacity-60 ml-5">
                         Target: {targetTab} ID: {session.sessionId.substring(0, 8)}...
                       </div>
                     </div>
@@ -384,3 +384,5 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
     </div>
   );
 }
+
+

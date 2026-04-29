@@ -1,14 +1,14 @@
-// Formats a Unix ms timestamp into a human-readable relative time string,
+﻿// Formats a Unix ms timestamp into a human-readable relative time string,
 // paired with a Tailwind color class that visually encodes how recent it is.
 //
 // Color scale (Activity Thermal Layer):
-//   < 30 mins  → red-500    (hot / very recent)
-//   < 2 hours  → yellow-500 (warm)
-//   < 6 hours  → green-500  (today, older)
-//   same day   → white      (today, much older)
-//   yesterday  → #8A8A8A   (light gray)
-//   < 7 days   → #8A8A8A   (light gray)
-//   older      → #666666   (dark gray)
+//   < 30 mins  â†’ red-500    (hot / very recent)
+//   < 2 hours  â†’ yellow-500 (warm)
+//   < 6 hours  â†’ green-500  (today, older)
+//   same day   â†’ white      (today, much older)
+//   yesterday  â†’ #8A8A8A   (light gray)
+//   < 7 days   â†’ #8A8A8A   (light gray)
+//   older      â†’ #666666   (dark gray)
 export function formatRelativeTime(timestamp: number): { text: string; color: string } {
   const now = new Date();
   const then = new Date(timestamp);
@@ -26,12 +26,12 @@ export function formatRelativeTime(timestamp: number): { text: string; color: st
   const ageHours = ageMins / 60;
 
   if (thenDate.getTime() === today.getTime()) {
-    // Happened today — use the thermal color scale
+    // Happened today â€” use the thermal color scale
     let color: string;
     if (ageMins < 30) color = "text-red-500 font-bold";
     else if (ageHours < 2) color = "text-yellow-500 font-bold";
     else if (ageHours < 6) color = "text-green-500/80 font-bold";
-    else color = "text-white font-bold";
+    else color = "text-body-cornsilk font-bold";
 
     const relativeStr =
       ageMins < 1 ? "(just now)" :
@@ -85,3 +85,4 @@ export function formatSessionTime(timestamp: number): { text: string; color: str
 
   return { text: `${timeStr} ${durationStr}`, color };
 }
+

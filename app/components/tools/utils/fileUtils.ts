@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Saves file content to the server via the /api/files/content endpoint.
  *
  * @param path     - The full path of the file to save.
@@ -19,3 +19,4 @@ export async function saveFile(path: string, content: string): Promise<true> {
 
   return true;
 }
+

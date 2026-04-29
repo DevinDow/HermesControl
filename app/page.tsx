@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -688,7 +688,7 @@ export default function HermesControl() {
                 }}
                 className={cn(
                   "w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold transition-all hover:bg-[#111111]/50 group",
-                  isExpanded ? "text-[#5E6AD2]" : "text-[#555555]"
+                  isExpanded ? "text-[#FFBF00]" : "text-[#B8860B]"
                 )}
               >
                 <ChevronRight size={12} className={cn("transition-transform", isExpanded ? "rotate-90" : "")} />
@@ -706,7 +706,7 @@ export default function HermesControl() {
 
         return (
           <div key={node.path}>
-            <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#5E6AD2] uppercase tracking-wider">
+            <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
               <Folder size={12} />
               {node.name}
             </div>
@@ -723,15 +723,15 @@ export default function HermesControl() {
             onClick={() => { setSelectedFilePath(node.path); setSelectedSessionId(null); setSelectedTaskId(null); setSelectedEventId(null); }}
             className={cn(
               "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex flex-col gap-0.5 border border-transparent group",
-              selectedFilePath === node.path
-                ? "bg-[#111111] text-white border-[#1F1F1F]"
-                : "text-[#8A8A8A] hover:text-[#EDEDED] hover:bg-[#111111]/50"
+                selectedFilePath === node.path
+                  ? "bg-[#111111] text-[#FFF8DC] border-[#1F1F1F]"
+                  : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#111111]/50"
             )}
           >
             <div className="flex items-center gap-2 w-full">
               <FileText size={14} className={cn(
                 "shrink-0 transition-colors",
-                selectedFilePath === node.path ? "text-[#5E6AD2]" : "text-[#666666] group-hover:text-[#8A8A8A]"
+                selectedFilePath === node.path ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#B8860B]"
               )} />
               <span className={cn("truncate flex-1", node.isArchived && "line-through")}>{node.name}</span>
             </div>
@@ -797,7 +797,7 @@ export default function HermesControl() {
       case 'Models': return <ModelsToolRight selectedModel={selectedModel} allSessions={history} onNavigateToSession={navigateToSession} platform={modelsData?.platform} />;
       case 'Docs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Memory': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      default: return <div className="p-8 text-[#555555]">Select a tool</div>;
+      default: return <div className="p-8 text-[#B8860B]">Select a tool</div>;
     }
   };
 
@@ -828,14 +828,14 @@ export default function HermesControl() {
   );
 
   return (
-    <div className="flex h-screen bg-[#0A0A0A] text-[#EDEDED] font-sans selection:bg-[#5E6AD2]/30">
+    <div className="flex h-screen bg-[#0A0A0A] text-[#FFF8DC] font-sans selection:bg-[#FFBF00]/30">
       {/* Sidebar */}
       <aside className="flex w-[60px] md:w-[240px] bg-[#080808] flex-col border-r border-[#1F1F1F] h-screen overflow-hidden">
         <div className="p-2 md:p-4 flex items-center gap-0 md:gap-3 mb-2 shrink-0 justify-center md:justify-start">
           <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center bg-[#111111] border border-[#1F1F1F] shrink-0">
             <img src="/avatars/darvis_head.jpg" alt="Darvis" className="w-full h-full object-cover" />
           </div>
-          <span className="hidden md:block text-[13px] font-semibold tracking-tight text-[#5E6AD2] truncate">Hermes Control</span>
+          <span className="hidden md:block text-[13px] font-semibold tracking-tight text-[#FFD700] truncate">Hermes Control</span>
         </div>
 
         <nav className="flex-1 px-1.5 md:px-2 space-y-0.5 overflow-y-auto scrollbar-thin scrollbar-thumb-[#1F1F1F] scrollbar-track-transparent">
@@ -906,10 +906,10 @@ export default function HermesControl() {
               }}
               className={cn(
                 "w-full flex items-center gap-0 md:gap-2.5 px-2 md:px-3 py-1.5 rounded-md text-[13px] font-medium transition-all group justify-center md:justify-start",
-                activeTab === item.name ? "bg-[#1F1F1F] text-[#FFFFFF]" : "text-[#8A8A8A] hover:text-[#EDEDED] hover:bg-[#161616]"
+                activeTab === item.name ? "bg-[#1F1F1F] text-[#FFF8DC]" : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#161616]"
               )}
             >
-              <item.icon size={16} className={cn("transition-colors shrink-0", activeTab === item.name ? "text-[#5E6AD2]" : "text-[#8A8A8A] group-hover:text-[#EDEDED]")} />
+              <item.icon size={16} className={cn("transition-colors shrink-0", activeTab === item.name ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#FFF8DC]")} />
               <span className="hidden md:block truncate">{item.name}</span>
             </button>
           ))}
@@ -955,7 +955,7 @@ export default function HermesControl() {
             hasSelection ? "hidden sm:flex" : "flex"
           )}>
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#555555]" size={14} />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#B8860B]" size={14} />
               <input
                 type="text"
                 placeholder={`Filter ${activeTab.toLowerCase()}...`}
@@ -978,7 +978,7 @@ export default function HermesControl() {
               <div className="flex items-center p-2 border-b border-[#1F1F1F] sm:hidden bg-[#0A0A0A]/50 backdrop-blur-md">
                 <button
                   onClick={clearSelection}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium text-[#8A8A8A] hover:text-[#EDEDED] hover:bg-[#161616] transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#161616] transition-all"
                 >
                   <ChevronLeft size={16} />
                   <span>Back to list</span>
@@ -992,3 +992,5 @@ export default function HermesControl() {
     </div>
   );
 }
+
+

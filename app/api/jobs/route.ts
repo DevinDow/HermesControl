@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+﻿import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse, NextRequest } from 'next/server';
 import { getCronPath } from '../../lib/paths';
@@ -81,3 +81,4 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to update job' }, { status: 500 });
   }
 }
+

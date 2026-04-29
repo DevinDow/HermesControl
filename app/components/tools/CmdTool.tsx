@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Play, Loader2, Terminal, HeartPlus, HeartOff } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -44,7 +44,7 @@ export function CmdToolLeft({
   return (
     <div className="space-y-3">
       <div className="px-2 pb-2">
-        <div className="text-[10px] font-bold text-[#555555] uppercase tracking-widest mb-2">Execute Command</div>
+        <div className="text-[10px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Execute Command</div>
         <form 
           onSubmit={async (e) => {
             e.preventDefault();
@@ -77,7 +77,7 @@ export function CmdToolLeft({
             placeholder="ls -la..."
             value={commandInput}
             onChange={(e) => setCommandInput(e.target.value)}
-            className="w-full bg-[#0D0D0D] border border-[#1F1F1F] rounded-md px-3 py-2 text-[12px] font-mono text-[#EDEDED] focus:outline-none focus:border-[#5E6AD2]/50 pr-16"
+            className="w-full bg-[#0D0D0D] border border-[#1F1F1F] rounded-md px-3 py-2 text-[12px] font-mono text-[#FFF8DC] focus:outline-none focus:border-[#FFBF00]/50 pr-16"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
             <button
@@ -85,14 +85,14 @@ export function CmdToolLeft({
               onClick={() => {
                 if (commandInput) handleToggleFavorite(commandInput, favorites.includes(commandInput));
               }}
-              className={cn("p-1 rounded hover:bg-[#1F1F1F] transition-colors text-[#555555]", commandInput && favorites.includes(commandInput) ? "text-red-500" : "")}
+              className={cn("p-1 rounded hover:bg-[#1F1F1F] transition-colors text-[#B8860B]", commandInput && favorites.includes(commandInput) ? "text-red-500" : "")}
             >
               <HeartPlus size={14} className={commandInput && favorites.includes(commandInput) ? "text-red-500" : ""} />
             </button>
             <button 
               type="submit"
               disabled={loading.cmd}
-              className="p-1 text-[#5E6AD2] hover:text-white transition-colors disabled:opacity-50"
+              className="p-1 text-[#FFBF00] hover:text-body-cornsilk transition-colors disabled:opacity-50"
             >
               {loading.cmd ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
             </button>
@@ -101,19 +101,19 @@ export function CmdToolLeft({
       </div>
 
       <div className="space-y-1">
-        <div className="px-2 text-[10px] font-bold text-[#5E6AD2] uppercase tracking-widest mb-2">Favorites</div>
+        <div className="px-2 text-[10px] font-bold text-[#FFBF00] uppercase tracking-widest mb-2">Favorites</div>
         {favorites.map((fav: any, i: number) => (
           <div key={`fav-${i}`} className="group/fav flex items-center gap-1 px-1">
             <button
               onClick={() => setCommandInput(fav)}
-              className="flex-1 text-left p-2 rounded-lg bg-[#111111]/40 border border-[#1F1F1F] hover:border-[#5E6AD2]/30 transition-all text-[12px] font-mono text-[#EDEDED] truncate"
+              className="flex-1 text-left p-2 rounded-lg bg-[#111111]/40 border border-[#1F1F1F] hover:border-[#FFBF00]/30 transition-all text-[12px] font-mono text-[#FFF8DC] truncate"
               title={fav}
             >
               {fav}
             </button>
             <button
               onClick={() => handleToggleFavorite(fav, true)}
-              className="p-1.5 text-[#555555] hover:text-red-500 opacity-0 group-hover/fav:opacity-100 transition-all"
+              className="p-1.5 text-[#B8860B] hover:text-red-500 opacity-0 group-hover/fav:opacity-100 transition-all"
               title="Remove from favorites"
             >
               <HeartOff size={14} />
@@ -122,13 +122,13 @@ export function CmdToolLeft({
         ))}
         {favorites.length === 0 && (
           <div className="px-3 py-4 text-center bg-[#0D0D0D] rounded-lg border border-dashed border-[#1F1F1F]">
-            <div className="text-[10px] text-[#555555] italic">No favorites saved</div>
+            <div className="text-[10px] text-[#B8860B] italic">No favorites saved</div>
           </div>
         )}
       </div>
       
       <div className="space-y-1">
-        <div className="px-2 text-[10px] font-bold text-[#555555] uppercase tracking-widest mb-2">Recent Commands</div>
+        <div className="px-2 text-[10px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Recent Commands</div>
         {(cmdHistory || []).map((entry: any) => (
           <div key={entry.id} className="group/recent flex items-center gap-1 px-1">
             <button
@@ -148,8 +148,8 @@ export function CmdToolLeft({
                 <Terminal size={14} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[12px] font-mono text-[#EDEDED] break-all whitespace-pre-wrap leading-tight">{entry.command}</div>
-                <div className="text-[10px] text-[#555555] font-mono mt-1" suppressHydrationWarning>
+                <div className="text-[12px] font-mono text-[#FFF8DC] break-all whitespace-pre-wrap leading-tight">{entry.command}</div>
+                <div className="text-[10px] text-[#B8860B] font-mono mt-1" suppressHydrationWarning>
                   {new Date(entry.timestamp).toLocaleTimeString().toLowerCase()}
                 </div>
               </div>
@@ -158,7 +158,7 @@ export function CmdToolLeft({
               onClick={() => handleToggleFavorite(entry.command, favorites.includes(entry.command))}
               className={cn(
                 "p-1.5 transition-all opacity-0 group-hover/recent:opacity-100",
-                favorites.includes(entry.command) ? "text-red-500" : "text-[#555555] hover:text-[#5E6AD2]"
+                favorites.includes(entry.command) ? "text-red-500" : "text-[#B8860B] hover:text-[#FFBF00]"
               )}
               title={favorites.includes(entry.command) ? "Remove from favorites" : "Add to favorites"}
             >
@@ -172,27 +172,27 @@ export function CmdToolLeft({
 }
 
 export function CmdToolRight({ selectedCmd }: any) {
-  if (!selectedCmd) return <div className="flex-1 flex flex-col items-center justify-center text-center p-12 text-[#555555] italic">Execute a command or select from history</div>;
+  if (!selectedCmd) return <div className="flex-1 flex flex-col items-center justify-center text-center p-12 text-[#B8860B] italic">Execute a command or select from history</div>;
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="p-6 border-b border-[#1F1F1F] bg-[#0D0D0D] flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
           <Terminal size={24} className={selectedCmd.exitCode === 0 ? "text-green-500" : "text-red-500"} />
-          <h2 className="text-lg font-semibold text-white truncate font-mono">{selectedCmd.command}</h2>
+          <h2 className="text-lg font-semibold text-body-cornsilk truncate font-mono">{selectedCmd.command}</h2>
         </div>
-        <div className="text-[11px] text-[#555555] font-bold uppercase tracking-wider whitespace-nowrap ml-4">
+        <div className="text-[11px] text-[#B8860B] font-bold uppercase tracking-wider whitespace-nowrap ml-4">
           Exit Code: {selectedCmd.exitCode}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-6 bg-[#080808]">
         <div className="bg-[#0D0D0D] border border-[#1F1F1F] rounded-xl overflow-hidden shadow-inner">
           <div className="p-4 border-b border-[#1F1F1F] bg-[#111111] flex items-center justify-between">
-            <div className="text-[10px] font-bold text-[#666666] uppercase tracking-widest">Output</div>
-            <div className="text-[10px] text-[#555555] font-mono" suppressHydrationWarning>
+            <div className="text-[10px] font-bold text-[#B8860B] uppercase tracking-widest">Output</div>
+            <div className="text-[10px] text-[#B8860B] font-mono" suppressHydrationWarning>
               {new Date(selectedCmd.timestamp).toLocaleString()}
             </div>
           </div>
-          <pre className="p-6 text-[13px] font-mono text-[#EDEDED] whitespace-pre-wrap leading-relaxed selection:bg-[#5E6AD2]/40 overflow-x-auto">
+          <pre className="p-6 text-[13px] font-mono text-[#FFF8DC] whitespace-pre-wrap leading-relaxed selection:bg-[#FFBF00]/40 overflow-x-auto">
             {selectedCmd.output}
           </pre>
         </div>
@@ -200,3 +200,5 @@ export function CmdToolRight({ selectedCmd }: any) {
     </div>
   );
 }
+
+

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Play } from 'lucide-react';
 
 export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: any) {
@@ -8,7 +8,7 @@ export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: a
       if (node.type === 'directory') {
         return (
           <div key={node.path}>
-            <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#5E6AD2] uppercase tracking-wider">
+            <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
               {node.name}
             </div>
             <div className="ml-2 border-l border-[#1F1F1F]">
@@ -36,7 +36,7 @@ export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: a
                   }
                 }, 100);
               }}
-              className="p-1.5 rounded bg-[#111111] border border-[#1F1F1F] text-[#555555] hover:text-[#5E6AD2] hover:border-[#5E6AD2]/30 opacity-0 group-hover:opacity-100 transition-all"
+              className="p-1.5 rounded bg-[#111111] border border-[#1F1F1F] text-[#B8860B] hover:text-[#FFBF00] hover:border-[#FFBF00]/30 opacity-0 group-hover:opacity-100 transition-all"
               title="Execute Script"
             >
               <Play size={12} />
@@ -53,3 +53,5 @@ export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: a
     </div>
   );
 }
+
+

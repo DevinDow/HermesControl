@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Loader2, Edit3, Save, X, Search, ChevronRight } from 'lucide-react';
@@ -61,13 +61,13 @@ export function FileViewerRight({
       const target = matches[currentMatchIndex] || matches[0];
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });
       matches.forEach((match, idx) => {
-        (match as HTMLElement).style.outline = idx === currentMatchIndex ? '2px solid #5E6AD2' : 'none';
+        (match as HTMLElement).style.outline = idx === currentMatchIndex ? '2px solid #FFBF00' : 'none';
         (match as HTMLElement).style.boxShadow = idx === currentMatchIndex ? '0 0 10px #FFFF00' : 'none';
       });
     }
   }, [fileSearch, currentMatchIndex, fileContent, setCurrentMatchIndex, setMatchCount]);
 
-  if (!selectedFilePath) return <div className="p-8 text-[#555555]">Select a file to view</div>;
+  if (!selectedFilePath) return <div className="p-8 text-[#B8860B]">Select a file to view</div>;
 
   const handleSaveFile = async () => {
     if (!selectedFilePath) return;
@@ -88,11 +88,11 @@ export function FileViewerRight({
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="p-6 border-b border-[#1F1F1F] bg-[#0D0D0D] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-[#5E6AD2]">{selectedFilePath.split('/').pop()}</h2>
+          <h2 className="text-lg font-semibold text-[#FFBF00]">{selectedFilePath.split('/').pop()}</h2>
           {(activeTab === 'Docs' || activeTab === 'Memory' || activeTab === 'Specs') && !isEditing && (
             <button
               onClick={() => { setEditContent(fileContent); setIsEditing(true); }}
-              className="p-1.5 rounded-md hover:bg-[#1F1F1F] text-[#555555] hover:text-[#5E6AD2] transition-all"
+              className="p-1.5 rounded-md hover:bg-[#1F1F1F] text-[#B8860B] hover:text-[#FFBF00] transition-all"
               title="Edit File"
             >
               <Edit3 size={16} />
@@ -119,27 +119,27 @@ export function FileViewerRight({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative w-64 flex items-center bg-[#111111] border border-[#1F1F1F] rounded-md overflow-hidden focus-within:border-[#5E6AD2]/50">
-            <Search size={14} className="ml-2.5 text-[#666666]" />
+          <div className="relative w-64 flex items-center bg-[#111111] border border-[#1F1F1F] rounded-md overflow-hidden focus-within:border-[#FFBF00]/50">
+            <Search size={14} className="ml-2.5 text-[#B8860B]" />
             <input
               type="text"
               placeholder="Find in file..."
               value={fileSearch}
               onChange={(e) => { setFileSearch(e.target.value); setCurrentMatchIndex(0); }}
-              className="w-full bg-transparent px-2 py-1.5 text-[12px] text-[#EDEDED] focus:outline-none"
+              className="w-full bg-transparent px-2 py-1.5 text-[12px] text-[#FFF8DC] focus:outline-none"
             />
             {matchCount > 0 && (
               <div className="flex items-center gap-1 px-2 border-l border-[#1F1F1F]">
-                <span className="text-[10px] font-mono text-[#555555] whitespace-nowrap">{currentMatchIndex + 1}/{matchCount}</span>
+                <span className="text-[10px] font-mono text-[#B8860B] whitespace-nowrap">{currentMatchIndex + 1}/{matchCount}</span>
                 <button
                   onClick={() => setCurrentMatchIndex((prev: number) => (prev > 0 ? prev - 1 : matchCount - 1))}
-                  className="p-0.5 hover:text-[#5E6AD2] transition-colors"
+                  className="p-0.5 hover:text-[#FFBF00] transition-colors"
                 >
                   <ChevronRight size={14} className="rotate-180" />
                 </button>
                 <button
                   onClick={() => setCurrentMatchIndex((prev: number) => (prev < matchCount - 1 ? prev + 1 : 0))}
-                  className="p-0.5 hover:text-[#5E6AD2] transition-colors"
+                  className="p-0.5 hover:text-[#FFBF00] transition-colors"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -149,12 +149,12 @@ export function FileViewerRight({
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-8 prose prose-invert prose-sm max-w-none">
-        {loading.content ? <Loader2 size={32} className="text-[#5E6AD2] animate-spin mx-auto mt-20" /> :
+        {loading.content ? <Loader2 size={32} className="text-[#FFBF00] animate-spin mx-auto mt-20" /> :
           isEditing ? (
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full h-full bg-[#080808] text-[#EDEDED] font-mono text-[13px] leading-relaxed p-4 border border-[#1F1F1F] rounded-xl focus:outline-none focus:border-[#5E6AD2]/50 resize-none min-h-[500px]"
+              className="w-full h-full bg-[#080808] text-[#FFF8DC] font-mono text-[13px] leading-relaxed p-4 border border-[#1F1F1F] rounded-xl focus:outline-none focus:border-[#FFBF00]/50 resize-none min-h-[500px]"
               onKeyDown={(e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                   e.preventDefault();
@@ -165,7 +165,7 @@ export function FileViewerRight({
               autoFocus
             />
           ) : (selectedFilePath.endsWith('.md') === false) ? (
-            <pre className="bg-[#080808] border border-[#1F1F1F] p-6 rounded-xl overflow-x-auto text-[12px] font-mono text-[#EDEDED] leading-relaxed">
+            <pre className="bg-[#080808] border border-[#1F1F1F] p-6 rounded-xl overflow-x-auto text-[12px] font-mono text-[#FFF8DC] leading-relaxed">
               {(() => {
                 try {
                   if (selectedFilePath.endsWith('.json')) {
@@ -184,19 +184,19 @@ export function FileViewerRight({
   components={{
                 // h1: Strongest hierarchy, bottom border
                 h1: (props) => (
-                  <h1 className="text-2xl font-bold text-white mt-12 mb-8 border-b border-[#1F1F1F] pb-4 first:mt-0" {...props}>
+                  <h1 className="text-2xl font-bold text-body-cornsilk mt-12 mb-8 border-b border-[#1F1F1F] pb-4 first:mt-0" {...props}>
                     {highlightMatches(props.children, fileSearch)}
                   </h1>
                 ),
                 // h2: Left border "accent"
                 h2: (props) => (
-                  <h2 className="text-lg font-bold text-white mt-8 mb-4 border-l-2 border-[#5E6AD2] pl-4 first:mt-0" {...props}>
+                  <h2 className="text-lg font-bold text-body-cornsilk mt-8 mb-4 border-l-2 border-[#FFBF00] pl-4 first:mt-0" {...props}>
                     {highlightMatches(props.children, fileSearch)}
                   </h2>
                 ),
                 // h3: Indented relative to h2, subtle left border or just padding
                 h3: (props) => (
-                  <h3 className="text-base font-bold text-white mt-4 mb-3 ml-2 border-l border-gray-700 pl-4 first:mt-0" {...props}>
+                  <h3 className="text-base font-bold text-body-cornsilk mt-4 mb-3 ml-2 border-l border-gray-700 pl-4 first:mt-0" {...props}>
                     {highlightMatches(props.children, fileSearch)}
                   </h3>
                 ),
@@ -211,19 +211,19 @@ export function FileViewerRight({
                     {highlightMatches(props.children, fileSearch)}
                   </p>
                 ),
-                a: (props) => <a className="text-[#5E6AD2] hover:text-[#4A56C0] underline transition-colors" target="_blank" rel="noopener noreferrer" {...props} />,
+                a: (props) => <a className="text-[#FFBF00] hover:text-[#4A56C0] underline transition-colors" target="_blank" rel="noopener noreferrer" {...props} />,
                 table: (props) => (
-                  <div className="my-6 overflow-x-auto rounded-lg border border-[#5E6AD2]">
+                  <div className="my-6 overflow-x-auto rounded-lg border border-[#FFBF00]">
                     <table className="w-full border-collapse text-[13px]" {...props} />
                   </div>
                 ),
-                thead: (props) => <thead className="bg-[#5E6AD2]/20 border-b border-[#5E6AD2]" {...props} />,
-                th: (props) => <th className="px-4 py-2 text-left font-bold text-[#5E6AD2] uppercase tracking-wider border-r border-[#5E6AD2]/60 last:border-r-0" {...props}>{highlightMatches(props.children, fileSearch)}</th>,
-                td: (props) => <td className="px-4 py-2 border-t border-r border-[#5E6AD2]/60 last:border-r-0 text-[#EDEDED]" {...props}>{highlightMatches(props.children, fileSearch)}</td>,
+                thead: (props) => <thead className="bg-[#FFBF00]/20 border-b border-[#FFBF00]" {...props} />,
+                th: (props) => <th className="px-4 py-2 text-left font-bold text-[#FFBF00] uppercase tracking-wider border-r border-[#FFBF00]/60 last:border-r-0" {...props}>{highlightMatches(props.children, fileSearch)}</th>,
+                td: (props) => <td className="px-4 py-2 border-t border-r border-[#FFBF00]/60 last:border-r-0 text-[#FFF8DC]" {...props}>{highlightMatches(props.children, fileSearch)}</td>,
                 code: ({ node, inline, className, children, ...props }: any) => {
                   const hasNewline = String(children).includes('\n');
-                  return (inline || !hasNewline) ? <code className="bg-[#1A1A1A] px-1.5 py-0.5 rounded text-[12px] font-mono text-[#5E6AD2]" {...props}>{highlightMatches(children, fileSearch)}</code> :
-                    <pre className="bg-[#080808] border border-[#1F1F1F] p-4 rounded-xl overflow-x-auto my-6 ml-4"><code className={cn("text-[12px] font-mono text-[#EDEDED]", className)} {...props}>{children}</code></pre>;
+                  return (inline || !hasNewline) ? <code className="bg-[#1A1A1A] px-1.5 py-0.5 rounded text-[12px] font-mono text-[#FFBF00]" {...props}>{highlightMatches(children, fileSearch)}</code> :
+                    <pre className="bg-[#080808] border border-[#1F1F1F] p-4 rounded-xl overflow-x-auto my-6 ml-4"><code className={cn("text-[12px] font-mono text-[#FFF8DC]", className)} {...props}>{children}</code></pre>;
                 },
                 ol: ({ node, children, ...props }: any) => (
                   <ListContext.Provider value="ordered">
@@ -242,9 +242,9 @@ export function FileViewerRight({
                 li: ({ node, children, ...props }: any) => {
                   const listType = React.useContext(ListContext);
                   return (
-                    <li className={cn("flex gap-3 text-[14px] text-[#EDEDED] mb-2", listType === 'ordered' && "[counter-increment:li]")} {...props}>
-                      <span className="text-[#5E6AD2] mt-1.5 font-mono min-w-[1.5em] text-right">
-                        {listType === 'ordered' ? <span className="before:content-[counter(li)'.']" /> : '•'}
+                    <li className={cn("flex gap-3 text-[14px] text-[#FFF8DC] mb-2", listType === 'ordered' && "[counter-increment:li]")} {...props}>
+                      <span className="text-[#FFBF00] mt-1.5 font-mono min-w-[1.5em] text-right">
+                        {listType === 'ordered' ? <span className="before:content-[counter(li)'.']" /> : 'â€¢'}
                       </span>
                       <div className="flex-1">
                         {highlightMatches(children, fileSearch)}
@@ -262,3 +262,5 @@ export function FileViewerRight({
     </div>
   );
 }
+
+

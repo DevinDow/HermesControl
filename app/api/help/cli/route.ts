@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -12,3 +12,4 @@ export async function GET() {
     return NextResponse.json({ content: "Hermes CLI is not available in the current environment.\nMock response: Not running." });
   }
 }
+

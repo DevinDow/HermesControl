@@ -4,11 +4,17 @@
 
 :root {
   --background: #0A0A0A;
-  --foreground: #EDEDED;
+  --foreground: #FFF8DC; /* body-cornsilk */
+  
+  --primary-gold: #FFD700;
+  --accent-amber: #FFBF00;
+  --body-cornsilk: #FFF8DC;
+  --dimmed-darkgoldenrod: #B8860B;
+  --notes-lightyellow: #fff3bf;
 }
 
 body {
-  color: var(--foreground);
+  color: var(--body-cornsilk);
   background: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
