@@ -6,24 +6,24 @@ import { HERMES_ROOT } from '../../lib/paths';
 export async function GET() {
   try {
     // Load hermes.json from the configured Hermes root directory
-    const configPath = path.join(HERMES_ROOT, 'hermes.json');
+    const configPath = path.join(HERMES_ROOT, 'config.yaml');
     const configData = await fs.readFile(configPath, 'utf-8');
     const hermesConfig = JSON.parse(configData);
-    
+
     // Extract models data from the configuration
     const modelsData = hermesConfig.agents.defaults.models;
-    
+
     // Format the data for the UI
     const formattedData = Object.entries(modelsData).map(([modelId, config]: [string, any]) => ({
       id: modelId,
       alias: config.alias || '',
       contextWindow: config.params?.contextWindow || 0,
       // Format contextWindow with 'k' suffix
-      contextWindowFormatted: config.params?.contextWindow 
-        ? `${Math.round(config.params.contextWindow / 1000)}k` 
+      contextWindowFormatted: config.params?.contextWindow
+        ? `${Math.round(config.params.contextWindow / 1000)}k`
         : '0k'
     }));
-    
+
     // we will build a hierarchical tree structure to support nested models.
     // Model IDs are typically structured as "provider/model" or "host/provider/model".
     // Educational Context: We extract the primary and fallback configurations 
@@ -35,12 +35,12 @@ export async function GET() {
     formattedData.forEach(modelEntry => {
       const parts = modelEntry.id.split('/');
       let currentLevel = tree;
-      
+
       parts.forEach((part, index) => {
         const isLeafNode = index === parts.length - 1;
-        
+
         // Define roles for educational clarity
-        let role = "folder"; 
+        let role = "folder";
         if (parts.length === 3) {
           if (index === 0) role = "host";
           else if (index === 1) role = "provider";
@@ -51,7 +51,7 @@ export async function GET() {
         }
 
         let node = currentLevel.find(n => n.name === part && n.type === (isLeafNode ? 'model' : 'directory'));
-        
+
         if (!node) {
           if (isLeafNode) {
             // Check if this specific model is the configured primary or a fallback.
@@ -61,7 +61,7 @@ export async function GET() {
 
             node = {
               ...modelEntry,
-              name: part, 
+              name: part,
               type: 'model',
               role: role,
               isPrimary: isPrimary,
@@ -78,13 +78,13 @@ export async function GET() {
             currentLevel.push(node);
           }
         }
-        
+
         if (!isLeafNode) {
           currentLevel = node.children;
         }
       });
     });
-    
+
     return NextResponse.json({
       models: formattedData,
       tree: tree, // The new hierarchical structure
@@ -95,7 +95,7 @@ export async function GET() {
     console.error('Failed to fetch models data:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to load models data',
         details: errorMessage,
         configPath: configPath
