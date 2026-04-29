@@ -29,9 +29,8 @@ export async function GET(request: Request) {
           } else if (mode === 'old') {
             if (entry.name !== 'OLD' && !normalDir.includes('/OLD')) return null;
           } else if (mode === 'memory') {
-            // For memory mode, we want to recurse into EVERYTHING to find all log files,
-            // but we don't want to return directory objects themselves, just the files within them.
-            return await getFiles(fullPath);
+            // Only recurse into the memories folder at root level, but allow recursion within memories
+            if (!normalDir.includes('/memories') && entry.name !== 'memories') return null;
           } else if (mode === 'docs') {
             // Don't recurse into subfolders for docs mode
             return null;
@@ -53,7 +52,7 @@ export async function GET(request: Request) {
           const isCode = codeExts.some(ext => entry.name.endsWith(ext));
           const isSpec = (entry.name.endsWith('_spec.md') || normalDir.includes('/specs')) && !isCode;
           const isOld = normalDir.includes('/OLD') || normalDir.includes('/memory/archive');
-          const isDailyLog = normalDir.includes('/memory') || entry.name === 'MEMORY.md' || entry.name.match(/^\d{4}-\d{2}-\d{2}\.md$/);
+          const isMemoryFile = normalDir.includes('/memories');
 
           if (mode === 'specs') {
             return isSpec ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
@@ -64,8 +63,8 @@ export async function GET(request: Request) {
           }
 
           if (mode === 'memory') {
-            // Collect all daily logs and MEMORY.md, including those in OLD folders
-            return (isDailyLog && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
+            // Return markdown files from memories folder
+            return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'docs') {
@@ -115,18 +114,19 @@ export async function GET(request: Request) {
     }
 
     if (mode === 'memory') {
-      // Filter out non-markdown files (like legacy JSONs if they still existed)
-      fileTree = fileTree.filter(f => f.name.endsWith('.md'));
+      // Flatten the tree to get all files from memories folder
+      const allMemoryFiles: any[] = [];
+      const flatten = (nodes: any[]) => {
+        for (const node of nodes) {
+          if (node.type === 'file') allMemoryFiles.push(node);
+          else if (node.type === 'directory' && node.children) flatten(node.children);
+        }
+      };
+      flatten(fileTree);
+      fileTree = allMemoryFiles;
 
       // Sort everything alphabetically descending (which puts newest dates at top)
       fileTree.sort((a, b) => b.name.localeCompare(a.name));
-
-      // Ensure MEMORY.md is always absolute top
-      const memoryMdIndex = fileTree.findIndex(f => f.name === 'MEMORY.md');
-      if (memoryMdIndex !== -1) {
-        const [memoryMd] = fileTree.splice(memoryMdIndex, 1);
-        fileTree.unshift(memoryMd);
-      }
     }
 
     if (mode === 'docs') {
