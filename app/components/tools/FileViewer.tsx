@@ -7,6 +7,11 @@ import { saveFile } from './utils/fileUtils';
 
 const ListContext = React.createContext<'ordered' | 'unordered' | null>(null);
 
+const preprocessContent = (text: string) => {
+  // Replace silcrow symbols (§) with markdown horizontal rules
+  return text.replace(/§/g, '\n---\n');
+};
+
 const highlightMatches = (text: any, search: string) => {
   if (!search || typeof text !== 'string') return text;
 
@@ -168,13 +173,14 @@ export function FileViewerRight({
             <pre className="bg-[#080808] border border-[#1F1F1F] p-6 rounded-xl overflow-x-auto text-[12px] font-mono text-[#FFF8DC] leading-relaxed">
               {(() => {
                 try {
+                  const processedContent = preprocessContent(fileContent);
                   if (selectedFilePath.endsWith('.json')) {
-                    const formatted = JSON.stringify(JSON.parse(fileContent), null, 2);
+                    const formatted = JSON.stringify(JSON.parse(processedContent), null, 2);
                     return highlightMatches(formatted, fileSearch);
                   }
-                  return highlightMatches(fileContent, fileSearch);
+                  return highlightMatches(processedContent, fileSearch);
                 } catch (e) {
-                  return highlightMatches(fileContent, fileSearch);
+                  return highlightMatches(preprocessContent(fileContent), fileSearch);
                 }
               })()}
             </pre>
@@ -254,7 +260,7 @@ export function FileViewerRight({
                 },
               }}
             >
-              {fileContent}
+              {preprocessContent(fileContent)}
             </ReactMarkdown>
           )
         }
