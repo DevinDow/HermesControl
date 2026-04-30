@@ -325,7 +325,7 @@ export function GitToolRight({ selectedGitFile, selectedGitCommit, loading, gitD
                     <>
                       {gitDiff.commit && selectedGitType === 'commit' && (
                         <div className="space-y-4">
-                          <div className="bg-[#111111] border border-[#1F1F1F] p-4 rounded-xl">
+                          <div className="bg-[#222222] border border-[#1F1F1F] p-4 rounded-xl">
                             <div className="text-[10px] text-[#B8860B] font-bold uppercase mb-2">Commit Details</div>
                             <pre className="text-[12px] font-mono text-body-cornsilk whitespace-pre-wrap">{gitDiff.commit.header}</pre>
                           </div>

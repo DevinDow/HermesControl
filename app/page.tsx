@@ -669,7 +669,7 @@ export default function HermesControl() {
                   });
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold transition-all hover:bg-[#111111]/50 group",
+                  "w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold transition-all hover:bg-[#222222]/50 group",
                   isExpanded ? "text-[#FFBF00]" : "text-[#B8860B]"  // Highlight when expanded
                 )}
               >
@@ -724,8 +724,8 @@ export default function HermesControl() {
               "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex flex-col gap-0.5 border border-transparent group",
               // Highlight selected file with background and border
               selectedFilePath === node.path
-                ? "bg-[#111111] text-[#FFF8DC] border-[#1F1F1F]"
-                : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#111111]/50"
+                ? "bg-[#222222] text-[#FFF8DC] border-[#1F1F1F]"
+                : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#222222]/50"
             )}
           >
             <div className="flex items-center gap-2 w-full">
@@ -836,7 +836,7 @@ export default function HermesControl() {
       {/* Sidebar */}
       <aside className="flex w-[60px] md:w-[240px] bg-[#080808] flex-col border-r border-[#1F1F1F] h-screen overflow-hidden">
         <div className="p-2 md:p-4 flex items-center gap-0 md:gap-3 mb-2 shrink-0 justify-center md:justify-start">
-          <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center bg-[#111111] border border-[#1F1F1F] shrink-0">
+          <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center bg-[#222222] border border-[#1F1F1F] shrink-0">
             <img src="/avatars/darvis_head.jpg" alt="Darvis" className="w-full h-full object-cover" />
           </div>
           <span className="hidden md:block text-[13px] font-semibold tracking-tight text-[#FFD700] truncate">Hermes Control</span>
@@ -964,7 +964,7 @@ export default function HermesControl() {
                 placeholder={`Filter ${activeTab.toLowerCase()}...`}
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
-                className="bg-[#111111] border border-[#1F1F1F] rounded-md px-8 py-1.5 text-[12px] w-full focus:outline-none"
+                className="bg-[#222222] border border-[#1F1F1F] rounded-md px-8 py-1.5 text-[12px] w-full focus:outline-none"
               />
             </div>
             <div className="flex-1 overflow-y-auto space-y-1 pr-2">

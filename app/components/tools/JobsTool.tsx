@@ -47,7 +47,7 @@ export function JobsToolLeft({
             }} 
             className={cn(
               "w-full text-left p-3 rounded-lg border transition-all group", 
-              selectedJobId === job.id ? "bg-[#111111] border-[#1F1F1F]" : "border-transparent hover:bg-[#111111]/50",
+              selectedJobId === job.id ? "bg-[#222222] border-[#1F1F1F]" : "border-transparent hover:bg-[#222222]/50",
               !job.enabled && "opacity-60"
             )}
           >
@@ -147,7 +147,7 @@ export function JobsToolRight({
           <div className="flex items-center gap-2">
             <button 
               onClick={handleReset}
-              className="p-2 rounded-lg bg-[#111111] border border-[#1F1F1F] text-[#B8860B] hover:text-body-cornsilk transition-colors"
+              className="p-2 rounded-lg bg-[#222222] border border-[#1F1F1F] text-[#B8860B] hover:text-body-cornsilk transition-colors"
               title="Reset changes"
             >
               <X size={16} />
@@ -163,7 +163,7 @@ export function JobsToolRight({
           </div>
         )}
       </div>
-      <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 space-y-4">
+      <div className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5 space-y-4">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
           <div>
             <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Schedule</div>

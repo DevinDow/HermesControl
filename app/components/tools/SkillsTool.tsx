@@ -23,7 +23,7 @@ export function SkillsToolLeft({ skills, matchesFilter, setSelectedSkillId, setS
                         }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",
-                          selectedSkillId === skill.id ? "bg-[#111111] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
+                          selectedSkillId === skill.id ? "bg-[#222222] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
                         )}
                       >
                         <Wrench size={14} className={selectedSkillId === skill.id ? "text-[#FFBF00]" : "text-[#B8860B]"} />
@@ -46,7 +46,7 @@ export function SkillsToolLeft({ skills, matchesFilter, setSelectedSkillId, setS
                         }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",
-                          selectedSkillId === skill.id ? "bg-[#111111] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
+                          selectedSkillId === skill.id ? "bg-[#222222] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
                         )}
                       >
                         <Wrench size={14} className={selectedSkillId === skill.id ? "text-[#FFBF00]" : "text-[#B8860B]"} />
@@ -115,7 +115,7 @@ export function SkillsToolRight({ selectedSkill, selectedSkillFile, setSelectedS
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
-                        <div className="relative w-64 flex items-center bg-[#111111] border border-[#1F1F1F] rounded-md overflow-hidden focus-within:border-[#FFBF00]/50">
+                        <div className="relative w-64 flex items-center bg-[#222222] border border-[#1F1F1F] rounded-md overflow-hidden focus-within:border-[#FFBF00]/50">
                           <Search size={14} className="ml-2.5 text-[#B8860B]" />
                           <input
                             type="text"
@@ -149,7 +149,7 @@ export function SkillsToolRight({ selectedSkill, selectedSkillFile, setSelectedS
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 bg-[#080808] space-y-6">
-                  <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 space-y-4">
+                  <div className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5 space-y-4">
                     <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest">Skill Files</div>
                     <div className="flex flex-wrap gap-2">
                       {selectedSkill.files.map((file: any) => (
@@ -170,7 +170,7 @@ export function SkillsToolRight({ selectedSkill, selectedSkillFile, setSelectedS
                   </div>
 
                   <div className="bg-[#0D0D0D] border border-[#1F1F1F] rounded-xl overflow-hidden">
-                    <div className="p-4 border-b border-[#1F1F1F] bg-[#111111] flex items-center justify-between">
+                    <div className="p-4 border-b border-[#1F1F1F] bg-[#222222] flex items-center justify-between">
                       <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest">{selectedSkillFile}</div>
                       <LinkIcon size={14} className="text-[#B8860B]" />
                     </div>

@@ -26,7 +26,7 @@ export function SessionsToolLeft({
           onClick={() => setSelectedSessionId(session.id)}
           className={cn(
             'w-full text-left p-3 rounded-lg border transition-all group',
-            selectedSessionId === session.id ? 'bg-[#222222] border-[#1F1F1F]' : 'border-transparent hover:bg-[#111111]/50'
+            selectedSessionId === session.id ? 'bg-[#222222] border-[#1F1F1F]' : 'border-transparent hover:bg-[#222222]/50'
           )}
         >
           <div className="flex items-center justify-between gap-3 mb-2">

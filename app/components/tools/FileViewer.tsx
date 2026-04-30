@@ -124,7 +124,7 @@ export function FileViewerRight({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative w-64 flex items-center bg-[#111111] border border-[#1F1F1F] rounded-md overflow-hidden focus-within:border-[#FFBF00]/50">
+          <div className="relative w-64 flex items-center bg-[#222222] border border-[#1F1F1F] rounded-md overflow-hidden focus-within:border-[#FFBF00]/50">
             <Search size={14} className="ml-2.5 text-[#B8860B]" />
             <input
               type="text"

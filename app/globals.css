@@ -4,6 +4,7 @@
 
 :root {
   --background: #0A0A0A;
+  --selected-background: #222222;
   --foreground: #FFF8DC; /* body-cornsilk */
   
   --primary-gold: #FFD700;

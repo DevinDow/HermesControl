@@ -20,7 +20,7 @@ export function HelpToolLeft({ setSelectedHelpId, setSelectedJobId, setSelectedF
                         onClick={() => { setSelectedHelpId(item.id); setSelectedJobId(null); setSelectedFilePath(null); setSelectedTaskId(null); setSelectedEventId(null); setSelectedSessionId(null); }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",
-                          selectedHelpId === item.id ? "bg-[#111111] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
+                          selectedHelpId === item.id ? "bg-[#222222] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
                         )}
                       >
                         <item.icon size={14} className={selectedHelpId === item.id ? "text-[#FFBF00]" : "text-[#B8860B]"} />
@@ -52,7 +52,7 @@ export function HelpToolRight({ selectedHelpId, helpLinks, helpShortcuts, helpCl
                   {selectedHelpId === 'Links' && (
                     <div className="space-y-8">
                       {helpLinks.map((group: any) => (
-                        <div key={group.group} className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
+                        <div key={group.group} className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5">
                           <div className="text-[11px] font-bold text-[#FFBF00] uppercase tracking-widest mb-4 flex items-center gap-2">
                             <LinkIcon size={14} /> {group.group}
                           </div>
@@ -82,7 +82,7 @@ export function HelpToolRight({ selectedHelpId, helpLinks, helpShortcuts, helpCl
 
                   {selectedHelpId === 'Shortcuts' && (
                     <div className="max-w-2xl mx-auto">
-                      <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
+                      <div className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5">
                         <div className="text-[11px] font-bold text-[#FFBF00] uppercase tracking-widest mb-6 flex items-center gap-2">
                           <Terminal size={14} /> Hermes Control Shortcuts
                         </div>
@@ -99,7 +99,7 @@ export function HelpToolRight({ selectedHelpId, helpLinks, helpShortcuts, helpCl
                   )}
 
                   {selectedHelpId === 'CLI' && (
-                    <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
+                    <div className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5">
                       <div className="text-[11px] font-bold text-[#FFBF00] uppercase tracking-widest mb-4 flex items-center gap-2">
                         <Zap size={14} /> Hermes CLI Documentation
                       </div>

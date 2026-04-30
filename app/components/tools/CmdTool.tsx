@@ -106,7 +106,7 @@ export function CmdToolLeft({
           <div key={`fav-${i}`} className="group/fav flex items-center gap-1 px-1">
             <button
               onClick={() => setCommandInput(fav)}
-              className="flex-1 text-left p-2 rounded-lg bg-[#111111]/40 border border-[#1F1F1F] hover:border-[#FFBF00]/30 transition-all text-[12px] font-mono text-[#FFF8DC] truncate"
+              className="flex-1 text-left p-2 rounded-lg bg-[#222222]/40 border border-[#1F1F1F] hover:border-[#FFBF00]/30 transition-all text-[12px] font-mono text-[#FFF8DC] truncate"
               title={fav}
             >
               {fav}
@@ -138,7 +138,7 @@ export function CmdToolLeft({
               }}
               className={cn(
                 "flex-1 text-left p-3 rounded-lg border transition-all flex items-center gap-3",
-                selectedCmdId === entry.id ? "bg-[#111111] border-[#1F1F1F]" : "border-transparent hover:bg-[#111111]/50"
+                selectedCmdId === entry.id ? "bg-[#222222] border-[#1F1F1F]" : "border-transparent hover:bg-[#222222]/50"
               )}
             >
               <div className={cn(
@@ -186,7 +186,7 @@ export function CmdToolRight({ selectedCmd }: any) {
       </div>
       <div className="flex-1 overflow-y-auto p-6 bg-[#080808]">
         <div className="bg-[#0D0D0D] border border-[#1F1F1F] rounded-xl overflow-hidden shadow-inner">
-          <div className="p-4 border-b border-[#1F1F1F] bg-[#111111] flex items-center justify-between">
+          <div className="p-4 border-b border-[#1F1F1F] bg-[#222222] flex items-center justify-between">
             <div className="text-[10px] font-bold text-[#B8860B] uppercase tracking-widest">Output</div>
             <div className="text-[10px] text-[#B8860B] font-mono" suppressHydrationWarning>
               {new Date(selectedCmd.timestamp).toLocaleString()}

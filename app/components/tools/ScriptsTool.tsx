@@ -36,7 +36,7 @@ export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: a
                   }
                 }, 100);
               }}
-              className="p-1.5 rounded bg-[#111111] border border-[#1F1F1F] text-[#B8860B] hover:text-[#FFBF00] hover:border-[#FFBF00]/30 opacity-0 group-hover:opacity-100 transition-all"
+              className="p-1.5 rounded bg-[#222222] border border-[#1F1F1F] text-[#B8860B] hover:text-[#FFBF00] hover:border-[#FFBF00]/30 opacity-0 group-hover:opacity-100 transition-all"
               title="Execute Script"
             >
               <Play size={12} />

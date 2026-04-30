@@ -65,7 +65,7 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
             {/* Category Header Button */}
             <button
               onClick={() => toggleFolder(currentPath)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] transition-all hover:bg-[#111111]/50 group"
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] transition-all hover:bg-[#222222]/50 group"
             >
               {/* Chevron indicates if the branch is open (90deg rotation) or closed */}
               <ChevronRight size={12} className={cn("transition-transform", isExpanded ? "rotate-90" : "")} />
@@ -99,8 +99,8 @@ export function ModelsToolLeft({ modelsData, modelsLoading, onSelectModel, selec
             className={cn(
               "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex flex-col gap-0.5 border border-transparent group",
               selectedModelId === node.id
-                ? "bg-[#111111] border-[#1F1F1F] text-body-cornsilk shadow-sm"
-                : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#111111]/50"
+                ? "bg-[#222222] border-[#1F1F1F] text-body-cornsilk shadow-sm"
+                : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#222222]/50"
             )}
           >
             <div className="flex items-center gap-2 w-full">
@@ -271,11 +271,11 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
       </div>
       <p className="text-[13px] text-[#B8860B] font-mono">{selectedModel.id}</p>
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[#111111] p-4 rounded-lg border border-[#1F1F1F]">
+        <div className="bg-[#222222] p-4 rounded-lg border border-[#1F1F1F]">
           <span className="text-[11px] uppercase text-[#B8860B]">Context Window</span>
           <div className="text-[14px] text-[#FFF8DC]">{selectedModel.contextWindowFormatted}</div>
         </div>
-        <div className="bg-[#111111] p-4 rounded-lg border border-[#1F1F1F]">
+        <div className="bg-[#222222] p-4 rounded-lg border border-[#1F1F1F]">
           <span className="text-[11px] uppercase text-[#B8860B]">Alias</span>
           <div className="text-[14px] text-[#FFF8DC]">{selectedModel.alias || 'None'}</div>
         </div>
@@ -330,7 +330,7 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
 
           if (matchingSessions.length === 0) {
             return (
-              <div className="bg-[#111111] p-8 rounded-lg border border-[#1F1F1F] border-dashed text-center">
+              <div className="bg-[#222222] p-8 rounded-lg border border-[#1F1F1F] border-dashed text-center">
                 <span className="text-[13px] text-[#B8860B]">No session history found for this model.</span>
               </div>
             );
@@ -353,7 +353,7 @@ export function ModelsToolRight({ selectedModel, allSessions, onNavigateToSessio
                   <button
                     key={session.sessionId}
                     onClick={() => onNavigateToSession(session.sessionId, targetTab)}
-                    className="w-full text-left p-3 rounded-xl bg-[#111111] border border-[#191919] hover:border-[#FFBF00]/50 hover:bg-[#151515] transition-all group"
+                    className="w-full text-left p-3 rounded-xl bg-[#222222] border border-[#191919] hover:border-[#FFBF00]/50 hover:bg-[#151515] transition-all group"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
