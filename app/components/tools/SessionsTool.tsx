@@ -136,6 +136,15 @@ export function SessionsToolRight({ selectedSession }: any) {
                   </span>
                 );
               })()}
+            <span>, updated </span>
+            {(() => {
+              const { text, color } = formatRelativeTime(sessionData.lastUpdated);
+                return (
+                  <span className={cn("font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
+                    {text}
+                  </span>
+                );
+              })()}
           </div>
         </div>
       </div>

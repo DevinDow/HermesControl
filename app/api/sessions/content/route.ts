@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
     const baseUrl = getField('base_url', 'url', 'endpoint');
     const platform = getField('platform', 'service', 'provider');
     const sessionStart = getField('session_start', 'startedAt', 'createdAt', 'timestamp', 'ts');
+    const lastUpdated = getField('last_updated', 'updated_at', 'modifiedAt', 'timestamp', 'ts');
 
     return NextResponse.json({
       id,
@@ -53,6 +54,7 @@ export async function GET(request: NextRequest) {
       baseUrl: baseUrl || null,
       platform: platform || null,
       sessionStart: sessionStart || null,
+      lastUpdated: lastUpdated || null,
       messages: messages.reverse(), // Show most recent messages first
     });
   } catch (error: any) {
