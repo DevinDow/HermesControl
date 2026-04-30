@@ -37,10 +37,10 @@ export async function GET(request: Request) {
           };
         } else {
           const stats = await fs.stat(fullPath);
-          const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css', '.json', '.gitignore', '.env', '.html', '.yaml', '.yml'];
-          const isCode = codeExts.some(ext => entry.name.endsWith(ext));
+          const scriptExts = ['.py', '.sh'];
+          const isScript = scriptExts.some(ext => entry.name.endsWith(ext));
           
-          if (isCode) {
+          if (isScript) {
             return { 
               name: entry.name, 
               type: 'file', 
