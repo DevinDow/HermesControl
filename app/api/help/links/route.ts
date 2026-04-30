@@ -5,11 +5,9 @@ export async function GET() {
     {
       group: "Core Documentation",
       items: [
-        { name: "Official Documentation", url: "https://docs.hermes.ai/" },
-        { name: "CLI Reference", url: "https://docs.hermes.ai/cli" },
-        { name: "Architecture", url: "https://docs.hermes.ai/architecture" },
-        { name: "Security Model", url: "https://docs.hermes.ai/security" },
-        { name: "Skill Spec", url: "https://docs.hermes.ai/skills" }
+        { name: "Official Documentation", url: "https://hermes-agent.nousresearch.com/docs/" },
+        { name: "CLI Reference", url: "https://hermes-agent.nousresearch.com/docs/reference/cli-commands" },
+        { name: "Slash Command Reference", url: "https://hermes-agent.nousresearch.com/docs/reference/slash-commands" },
       ]
     },
     {
@@ -17,7 +15,8 @@ export async function GET() {
       items: [
         { name: "ClawHub.com", url: "https://clawhub.com" },
         { name: "Discord Community", url: "https://discord.com/invite/clawd" },
-        { name: "GitHub Source", url: "https://github.com/hermes/hermes" },
+        { name: "Hermes GitHub Source", url: "https://github.com/NousResearch/hermes-agent" },
+        { name: "OpenClaw GitHub Source", url: "https://github.com/openclaw/openclaw" },
         { name: "MoltBook (Submolts)", url: "https://www.moltbook.com/m" }
       ]
     }
