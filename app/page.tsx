@@ -357,7 +357,7 @@ export default function HermesControl() {
       // Surgically update the metadata in the sidebar without a full list reload
       if (data.metadata) {
         setSessions(prev => prev.map(s =>
-          s.sessionId === selectedSessionId
+          s.id === selectedSessionId
             ? { ...s, size: data.metadata.size, updatedAt: data.metadata.updatedAt }
             : s
         ));
@@ -526,7 +526,7 @@ export default function HermesControl() {
   useEffect(() => {
     if (!selectedSessionId || !isMounted) return;
 
-    const currentSession = sessions.find(s => s.sessionId === selectedSessionId);
+    const currentSession = sessions.find(s => s.id === selectedSessionId);
     if (currentSession && fileContent && contentLoadedAt > 0) {
       if (currentSession.updatedAt > contentLoadedAt + 2000) {
         setSessionStale(true);
@@ -606,7 +606,7 @@ export default function HermesControl() {
 
         // Handle Session metadata update
         if (activeTab === 'Sessions' && data.metadata) {
-          setSessions(prev => prev.map(s => s.sessionId === selectedSessionId ? { ...s, size: data.metadata.size, updatedAt: data.metadata.updatedAt } : s));
+          setSessions(prev => prev.map(s => s.id === selectedSessionId ? { ...s, size: data.metadata.size, updatedAt: data.metadata.updatedAt } : s));
         }
       } catch (err) {
         console.error(`Fetch failed:`, err);
