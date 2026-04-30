@@ -600,8 +600,8 @@ export default function HermesControl() {
         url = `/api/scripts/content?path=${encodeURIComponent(selectedFilePath)}`;
       } else if (activeTab === 'System' && selectedFilePath) {
         url = `/api/system/content?path=${encodeURIComponent(selectedFilePath)}`;
-      } else if (['Memory', 'Specs', 'Docs', 'Old'].includes(activeTab) && selectedFilePath) {
-        url = `/api/files/content?path=${encodeURIComponent(selectedFilePath)}`;
+      } else if (['Memory', 'Specs', 'Docs', 'Old', 'Logs'].includes(activeTab) && selectedFilePath) {
+        url = `/api/files/content?path=${encodeURIComponent(selectedFilePath)}`; // Memory/Specs/Docs/Old/Logs all use the same content endpoint with different initial trees
       }
 
       if (!url) return;
