@@ -163,13 +163,15 @@ export function SessionsToolRight({ selectedSession }: any) {
                       <span>#{messageNumber}</span>
                       <span className="font-bold text-[#FFD700]">{message.role}</span>
                     </div>
-                    <div className="text-[13px] text-[#FFF8DC]">{message.content || '—'}</div>
+                    <pre className="max-h-[250px] overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
+                      {!isExpanded && message.content}
+                    </pre>
                   </div>
                 </button>
                 {isExpanded && (
                   <div className="border-t border-[#1F1F1F] bg-[#0D0D0D] p-4">
-                    <pre className="max-h-[340px] overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
-{JSON.stringify(message.raw, null, 2)}
+                    <pre className="overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
+                      {message.content}
                     </pre>
                   </div>
                 )}
