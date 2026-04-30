@@ -663,22 +663,40 @@ export default function HermesControl() {
     return text.toLowerCase().includes(filterText.toLowerCase());
   };
 
+  // Recursively renders a file tree structure as interactive UI components
+  // Parameters:
+  //   - nodes: array of file/folder nodes to render
+  //   - isSystem: whether this is a System folder tree (shows expand/collapse UI)
+  //   - isDocs: whether this is a Docs folder tree (shows expand/collapse UI)
   const renderFileTree = (nodes: any[], isSystem = false, isDocs = false) => {
     return nodes.map((node) => {
+      // ========== DIRECTORY NODE HANDLING ==========
       if (node.type === 'directory') {
+        // Determine if this directory is currently expanded
+        // System/Docs folders use Set state; other folders default to expanded
         const isExpanded = isSystem ? expandedSystemFolders.has(node.path) : (isDocs ? expandedDocsFolders.has(node.path) : true);
+        
+        // Recursively render child nodes with same parameters
         const children = renderFileTree(node.children, isSystem, isDocs);
+        
+        // Check if any children will be visible (not filtered out)
         const hasVisibleChildren = children.some(c => c !== null);
+        
+        // Hide empty folders when filter is active
         if (!hasVisibleChildren && filterText) return null;
 
+        // ===== EXPANDABLE FOLDER UI (System/Docs) =====
         if (isSystem || isDocs) {
           return (
             <div key={node.path}>
+              {/* Toggle button to expand/collapse the folder */}
               <button
                 onClick={() => {
+                  // Use appropriate state setter based on folder type
                   const setter = isSystem ? setExpandedSystemFolders : setExpandedDocsFolders;
                   setter(prev => {
                     const next = new Set(prev);
+                    // Add to set if not expanded, remove if expanded (toggle)
                     if (next.has(node.path)) next.delete(node.path);
                     else next.add(node.path);
                     return next;
@@ -686,13 +704,16 @@ export default function HermesControl() {
                 }}
                 className={cn(
                   "w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold transition-all hover:bg-[#111111]/50 group",
-                  isExpanded ? "text-[#FFBF00]" : "text-[#B8860B]"
+                  isExpanded ? "text-[#FFBF00]" : "text-[#B8860B]"  // Highlight when expanded
                 )}
               >
+                {/* Chevron rotates 90deg when expanded */}
                 <ChevronRight size={12} className={cn("transition-transform", isExpanded ? "rotate-90" : "")} />
                 <Folder size={12} />
                 <span className="uppercase tracking-wider">{node.name}</span>
               </button>
+              
+              {/* Show children only when expanded */}
               {isExpanded && (
                 <div className="ml-2 border-l border-[#1F1F1F]">
                   {children}
@@ -702,37 +723,56 @@ export default function HermesControl() {
           );
         }
 
+        // ===== AUTO-EXPANDED FOLDER UI (Memory/Specs/Scripts/etc) =====
+        // These folders are always expanded and don't have toggle button
         return (
           <div key={node.path}>
             <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
               <Folder size={12} />
               {node.name}
             </div>
+            {/* Children always visible with left border connector */}
             <div className="ml-2 border-l border-[#1F1F1F]">
               {children}
             </div>
           </div>
         );
-      } else {
+      } 
+      
+      // ========== FILE NODE HANDLING ==========
+      else {
+        // Skip files that don't match the current filter text
         if (!matchesFilter(node.name)) return null;
+        
         return (
           <button
             key={node.path}
-            onClick={() => { setSelectedFilePath(node.path); setSelectedSessionId(null); setSelectedTaskId(null); setSelectedEventId(null); }}
+            // When clicked, select this file and clear other selections
+            onClick={() => { 
+              setSelectedFilePath(node.path); 
+              setSelectedSessionId(null); 
+              setSelectedTaskId(null); 
+              setSelectedEventId(null); 
+            }}
             className={cn(
               "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex flex-col gap-0.5 border border-transparent group",
-                selectedFilePath === node.path
-                  ? "bg-[#111111] text-[#FFF8DC] border-[#1F1F1F]"
-                  : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#111111]/50"
+              // Highlight selected file with background and border
+              selectedFilePath === node.path
+                ? "bg-[#111111] text-[#FFF8DC] border-[#1F1F1F]"
+                : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#111111]/50"
             )}
           >
             <div className="flex items-center gap-2 w-full">
+              {/* File icon changes color based on selection state */}
               <FileText size={14} className={cn(
                 "shrink-0 transition-colors",
                 selectedFilePath === node.path ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#B8860B]"
               )} />
+              {/* File name with strikethrough if archived */}
               <span className={cn("truncate flex-1", node.isArchived && "line-through")}>{node.name}</span>
             </div>
+            
+            {/* Show relative time since last update (e.g., "5 min ago") */}
             {node.updatedAt && (() => {
               const { text, color } = formatRelativeTime(node.updatedAt);
               return (

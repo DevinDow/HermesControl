@@ -10,34 +10,50 @@ export async function GET(request: Request) {
   try {
     const workspacePath = getWorkspacePath();
 
+    // Recursively traverses directory structure and filters files based on the current 'mode'
+    // Each call returns an ARRAY of FILE/DIRECTORY objects with metadata, which are then flattened and filtered according to the mode's criteria
     async function getFiles(dir: string): Promise<any[]> {
+      // Normalize path separators to forward slashes for consistent path comparisons
       const normalDir = dir.replace(/\\/g, '/');
+      
+      // Read all entries (files and directories) in the current directory
       const entries = await fs.readdir(dir, { withFileTypes: true });
+      
+      // Process each ENTRY asynchronously and collect results
       const files = await Promise.all(entries.map(async (entry) => {
         const fullPath = path.join(dir, entry.name);
         const relativePath = path.relative(workspacePath, fullPath);
 
+        // handle DIRECTORY
         if (entry.isDirectory()) {
-          // Internal folders to always skip
+          // Skip these standard system folders regardless of mode
           if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.next') {
             return null;
           }
 
-          // Mode-specific directory filtering
+          //console.log('Checking', mode, 'mode for directory:', entry.name, 'in', normalDir);
+
+          // Filter directories based on the current mode - only include matching directory patterns
           if (mode === 'docs') {
-            // Don't recurse into subfolders for docs mode
+            // Don't recurse into subfolders for docs mode - only get top-level markdown files
             return null;
           } else if (mode === 'memory') {
+            // Only include 'memories' folder and its contents
             if (entry.name !== 'memories' && !normalDir.includes('/memories')) return null;
           } else if (mode === 'logs') {
+            // Only include 'logs' folder and its contents
             if (entry.name !== 'logs' && !normalDir.includes('/logs')) return null;
           } else if (mode === 'specs') {
+            // Only include 'specs' folder and its contents
             if (entry.name !== 'specs' && !normalDir.includes('/specs')) return null;
           } else if (mode === 'old') {
+            // Only include 'OLD' folder and its contents
             if (entry.name !== 'OLD' && !normalDir.includes('/OLD')) return null;
           }
 
+          // Recursively get FILES from this SUBDIRECTORY - this will return an array of FILE/DIRECTORY objects for the subdirectory, which we will attach as 'children' to this directory object
           const children = await getFiles(fullPath);
+          // Skip EMPTY DIRECTORIES
           if (children.length === 0) return null;
 
           return {
@@ -46,46 +62,64 @@ export async function GET(request: Request) {
             path: relativePath,
             children: children
           };
-        } else {
+        } 
+
+        // handle FILE
+        else {
+          // Process FILE entries
           const stats = await fs.stat(fullPath);
-          const isMarkdown = entry.name.endsWith('.md');
+          
+          // List of FILE EXTENSIONS that should be treated as code files
           const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css', '.json', '.gitignore', '.env', '.html', '.yaml', '.yml'];
+          // Check if this FILE has a code extension
           const isCode = codeExts.some(ext => entry.name.endsWith(ext));
+          // Check if this is a SPEC FILE (ends with _spec.md or is in specs folder) but not code
           const isSpec = (entry.name.endsWith('_spec.md') || normalDir.includes('/specs')) && !isCode;
+          // Check if this FILE is in the OLD or archive directory (archived content)
           const isOld = normalDir.includes('/OLD') || normalDir.includes('/memory/archive');
+          // Check if this FILE is in the memories folder
           const isMemoryFile = normalDir.includes('/memories');
 
+          // Filter FILES based on mode - only return FILES that match the mode's criteria
           if (mode === 'docs') {
+            // Return only MARKDOWN FILES for 'docs' mode
             return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'memory') {
+            // Return only MARKDOWN FILES from 'memories' folder that aren't specs
             return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'logs') {
+            // Return only LOG FILES for 'logs' mode
             return entry.name.endsWith('.log') ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'specs') {
+            // Return only SPEC FILES for 'specs' mode (files that are identified as specs but not code files)
             return isSpec ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'old') {
+            // Return only ARCHIVED/OLD files for 'old' mode - this includes any file in the OLD folder or memory archive, regardless of extension
             return isOld ? { name: entry.name, type: 'file', path: relativePath, isArchived: true, updatedAt: stats.mtimeMs } : null;
           }
 
+          // If no mode matched, return null (file doesn't match any filter)
           return null;
         }
       }));
-      // Flatten the array since memory mode might return nested arrays
+      
+      // Flatten the array (removes nested arrays from directory recursion) and remove null entries
       return files.flat().filter(f => f !== null);
     }
 
     let fileTree = await getFiles(workspacePath);
 
-    // Mode-specific sorting
+    // Mode-specific sorting and formatting
     if (mode === 'old') {
+      // For 'old' mode, we want a virtual grouping by file extension instead of a normal tree structure
       const allOldFiles: any[] = [];
       const flatten = (nodes: any[]) => {
         for (const node of nodes) {
@@ -95,6 +129,7 @@ export async function GET(request: Request) {
       };
       flatten(fileTree);
 
+      // Group the old files by extension so we can render synthetic folders by type
       const groups: Record<string, any[]> = {};
       for (const file of allOldFiles) {
         const ext = file.name.includes('.') ? file.name.split('.').pop()?.toLowerCase() || 'other' : 'other';
@@ -116,28 +151,29 @@ export async function GET(request: Request) {
       fileTree = newTree;
     }
 
-    if (mode === 'memory') {
-      // Flatten the tree to get all files from memories folder
-      const allMemoryFiles: any[] = [];
+    if (mode === 'docs' || mode === 'memory' || mode === 'logs' || mode === 'specs') {
+      // For these modes the UI expects a flat list of files, so flatten the directory tree completely
+      //console.log('Flattening file tree for mode:', mode);
+      //console.log('Original file tree:', JSON.stringify(fileTree, null, 2));
+      const allFiles: any[] = [];
       const flatten = (nodes: any[]) => {
         for (const node of nodes) {
-          if (node.type === 'file') allMemoryFiles.push(node);
+          // collect all file nodes into a single flat array, ignoring directories (which are just organizational wrappers for the UI in these modes)
+          if (node.type === 'file') allFiles.push(node);
           else if (node.type === 'directory' && node.children) flatten(node.children);
         }
       };
       flatten(fileTree);
-      fileTree = allMemoryFiles;
+      fileTree = allFiles;
 
-      // Sort everything alphabetically descending (which puts newest dates at top)
-      fileTree.sort((a, b) => b.name.localeCompare(a.name));
-    }
-
-    if (mode === 'docs') {
-      const workspaceChildren = fileTree.filter(f => f.type === 'file');
+      // Ensure we only return file nodes, dropping any directory wrappers that may remain
+      const children = fileTree.filter(f => f.type === 'file');
       fileTree = [];
-      fileTree.push(...workspaceChildren);
+      fileTree.push(...children);
+      //console.log('Flattened file tree:', JSON.stringify(fileTree, null, 2));
     }
 
+    // Return the final JSON payload of files or grouped old files
     return NextResponse.json(fileTree);
   } catch (error) {
     console.error('Failed to fetch files:', error);

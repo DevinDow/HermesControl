@@ -2,7 +2,7 @@
 export function LogsToolLeft({ logsTree, renderFileTree }: any) {
   return (
     <>
-      {renderFileTree(logsTree, false, true)}
+      {renderFileTree(logsTree)}
     </>
   );
 }
