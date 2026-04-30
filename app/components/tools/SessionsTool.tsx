@@ -33,7 +33,7 @@ export function SessionsToolLeft({
             <div className="text-[13px] font-semibold text-[#FFF8DC] truncate">
               {session.title || 'Untitled Session'}
             </div>
-            <div className="text-[11px] text-[#B8860B] uppercase tracking-wider">
+            <div className="text-[11px] text-[#FFBF00] tracking-wider">
               {session.lastActive || 'Unknown'}
             </div>
           </div>
