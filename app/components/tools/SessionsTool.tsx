@@ -26,7 +26,7 @@ export function SessionsToolLeft({
           onClick={() => setSelectedSessionId(session.id)}
           className={cn(
             'w-full text-left p-3 rounded-lg border transition-all group',
-            selectedSessionId === session.id ? 'bg-[#111111] border-[#1F1F1F]' : 'border-transparent hover:bg-[#111111]/50'
+            selectedSessionId === session.id ? 'bg-[#222222] border-[#1F1F1F]' : 'border-transparent hover:bg-[#111111]/50'
           )}
         >
           <div className="flex items-center justify-between gap-3 mb-2">
@@ -115,7 +115,7 @@ export function SessionsToolRight({ selectedSession }: any) {
   }
 
   return (
-    <div className="p-6 space-y-6 overflow-y-auto">
+    <div className="p-2 space-y-2 overflow-y-auto">
       <div className="flex items-center gap-3">
         <MessageSquare size={24} className="text-[#FFBF00]" />
         <div className="text-[13px] text-[#B8860B]">
@@ -149,32 +149,21 @@ export function SessionsToolRight({ selectedSession }: any) {
             const messageKey = message.id ?? `message-${idx}`;
             const messageNumber = message.index != null ? message.index + 1 : sessionData.messages.length - idx;
             return (
-              <div key={messageKey} className="bg-[#111111] border border-[#1F1F1F] rounded-xl overflow-hidden">
+              <div key={messageKey} className="bg-[#222222] border border-[#B8860B] rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                  className="w-full flex items-start gap-3 p-4 text-left"
+                  className="p-4 text-left"
                 >
-                  <div className="mt-1">
+                  <div className="flex items-start gap-2">
                     {isExpanded ? <ChevronDown size={18} className="text-[#FFBF00]" /> : <ChevronRight size={18} className="text-[#B8860B]" />}
+                    <span>#{messageNumber}</span>
+                    <span className="font-bold text-[#FFD700]">{message.role}</span>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 text-[12px] uppercase tracking-wider text-[#B8860B] mb-2">
-                      <span>#{messageNumber}</span>
-                      <span className="font-bold text-[#FFD700]">{message.role}</span>
-                    </div>
-                    <pre className="max-h-[250px] overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
-                      {!isExpanded && message.content}
-                    </pre>
-                  </div>
+                  <pre className={`overflow-auto text-[11px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words ${!isExpanded ? "max-h-[250px]" : ""}`}>
+                    {message.content}
+                  </pre>
                 </button>
-                {isExpanded && (
-                  <div className="border-t border-[#1F1F1F] bg-[#0D0D0D] p-4">
-                    <pre className="overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
-                      {message.content}
-                    </pre>
-                  </div>
-                )}
               </div>
             );
           })
