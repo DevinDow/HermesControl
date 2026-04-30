@@ -64,6 +64,7 @@ import { DocsToolLeft } from './components/tools/DocsTool';
 import { MemoryToolLeft } from './components/tools/MemoryTool';
 import { ModelsToolLeft, ModelsToolRight } from './components/tools/ModelsTool';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
+import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
 import { SpecsToolLeft } from './components/tools/SpecsTool';
 import { LogsToolLeft } from './components/tools/LogsTool';
 import { SystemStatus } from './components/SystemStatus';
@@ -75,7 +76,6 @@ import { GitToolLeft, GitToolRight } from './components/tools/GitTool';
 import { SkillsToolLeft, SkillsToolRight } from './components/tools/SkillsTool';
 import { HelpToolLeft, HelpToolRight } from './components/tools/HelpTool';
 import { OldToolLeft } from './components/tools/OldTool';
-import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
 
 
 function cn(...inputs: ClassValue[]) {
@@ -248,7 +248,7 @@ export default function HermesControl() {
     { name: 'Memory', icon: Brain },
     { name: 'Models', icon: BrainCog },
     { name: 'Jobs', icon: Clock },
-    { name: 'Sessions', icon: Clock },
+    { name: 'Sessions', icon: Users },
     { name: 'Specs', icon: ScrollText },
     { name: 'Logs', icon: Activity },
     { name: 'System', icon: Settings },
