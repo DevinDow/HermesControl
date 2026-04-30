@@ -48,9 +48,9 @@ export async function GET(request: NextRequest) {
     };
 
     const model = getField('model', 'modelId');
-    const baseUrl = getField('baseUrl', 'url', 'endpoint');
+    const baseUrl = getField('base_url', 'url', 'endpoint');
     const platform = getField('platform', 'service', 'provider');
-    const sessionStart = getField('sessionStart', 'startedAt', 'createdAt', 'timestamp', 'ts');
+    const sessionStart = getField('session_start', 'startedAt', 'createdAt', 'timestamp', 'ts');
 
     const formattedMessages = messages.map((item: any, index: number) => {
       const role = item?.role || item?.actor || item?.type || 'unknown';

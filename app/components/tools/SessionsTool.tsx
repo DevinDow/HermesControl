@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, Loader2, ChevronDown, ChevronRight, MessageSquare } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { formatRelativeTime, formatSessionTime } from './utils/dateFormatting';
 
 export function SessionsToolLeft({
   sessions,
@@ -133,7 +134,14 @@ export function SessionsToolRight({ selectedSession }: any) {
         </div>
         <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
         <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Session Start</div>
-        <div className="text-[13px] text-[#FFF8DC]">{sessionData.sessionStart || 'Unknown'}</div>
+        {(() => {
+          const { text, color } = formatRelativeTime(sessionData.sessionStart);
+            return (
+              <div className={cn("text-[10px] font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
+                {text}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
