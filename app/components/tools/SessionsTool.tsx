@@ -144,7 +144,7 @@ export function SessionsToolRight({ selectedSession }: any) {
         {sessionData.messages.length === 0 ? (
           <div className="text-[#B8860B]">No messages found in this session log.</div>
         ) : (
-          [...sessionData.messages].reverse().map((message: any, idx: number) => {
+          [...sessionData.messages].map((message: any, idx: number) => {
             const isExpanded = !!expanded[idx];
             const messageKey = message.id ?? `message-${idx}`;
             const messageNumber = message.index != null ? message.index + 1 : sessionData.messages.length - idx;

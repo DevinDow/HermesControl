@@ -7,11 +7,6 @@ function safeId(id: string) {
   return /^[A-Za-z0-9_\-]+$/.test(id);
 }
 
-function truncateText(value: any) {
-  if (typeof value !== 'string') return '';
-  return value.length > 120 ? `${value.slice(0, 120)}…` : value;
-}
-
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id');
   if (!id) {
@@ -52,33 +47,13 @@ export async function GET(request: NextRequest) {
     const platform = getField('platform', 'service', 'provider');
     const sessionStart = getField('session_start', 'startedAt', 'createdAt', 'timestamp', 'ts');
 
-    const formattedMessages = messages.map((item: any, index: number) => {
-      const role = item?.role || item?.actor || item?.type || 'unknown';
-      let content = item?.content || item?.text || item?.message || item?.body || '';
-
-      if (typeof content === 'object') {
-        content = JSON.stringify(content);
-      }
-      if (content === '' && typeof item === 'object') {
-        content = JSON.stringify(item);
-      }
-
-      return {
-        index,
-        role,
-        content: truncateText(content),
-        raw: item,
-      };
-    });
-
     return NextResponse.json({
       id,
       model: model || null,
       baseUrl: baseUrl || null,
       platform: platform || null,
       sessionStart: sessionStart || null,
-      messages,
-      content,
+      messages: messages.reverse(), // Show most recent messages first
     });
   } catch (error: any) {
     console.error('Failed to read session file:', error);
