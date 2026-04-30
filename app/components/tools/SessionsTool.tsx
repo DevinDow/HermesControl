@@ -159,9 +159,14 @@ export function SessionsToolRight({ selectedSession }: any) {
                     {isExpanded ? <ChevronDown size={18} className="text-[#FFBF00]" /> : <ChevronRight size={18} className="text-[#B8860B]" />}
                     <span>#{messageNumber}</span>
                     <span className="font-bold text-[#FFD700]">{message.role}</span>
+                    <span className="text-sm text-[#888888]">{message.reasoning}</span>
+                    <span className="text-sm text-[#888888]">{message.finish_reason}</span>
                   </div>
                   <pre className={`overflow-auto text-[11px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words ${!isExpanded ? "max-h-[250px]" : ""}`}>
                     {message.content}
+                  </pre>
+                  <pre className={`overflow-auto text-[11px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words ${!isExpanded ? "max-h-[250px]" : ""}`}>
+                    {message.tool_calls ? JSON.stringify(message.tool_calls, null, 2) : ''}
                   </pre>
                 </button>
               </div>
