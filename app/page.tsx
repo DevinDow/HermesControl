@@ -548,7 +548,7 @@ export default function HermesControl() {
 
       // 2. Resolve URL based on state
       let url = '';
-      if (activeTab === 'History' && selectedSessionId) {
+      if ((activeTab === 'Sessions' || activeTab === 'History') && selectedSessionId) {
         url = `/api/sessions/content?id=${selectedSessionId}`;
       } else if (activeTab === 'Jobs' && selectedJobId && viewingJobLog) {
         const job = jobs.find(j => j.id === selectedJobId);

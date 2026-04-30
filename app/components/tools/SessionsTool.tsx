@@ -1,5 +1,7 @@
-import React from 'react';
-import { Clock, Activity } from 'lucide-react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { Activity, Loader2, ChevronDown, ChevronRight, MessageSquare } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export function SessionsToolLeft({
@@ -58,42 +60,128 @@ export function SessionsToolLeft({
 }
 
 export function SessionsToolRight({ selectedSession }: any) {
+  const [sessionData, setSessionData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    if (!selectedSession?.id) {
+      setSessionData(null);
+      setError(null);
+      return;
+    }
+
+    const loadSession = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/sessions/content?id=${encodeURIComponent(selectedSession.id)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || `Failed to load session ${selectedSession.id}`);
+        }
+        setSessionData(data);
+      } catch (err: any) {
+        setError(err.message || 'Unable to load session data');
+        setSessionData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSession();
+  }, [selectedSession]);
+
   if (!selectedSession) {
     return <div className="p-8 text-[#B8860B]">Select a session to view its details.</div>;
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center gap-3 text-[#B8860B]">
+        <Loader2 size={18} className="animate-spin" /> Loading session data...
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="p-8 text-[#ff6b6b]">{error}</div>;
+  }
+
+  if (!sessionData) {
+    return <div className="p-8 text-[#B8860B]">No session data available.</div>;
   }
 
   return (
     <div className="p-6 space-y-6 overflow-y-auto">
       <div className="flex items-center gap-3">
-        <Activity size={24} className="text-[#FFBF00]" />
+        <MessageSquare size={24} className="text-[#FFBF00]" />
         <div>
-          <h2 className="text-lg font-semibold text-[#FFF8DC]">{selectedSession.title || 'Untitled Session'}</h2>
-          <div className="text-[11px] uppercase tracking-wider text-[#B8860B]">{selectedSession.lastActive || 'Unknown last active'}</div>
+          <h2 className="text-lg font-semibold text-[#FFF8DC]">Session {sessionData.id}</h2>
+          <div className="text-[11px] uppercase tracking-wider text-[#B8860B]">Session details from JSON</div>
         </div>
       </div>
 
-      <div className="grid gap-4">
-        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
-          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Preview</div>
-          <p className="text-[13px] leading-6 text-[#FFF8DC]">{selectedSession.preview || 'No preview available'}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-2">
+          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">ID</div>
+          <div className="text-[13px] text-[#FFF8DC] font-mono break-all">{sessionData.id}</div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
-            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Session ID</div>
-            <div className="text-[13px] text-[#FFF8DC] font-mono break-all">{selectedSession.id}</div>
-          </div>
-
-          <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
-            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Last Active</div>
-            <div className="text-[13px] text-[#FFF8DC]">{selectedSession.lastActive || 'Unknown'}</div>
-          </div>
+        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
+          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Model</div>
+          <div className="text-[13px] text-[#FFF8DC]">{sessionData.model || 'Unknown'}</div>
         </div>
-
-        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
-          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Raw JSON</div>
-          <pre className="max-h-[320px] overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">{JSON.stringify(selectedSession, null, 2)}</pre>
+        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
+          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Base URL</div>
+          <div className="text-[13px] text-[#FFF8DC] break-words">{sessionData.baseUrl || 'Unknown'}</div>
         </div>
+        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
+          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Platform</div>
+          <div className="text-[13px] text-[#FFF8DC]">{sessionData.platform || 'Unknown'}</div>
+        </div>
+      </div>
+
+      <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
+        <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Session Start</div>
+        <div className="text-[13px] text-[#FFF8DC]">{sessionData.sessionStart || 'Unknown'}</div>
+      </div>
+
+      <div className="space-y-3">
+        {sessionData.messages.length === 0 ? (
+          <div className="text-[#B8860B]">No messages found in this session log.</div>
+        ) : (
+          sessionData.messages.map((message: any) => {
+            const isExpanded = !!expanded[message.index];
+            return (
+              <div key={message.index} className="bg-[#111111] border border-[#1F1F1F] rounded-xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setExpanded(prev => ({ ...prev, [message.index]: !prev[message.index] }))}
+                  className="w-full flex items-start gap-3 p-4 text-left"
+                >
+                  <div className="mt-1">
+                    {isExpanded ? <ChevronDown size={18} className="text-[#FFBF00]" /> : <ChevronRight size={18} className="text-[#B8860B]" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 text-[12px] uppercase tracking-wider text-[#B8860B] mb-2">
+                      <span>Message #{message.index + 1}</span>
+                      <span className="text-[#888888]">{message.role}</span>
+                    </div>
+                    <div className="text-[13px] text-[#FFF8DC]">{message.content || '—'}</div>
+                  </div>
+                </button>
+                {isExpanded && (
+                  <div className="border-t border-[#1F1F1F] bg-[#0D0D0D] p-4">
+                    <pre className="max-h-[340px] overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
+{JSON.stringify(message.raw, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
