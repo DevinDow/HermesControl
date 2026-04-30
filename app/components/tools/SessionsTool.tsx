@@ -118,30 +118,25 @@ export function SessionsToolRight({ selectedSession }: any) {
     <div className="p-6 space-y-6 overflow-y-auto">
       <div className="flex items-center gap-3">
         <MessageSquare size={24} className="text-[#FFBF00]" />
-        <div>
+        <div className="text-[13px] text-[#B8860B]">
           <h2 className="text-lg font-semibold text-[#FFF8DC]">Session {sessionData.id}</h2>
-          <div className="text-[13px] font-bold text-[#B8860B]">Model: {sessionData.model || 'Unknown'}</div>        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
-          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Base URL</div>
-          <div className="text-[13px] text-[#FFF8DC] break-words">{sessionData.baseUrl || 'Unknown'}</div>
-        </div>
-        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
-          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Platform</div>
-          <div className="text-[13px] uppercase text-[#FFF8DC]">{sessionData.platform || 'Unknown'}</div>
-        </div>
-        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
-        <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Session Start</div>
-        {(() => {
-          const { text, color } = formatRelativeTime(sessionData.sessionStart);
-            return (
-              <div className={cn("text-[10px] font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
-                {text}
-              </div>
-            );
-          })()}
+          <div>
+            <span className="font-bold text-[#FFD700]">{sessionData.model || 'Unknown'}</span>
+            <span> from </span>
+            <span className="text-[#FFBF00]">{sessionData.baseUrl || 'Unknown'}</span>
+          </div>
+          <div>
+            <span className="font-bold text-[#FFD700] uppercase">{sessionData.platform || 'Unknown'}</span>
+            <span> started </span>
+            {(() => {
+              const { text, color } = formatRelativeTime(sessionData.sessionStart);
+                return (
+                  <span className={cn("font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
+                    {text}
+                  </span>
+                );
+              })()}
+          </div>
         </div>
       </div>
 
