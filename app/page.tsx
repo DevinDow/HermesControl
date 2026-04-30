@@ -69,7 +69,6 @@ import { LogsToolLeft } from './components/tools/LogsTool';
 import { SystemStatus } from './components/SystemStatus';
 import { SystemToolLeft } from './components/tools/SystemTool';
 import { ScriptsToolLeft } from './components/tools/ScriptsTool';
-import { CodeToolLeft } from './components/tools/CodeTool';
 import { FileViewerRight } from './components/tools/FileViewer';
 import { CmdToolLeft, CmdToolRight } from './components/tools/CmdTool';
 import { GitToolLeft, GitToolRight } from './components/tools/GitTool';
@@ -107,9 +106,6 @@ export default function HermesControl() {
   const [oldTree, setOldTree] = useState<any[]>([]);
   const [systemTree, setSystemTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
-  const [codeTree, setCodeTree] = useState<any[]>([]);
-  const [codeFolderData, setCodeFolderData] = useState<Record<string, any[]>>({});
-  const [expandedCodeFolders, setExpandedCodeFolders] = useState<Set<string>>(new Set());
   const [expandedSystemFolders, setExpandedSystemFolders] = useState<Set<string>>(new Set());
   const [expandedDocsFolders, setExpandedDocsFolders] = useState<Set<string>>(new Set(["__VIRTUAL__/README", "__VIRTUAL__/WORKSPACE", "plans"]));
   const [cmdHistory, setCmdHistory] = useState<any[]>([]);
@@ -255,7 +251,6 @@ export default function HermesControl() {
     { name: 'Logs', icon: Activity },
     { name: 'System', icon: Settings },
     { name: 'Scripts', icon: Parentheses },
-    { name: 'Code', icon: Code2 },
     { name: 'Cmd', icon: Terminal },
     { name: 'Git', icon: GitBranch },
     { name: 'Skills', icon: Wrench },
@@ -591,8 +586,6 @@ export default function HermesControl() {
         url = `/api/git/diff?commit=${selectedGitCommit}`;
       } else if (activeTab === 'Git' && selectedGitFile) {
         url = `/api/git/diff?file=${encodeURIComponent(selectedGitFile)}`;
-      } else if (activeTab === 'Code' && selectedFilePath) {
-        url = `/api/files/content?path=__TOOLS__/${encodeURIComponent(selectedFilePath)}`;
       } else if (activeTab === 'Skills' && selectedSkillId) {
         const [origin, name] = selectedSkillId.split(':');
         url = `/api/skills/content?origin=${origin}&name=${encodeURIComponent(name)}&filename=${encodeURIComponent(selectedSkillFile || 'SKILL.md')}`;
@@ -801,7 +794,6 @@ export default function HermesControl() {
       case 'Old': return <OldToolLeft oldTree={oldTree} renderFileTree={renderFileTree} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} renderFileTree={renderFileTree} setActiveTab={setActiveTab} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
-      case 'Code': return <CodeToolLeft loading={loading} setLoading={setLoading} codeFolderData={codeFolderData} setCodeFolderData={setCodeFolderData} expandedCodeFolders={expandedCodeFolders} setExpandedCodeFolders={setExpandedCodeFolders} codeTree={codeTree} setCodeTree={setCodeTree} fetchData={fetchData} matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
       case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
         const data = await fetchData('/api/git', setGitStatus, 'git');
@@ -826,7 +818,6 @@ export default function HermesControl() {
       case 'Specs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Scripts': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      case 'Code': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Cmd': return <CmdToolRight selectedCmd={selectedCmd} />;
       case 'Git': return <GitToolRight selectedGitFile={selectedGitFile} selectedGitCommit={selectedGitCommit} loading={loading} gitDiff={gitDiff} selectedGitType={selectedGitType} />;
       case 'Skills': return <SkillsToolRight selectedSkill={selectedSkill} selectedSkillFile={selectedSkillFile} setSelectedSkillFile={setSelectedSkillFile} loading={loading} fileContent={fileContent} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} />;
@@ -903,10 +894,6 @@ export default function HermesControl() {
                 if (item.name === 'Git') {
                   setGitStale(false);
                   fetch('/api/git/pulse').then(r => r.json()).then(d => setGitFingerprint(d.fingerprint)).catch(() => { });
-                }
-                if (item.name === 'Code') {
-                  fetchData('/api/code', setCodeTree, 'code');
-                  setSelectedFilePath(null);
                 }
                 if (item.name === 'Logs') {
                   if (logs.length === 0) fetchData('/api/files?mode=logs', setLogs, 'logs');
