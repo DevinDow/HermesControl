@@ -75,6 +75,7 @@ import { GitToolLeft, GitToolRight } from './components/tools/GitTool';
 import { SkillsToolLeft, SkillsToolRight } from './components/tools/SkillsTool';
 import { HelpToolLeft, HelpToolRight } from './components/tools/HelpTool';
 import { OldToolLeft } from './components/tools/OldTool';
+import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
 
 
 function cn(...inputs: ClassValue[]) {
@@ -247,6 +248,7 @@ export default function HermesControl() {
     { name: 'Memory', icon: Brain },
     { name: 'Models', icon: BrainCog },
     { name: 'Jobs', icon: Clock },
+    { name: 'Sessions', icon: Clock },
     { name: 'Specs', icon: ScrollText },
     { name: 'Logs', icon: Activity },
     { name: 'System', icon: Settings },
@@ -374,6 +376,7 @@ export default function HermesControl() {
     fetchData('/api/jobs', setJobs, 'jobs').then(data => {
       if (Array.isArray(data) && data.length > 0) setSelectedJobId(data[0].id);
     });
+    fetchData('/api/sessions', setSessions, 'sessions');
     fetchData('/api/files?mode=memory', setMemoryTree, 'files').then(data => {
       if (Array.isArray(data) && data.length > 0 && activeTab === 'Memory') {
         const firstFile = data[0].type === 'file' ? data[0] : data[0].children?.[0];
@@ -514,42 +517,12 @@ export default function HermesControl() {
     }
   }, [gitStale, activeTab]);
 
-  // targeted Staleness Polling for Active Session (2s)
   useEffect(() => {
-    if (!selectedSessionId || !isMounted) return;
+    if (activeTab !== 'Sessions' || selectedSessionId || sessions.length === 0) return;
+    setSelectedSessionId(sessions[0].id);
+  }, [activeTab, sessions, selectedSessionId]);
 
-    const interval = setInterval(() => {
-      if (contentLoadedAt > 0) {
-        fetch(`/api/sessions/timestamp?id=${selectedSessionId}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.updatedAt > contentLoadedAt + 2000) {
-              setSessionStale(true);
-              if (data.lineCount > currentLinesCount) {
-                setSessionNewLineCount(data.lineCount - currentLinesCount);
-              }
-
-              // Only update the sidebar if the timestamp is actually newer than what we currently show
-              setSessions(prev => {
-                const session = prev.find(s => s.sessionId === selectedSessionId);
-                if (session && session.updatedAt < data.updatedAt) {
-                  return prev.map(s =>
-                    s.sessionId === selectedSessionId
-                      ? { ...s, updatedAt: data.updatedAt }
-                      : s
-                  );
-                }
-                return prev;
-              });
-            }
-          })
-          .catch(() => { });
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [selectedSessionId, contentLoadedAt, isMounted]);
-
+  // No active timestamp polling for Sessions because the current backend only exposes the sessions list endpoint.
   useEffect(() => {
     if (!selectedSessionId || !isMounted) return;
 
@@ -575,7 +548,7 @@ export default function HermesControl() {
 
       // 2. Resolve URL based on state
       let url = '';
-      if ((activeTab === 'Sessions' || activeTab === 'History') && selectedSessionId) {
+      if (activeTab === 'History' && selectedSessionId) {
         url = `/api/sessions/content?id=${selectedSessionId}`;
       } else if (activeTab === 'Jobs' && selectedJobId && viewingJobLog) {
         const job = jobs.find(j => j.id === selectedJobId);
@@ -794,6 +767,7 @@ export default function HermesControl() {
       case 'Old': return <OldToolLeft oldTree={oldTree} renderFileTree={renderFileTree} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} renderFileTree={renderFileTree} setActiveTab={setActiveTab} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
+      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
       case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
         const data = await fetchData('/api/git', setGitStatus, 'git');
@@ -815,6 +789,7 @@ export default function HermesControl() {
     switch (activeTab) {
       case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
+      case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} />;
       case 'Specs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Scripts': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
@@ -894,6 +869,9 @@ export default function HermesControl() {
                 if (item.name === 'Git') {
                   setGitStale(false);
                   fetch('/api/git/pulse').then(r => r.json()).then(d => setGitFingerprint(d.fingerprint)).catch(() => { });
+                }
+                if (item.name === 'Sessions') {
+                  if (sessions.length > 0) setSelectedSessionId(sessions[0].id);
                 }
                 if (item.name === 'Logs') {
                   if (logs.length === 0) fetchData('/api/files?mode=logs', setLogs, 'logs');

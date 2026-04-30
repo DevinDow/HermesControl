@@ -30,6 +30,7 @@ export async function GET() {
           preview: parts[1],
           lastActive: parts[2],
           id: parts[3],
+          sessionId: parts[3],
         };
       }
       
@@ -39,6 +40,7 @@ export async function GET() {
         preview: parts[1] || '',
         lastActive: parts[parts.length - 2] || '',
         id: parts[parts.length - 1] || '',
+        sessionId: parts[parts.length - 1] || '',
       };
     });
     
