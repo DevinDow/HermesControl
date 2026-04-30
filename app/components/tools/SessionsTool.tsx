@@ -119,32 +119,22 @@ export function SessionsToolRight({ selectedSession }: any) {
         <MessageSquare size={24} className="text-[#FFBF00]" />
         <div>
           <h2 className="text-lg font-semibold text-[#FFF8DC]">Session {sessionData.id}</h2>
-          <div className="text-[11px] uppercase tracking-wider text-[#B8860B]">Session details from JSON</div>
-        </div>
+          <div className="text-[13px] font-bold text-[#B8860B]">Model: {sessionData.model || 'Unknown'}</div>        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
-        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-2">
-          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">ID</div>
-          <div className="text-[13px] text-[#FFF8DC] font-mono break-all">{sessionData.id}</div>
-        </div>
-        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
-          <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Model</div>
-          <div className="text-[13px] text-[#FFF8DC]">{sessionData.model || 'Unknown'}</div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
           <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Base URL</div>
           <div className="text-[13px] text-[#FFF8DC] break-words">{sessionData.baseUrl || 'Unknown'}</div>
         </div>
         <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5 col-span-1">
           <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Platform</div>
-          <div className="text-[13px] text-[#FFF8DC]">{sessionData.platform || 'Unknown'}</div>
+          <div className="text-[13px] uppercase text-[#FFF8DC]">{sessionData.platform || 'Unknown'}</div>
         </div>
-      </div>
-
-      <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
+        <div className="bg-[#111111] border border-[#1F1F1F] rounded-xl p-5">
         <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-wider mb-2">Session Start</div>
         <div className="text-[13px] text-[#FFF8DC]">{sessionData.sessionStart || 'Unknown'}</div>
+        </div>
       </div>
 
       <div className="space-y-3">

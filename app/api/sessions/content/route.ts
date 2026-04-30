@@ -27,20 +27,17 @@ export async function GET(request: NextRequest) {
 
   try {
     const content = await readFile(filePath, 'utf8');
-    const lines = content.split('\n').filter(Boolean);
-    const parsed: any[] = [];
+    const parsedJson = JSON.parse(content);
 
-    for (const line of lines) {
-      try {
-        parsed.push(JSON.parse(line));
-      } catch (err) {
-        // keep malformed lines as raw text
-        parsed.push({ _raw: line });
-      }
-    }
+    const messages = Array.isArray(parsedJson.messages)
+      ? parsedJson.messages
+      : Array.isArray(parsedJson)
+        ? parsedJson
+        : [];
 
     const getField = (...keys: string[]) => {
-      for (const item of parsed) {
+      const searchObjects = [parsedJson, ...messages];
+      for (const item of searchObjects) {
         if (!item || typeof item !== 'object') continue;
         for (const key of keys) {
           if (item[key] !== undefined) return item[key];
@@ -55,8 +52,8 @@ export async function GET(request: NextRequest) {
     const platform = getField('platform', 'service', 'provider');
     const sessionStart = getField('sessionStart', 'startedAt', 'createdAt', 'timestamp', 'ts');
 
-    const messages = parsed.map((item, index) => {
-      let role = item?.role || item?.actor || item?.type || 'unknown';
+    const formattedMessages = messages.map((item: any, index: number) => {
+      const role = item?.role || item?.actor || item?.type || 'unknown';
       let content = item?.content || item?.text || item?.message || item?.body || '';
 
       if (typeof content === 'object') {
