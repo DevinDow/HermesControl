@@ -144,13 +144,15 @@ export function SessionsToolRight({ selectedSession }: any) {
         {sessionData.messages.length === 0 ? (
           <div className="text-[#B8860B]">No messages found in this session log.</div>
         ) : (
-          sessionData.messages.map((message: any) => {
-            const isExpanded = !!expanded[message.index];
+          [...sessionData.messages].reverse().map((message: any, idx: number) => {
+            const isExpanded = !!expanded[idx];
+            const messageKey = message.id ?? `message-${idx}`;
+            const messageNumber = message.index != null ? message.index + 1 : sessionData.messages.length - idx;
             return (
-              <div key={message.index} className="bg-[#111111] border border-[#1F1F1F] rounded-xl overflow-hidden">
+              <div key={messageKey} className="bg-[#111111] border border-[#1F1F1F] rounded-xl overflow-hidden">
                 <button
                   type="button"
-                  onClick={() => setExpanded(prev => ({ ...prev, [message.index]: !prev[message.index] }))}
+                  onClick={() => setExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))}
                   className="w-full flex items-start gap-3 p-4 text-left"
                 >
                   <div className="mt-1">
@@ -158,8 +160,8 @@ export function SessionsToolRight({ selectedSession }: any) {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 text-[12px] uppercase tracking-wider text-[#B8860B] mb-2">
-                      <span>Message #{message.index + 1}</span>
-                      <span className="text-[#888888]">{message.role}</span>
+                      <span>#{messageNumber}</span>
+                      <span className="font-bold text-[#FFD700]">{message.role}</span>
                     </div>
                     <div className="text-[13px] text-[#FFF8DC]">{message.content || '—'}</div>
                   </div>
