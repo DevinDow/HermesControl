@@ -388,7 +388,6 @@ export default function HermesControl() {
 
     // 3. Version Check: use api/version for gateway metadata and update availability
     fetchData('/api/version', (data: any) => {
-      console.log('Version check:', data);
       setGatewayStatus(prev => ({
         ...prev,
         version: data?.version,
@@ -397,7 +396,7 @@ export default function HermesControl() {
       }));
     }, 'status');
 
-    // Interval 1: High-Performance Online Check (10s, No console.log)
+    // Online check (10s intervals)
     const onlineInterval = setInterval(() => {
       fetch('/api/online')
         .then(res => res.json())
@@ -406,8 +405,9 @@ export default function HermesControl() {
             const wasOffline = prev.online === false;
             const isNowOnline = data.online === true;
 
-            // If it just came back online, re-check version/update status
+            // If it just came back online
             if (wasOffline && isNowOnline) {
+              // Version Check on reconnect
               fetchData('/api/version', (data: any) => setGatewayStatus(prev => ({
                 ...prev,
                 version: data?.version,
@@ -422,10 +422,17 @@ export default function HermesControl() {
         .catch(() => { });
     }, 10000);
 
-    // Interval 3: Version Check (6h)
+    // Model check (10s intervals)
+    const modelStatusInterval = setInterval(() => {
+      fetch('/api/model')
+        .then(res => res.json())
+        .then(data => setModelStatus(data))
+        .catch(() => { });
+    }, 10000);
+
+    // Version check (60s intervals)
     const updateInterval = setInterval(() => {
       fetchData('/api/version', (data: any) => {
-        console.log('Version check (interval):', data);
         setGatewayStatus(prev => ({
           ...prev,
           version: data?.version,
@@ -433,23 +440,15 @@ export default function HermesControl() {
           updateAvailable: !!data?.updateString
         }));
       }, 'status');
-    }, 21600000);
+    }, 60000);
 
-    // Interval 5: Git Status Refresh (60s) - Always on
+    // Git check (60s intervals)
     const gitStatusInterval = setInterval(() => {
       fetch('/api/git')
         .then(res => res.json())
         .then(data => setGitStatus(data))
         .catch(() => { });
     }, 60000);
-
-    // Interval 6: Model Status Refresh (10s) - Always on
-    const modelStatusInterval = setInterval(() => {
-      fetch('/api/model')
-        .then(res => res.json())
-        .then(data => setModelStatus(data))
-        .catch(() => { });
-    }, 10000);
 
     return () => {
       clearInterval(onlineInterval);
