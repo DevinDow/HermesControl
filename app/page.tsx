@@ -387,7 +387,6 @@ export default function HermesControl() {
     fetchData('/api/files?mode=old', setOldTree, 'files');
     fetchData('/api/system', setSystemTree, 'files');
     fetchData('/api/scripts', setScriptsTree, 'files');
-    fetchData('/api/tasks', setTasks, 'tasks');
     fetchData('/api/skills', setSkills, 'skills');
     fetchData('/api/files?mode=logs', setLogs, 'logs');
     fetchData('/api/git', setGitStatus, 'git');

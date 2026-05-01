@@ -125,12 +125,12 @@ export function SystemStatus({
           <button onClick={onNavigateToModel} className="flex items-center gap-2 pr-2 mb-1.5 hover:bg-[#1A1A1A]/50 rounded px-1.5 py-1 -mx-1.5 transition-all">
             <Brain size={10} className="text-[#B8860B]" />
             <div className="flex flex-col gap-0 text-[10px] text-[#FFF8DC] font-mono truncate max-w-[200px]">
-              {modelStatus?.modelName ? (
+              {modelStatus?.model ? (
                 <>
                   <div className="text-[9px] text-[#B8860B]">
                     {modelStatus.provider || ''} / {modelStatus.host || ''}
                   </div>
-                  <div>{modelStatus.modelName}</div>
+                  <div>{modelStatus.model}</div>
                 </>
               ) : (
                 <div>Loading...</div>
@@ -138,7 +138,7 @@ export function SystemStatus({
             </div>
           </button>
 
-          {/* Heartbeat Status Section */}
+          {/* Heartbeat Status Section 
           <button
             onClick={onNavigateToHeartbeat}
             onMouseEnter={() => setHeartbeatTooltip(true)}
@@ -183,14 +183,15 @@ export function SystemStatus({
               )}
             </div>
 
-            {/* Tooltip */}
+            {/* Tooltip 
             {heartbeatTooltip && gatewayStatus.lastHeartbeat?.lastHeartbeatText && (
               <div className="absolute bottom-full left-0 mb-2 p-2.5 bg-[#1A1A1A] border border-[#333333] rounded-md shadow-xl z-50 w-64 text-[10px] text-[#FFF8DC] leading-relaxed max-h-32 overflow-y-auto">
                 {gatewayStatus.lastHeartbeat.lastHeartbeatText}
               </div>
             )}
-
           </button>
+          */}
+
           {/* Git Status Section */}
           <button onClick={onNavigateToGit} className="flex items-center gap-3 pr-2 mb-1.5 flex-wrap hover:bg-[#1A1A1A]/50 rounded px-1.5 py-1 -mx-1.5 transition-all">
             <div className="flex flex-col gap-0.5">
