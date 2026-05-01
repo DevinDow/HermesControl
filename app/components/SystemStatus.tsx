@@ -84,19 +84,21 @@ export function SystemStatus({
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-x-20 inset-y-10 bg-black bg-opacity-60 z-50">
-          {/* Container DIV for modalContent + BUTTON */}
-          <div className="bg-[#080808] p-4 rounded-xl border border-[#FFBF00]">
-            {/* DIV for modalContent */}
-            <div className="bg-[#222222] p-2 rounded border border-[#FFBF00] h-full max-h-96 overflow-auto">
-              {/* modalContent PRE */}
-              <pre className="text-[#FFF8DC]">{modalContent}</pre>
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50"> {/* DIV for Background Opacity */}
+          <div className="fixed inset-20"> {/* DIV for INSET */}
+
+            <div className="bg-[#111111] p-4 rounded-xl border border-[#FFBF00]"> {/* DIV for FRAME */}
+
+              <div className="bg-[#222222] p-2 rounded border border-[#FFBF00] max-h-96 overflow-auto"> {/* DIV for modalContent PRE */}
+                <pre className="text-[#FFF8DC]">{modalContent}</pre> {/* modalContent PRE */}
+              </div>
+
+              {/* Close Button */}
+              <button className="bg-[#FFBF00]/50 text-black rounded stretch w-full mt-4 py-2 font-bold uppercase tracking-widest hover:bg-[#FFBF00]/90 transition-all"
+                onClick={() => setModalOpen(false)} >
+                Close
+              </button>
             </div>
-            {/* Close Button */}
-            <button className="bg-[#FFBF00]/50 text-black rounded stretch w-full mt-4 py-2 font-bold uppercase tracking-widest hover:bg-[#FFBF00]/90 transition-all"
-              onClick={() => setModalOpen(false)} >
-              Close
-            </button>
           </div>
         </div>
       )}
