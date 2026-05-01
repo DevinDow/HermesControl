@@ -139,6 +139,7 @@ export function JobsToolRight({
         <div className="flex items-center gap-3">
           <Clock size={24} className="text-[#FFBF00]" />
           <h2 className="text-lg font-semibold text-body-cornsilk">{selectedJob.name}</h2>
+          <div className="text-sm text-[#B8860B]">ID: {selectedJob.id}</div>
         </div>
         {isDirty && (
           <div className="flex items-center gap-2">
