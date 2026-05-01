@@ -27,14 +27,36 @@ export function SystemStatus({
       <div className="flex justify-between">
 
         {/* • ONLINE */}
-        <div className="flex items-center text-[11px] font-medium text-[#B8860B]">
+        <button className="flex items-center p-1.5 text-[11px] text-[#B8860B] hover:bg-[#222222] rounded transition-all"
+          onClick={async () => {
+            try {
+              const res = await fetch('/api/status');
+              const text = await res.text();
+              if (res.ok) {
+                const win = window.open('', '_blank');
+                if (win) {
+                  win.document.write('<pre>' + text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;') + '</pre>');
+                } else {
+                  console.log(text);
+                }
+              } else {
+                alert(`api/status failed: ${text}`);
+              }
+            } catch (err) {
+              console.error('api/status error:', err);
+            }
+          }}
+        >
           {/* • */}
           <div className={cn("w-1.5 h-1.5 mr-2 rounded-full shadow-[0_0_9px]",
             gatewayStatus.online ? "bg-[#22C55E] shadow-green-500/30 animate-pulse" : "bg-red-500 shadow-red-500/30")} 
           />
           {/* ONLINE */}
           {gatewayStatus.online ? 'ONLINE' : 'OFFLINE'}
-        </div>
+        </button>
 
         {/* Version */}
         <button className="flex items-center p-1.5 text-[11px] text-[#B8860B] hover:bg-[#222222] rounded transition-all"
@@ -43,7 +65,7 @@ export function SystemStatus({
               const res = await fetch('/api/version');
               const data = await res.json();
               if (res.ok) {
-                alert(JSON.stringify(data, null, 2));
+                alert("api/version:\n" + JSON.stringify(data, null, 2));
               } else {
                 alert(`api/version failed: ${data.error}`);
               }
