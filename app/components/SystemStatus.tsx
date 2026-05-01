@@ -35,8 +35,8 @@ export function SystemStatus({
               const res = await fetch('/api/status');
               const text = await res.text();
               if (res.ok) {
-                setModalTitle('Hermes API Status');
-                setModalContent('api/status');
+                setModalTitle('api/status');
+                setModalContent(text);
                 setModalOpen(true);
               } else {
                 alert(`api/status failed: ${text}`);
