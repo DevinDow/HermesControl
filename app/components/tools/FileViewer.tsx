@@ -1,9 +1,8 @@
 ﻿import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Loader2, Edit3, Save, X, Search, ChevronRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { saveFile } from './utils/fileUtils';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 const ListContext = React.createContext<'ordered' | 'unordered' | null>(null);
 
@@ -185,83 +184,7 @@ export function FileViewerRight({
               })()}
             </pre>
           ) : (
-            <ReactMarkdown
-  remarkPlugins={[remarkGfm]}
-  components={{
-                // h1: Strongest hierarchy, bottom border
-                h1: (props) => (
-                  <h1 className="text-2xl font-bold text-body-cornsilk mt-12 mb-8 border-b border-[#1F1F1F] pb-4 first:mt-0" {...props}>
-                    {highlightMatches(props.children, fileSearch)}
-                  </h1>
-                ),
-                // h2: Left border "accent"
-                h2: (props) => (
-                  <h2 className="text-lg font-bold text-body-cornsilk mt-8 mb-4 border-l-2 border-[#FFBF00] pl-4 first:mt-0" {...props}>
-                    {highlightMatches(props.children, fileSearch)}
-                  </h2>
-                ),
-                // h3: Indented relative to h2, subtle left border or just padding
-                h3: (props) => (
-                  <h3 className="text-base font-bold text-body-cornsilk mt-4 mb-3 ml-2 border-l border-gray-700 pl-4 first:mt-0" {...props}>
-                    {highlightMatches(props.children, fileSearch)}
-                  </h3>
-                ),
-                // h4: Deeper indentation, no border
-                h4: (props) => (
-                  <h4 className="text-sm font-bold text-gray-300 mt-2 mb-2 ml-6 first:mt-0" {...props}>
-                    {highlightMatches(props.children, fileSearch)}
-                  </h4>
-                ),
-                p: (props) => (
-                  <p className="mb-4 leading-relaxed text-gray-400 ml-2 h2:ml-6 h3:ml-10" {...props}>
-                    {highlightMatches(props.children, fileSearch)}
-                  </p>
-                ),
-                a: (props) => <a className="text-[#FFBF00] hover:text-[#4A56C0] underline transition-colors" target="_blank" rel="noopener noreferrer" {...props} />,
-                table: (props) => (
-                  <div className="my-6 overflow-x-auto rounded-lg border border-[#FFBF00]">
-                    <table className="w-full border-collapse text-[13px]" {...props} />
-                  </div>
-                ),
-                thead: (props) => <thead className="bg-[#FFBF00]/20 border-b border-[#FFBF00]" {...props} />,
-                th: (props) => <th className="px-4 py-2 text-left font-bold text-[#FFBF00] uppercase tracking-wider border-r border-[#FFBF00]/60 last:border-r-0" {...props}>{highlightMatches(props.children, fileSearch)}</th>,
-                td: (props) => <td className="px-4 py-2 border-t border-r border-[#FFBF00]/60 last:border-r-0 text-[#FFF8DC]" {...props}>{highlightMatches(props.children, fileSearch)}</td>,
-                code: ({ node, inline, className, children, ...props }: any) => {
-                  const hasNewline = String(children).includes('\n');
-                  return (inline || !hasNewline) ? <code className="bg-[#1A1A1A] px-1.5 py-0.5 rounded text-[12px] font-mono text-[#FFBF00]" {...props}>{highlightMatches(children, fileSearch)}</code> :
-                    <pre className="bg-[#080808] border border-[#1F1F1F] p-4 rounded-xl overflow-x-auto my-6 ml-4"><code className={cn("text-[12px] font-mono text-[#FFF8DC]", className)} {...props}>{children}</code></pre>;
-                },
-                ol: ({ node, children, ...props }: any) => (
-                  <ListContext.Provider value="ordered">
-                    <ol className="list-none [counter-reset:li] mb-4" {...props}>
-                      {children}
-                    </ol>
-                  </ListContext.Provider>
-                ),
-                ul: ({ node, children, ...props }: any) => (
-                  <ListContext.Provider value="unordered">
-                    <ul className="list-none mb-4" {...props}>
-                      {children}
-                    </ul>
-                  </ListContext.Provider>
-                ),
-                li: ({ node, children, ...props }: any) => {
-                  const listType = React.useContext(ListContext);
-                  return (
-                    <li className={cn("flex gap-3 text-[14px] text-[#FFF8DC] mb-2", listType === 'ordered' && "[counter-increment:li]")} {...props}>
-                      <span className="text-[#FFBF00] mt-1.5 font-mono min-w-[1.5em] text-right">
-                        {listType === 'ordered' ? <span className="before:content-[counter(li)'.']" /> : '•'}
-                      </span>
-                      <div className="flex-1">
-                        {highlightMatches(children, fileSearch)}
-                      </div>
-                    </li>
-                  );
-                },
-              }}
-            >
-              {preprocessContent(fileContent)}
-            </ReactMarkdown>
+            <MarkdownRenderer content={preprocessContent(fileContent)} search={fileSearch} />
           )
         }
       </div>

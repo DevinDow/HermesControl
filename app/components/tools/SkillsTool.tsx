@@ -1,6 +1,5 @@
 ﻿import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { MarkdownRenderer } from './MarkdownRenderer';
 import { Wrench, Search, ChevronRight, Link as LinkIcon, Loader2, File } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -176,43 +175,7 @@ export function SkillsToolRight({ selectedSkill, selectedSkillFile, setSelectedS
                     </div>
                     <div className="p-8 prose prose-invert prose-sm max-w-none">
                       {loading.content ? <Loader2 size={32} className="text-[#FFBF00] animate-spin mx-auto" /> :
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            h1: (props) => <h1 className="text-2xl font-bold text-body-cornsilk border-b border-[#1F1F1F] pb-4 mb-8 mt-12 first:mt-0" {...props}>{highlightMatches(props.children, fileSearch)}</h1>,
-                            h2: (props) => <h2 className="text-lg font-bold text-body-cornsilk mt-12 mb-4 border-l-2 border-[#FFBF00] pl-4" {...props}>{highlightMatches(props.children, fileSearch)}</h2>,
-                            h3: (props) => <h3 className="text-md font-bold text-body-cornsilk mt-10 mb-3" {...props}>{highlightMatches(props.children, fileSearch)}</h3>,
-                            h4: (props) => <h4 className="text-sm font-bold text-body-cornsilk mt-8 mb-2" {...props}>{highlightMatches(props.children, fileSearch)}</h4>,
-                            p: (props) => {
-                              const content = String(props.children);
-                              if (content.startsWith('Note:') || content.startsWith('Decision:')) {
-                                return (
-                                  <div className="bg-[#fff3bf]/10 border-l-4 border-[#fff3bf] p-4 my-6 rounded-r-lg">
-                                    <p className="m-0 text-[#fff3bf] font-medium" {...props}>{highlightMatches(props.children, fileSearch)}</p>
-                                  </div>
-                                );
-                              }
-                              return <p className="mb-4 leading-relaxed" {...props}>{highlightMatches(props.children, fileSearch)}</p>;
-                            },
-                            a: (props) => <a className="text-[#FFBF00] hover:text-[#4A56C0] underline transition-colors" target="_blank" rel="noopener noreferrer" {...props} />,
-                            table: (props) => (
-                              <div className="my-6 overflow-x-auto rounded-lg border border-[#FFBF00]">
-                                <table className="w-full border-collapse text-[13px]" {...props} />
-                              </div>
-                            ),
-                            thead: (props) => <thead className="bg-[#FFBF00]/20 border-b border-[#FFBF00]" {...props} />,
-                            th: (props) => <th className="px-4 py-2 text-left font-bold text-[#FFBF00] uppercase tracking-wider border-r border-[#FFBF00]/60 last:border-r-0" {...props}>{highlightMatches(props.children, fileSearch)}</th>,
-                            td: (props) => <td className="px-4 py-2 border-t border-r border-[#FFBF00]/60 last:border-r-0 text-[#FFF8DC]" {...props}>{highlightMatches(props.children, fileSearch)}</td>,
-                            code: ({node, inline, className, children, ...props}: any) => {
-                              const hasNewline = String(children).includes('\n');
-                              return (inline || !hasNewline) ? <code className="bg-[#1A1A1A] px-1.5 py-0.5 rounded text-[12px] font-mono text-[#FFBF00]" {...props}>{highlightMatches(children, fileSearch)}</code> :
-                              <pre className="bg-[#080808] border border-[#1F1F1F] p-4 rounded-xl overflow-x-auto my-6 ml-4"><code className={cn("text-[12px] font-mono text-[#FFF8DC]", className)} {...props}>{children}</code></pre>;
-                            },
-                            li: (props) => <li className="flex gap-3 text-[14px] text-[#FFF8DC] mb-2" {...props}><span className="text-[#FFBF00] mt-1.5">Ã¢â‚¬Â¢</span><div className="flex-1">{highlightMatches(props.children, fileSearch)}</div></li>,
-                          }}
-                        >
-                          {fileContent}
-                        </ReactMarkdown>
+                        <MarkdownRenderer content={fileContent} search={fileSearch} />
                       }
                     </div>
                   </div>
@@ -220,5 +183,3 @@ export function SkillsToolRight({ selectedSkill, selectedSkillFile, setSelectedS
               </div>
   );
 }
-
-

@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Clock, Loader2, Save, X, Check, ToggleLeft, ToggleRight, Brain } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export function JobsToolLeft({ 
   jobs, 
@@ -350,9 +351,7 @@ export function JobsToolRight({
                           <Loader2 size={14} className="animate-spin" /> Loading content...
                         </div>
                       ) : (
-                        <pre className="max-h-[340px] overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
-                          {outputContents[file] ?? 'No content available.'}
-                        </pre>
+                        <MarkdownRenderer content={outputContents[file] ?? 'No content available.'} search={''} />
                       )}
                     </div>
                   )}
