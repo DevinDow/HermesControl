@@ -85,6 +85,12 @@ export function JobsToolRight({
   const [editedThinking, setEditedThinking] = useState('off');
   const [isSaving, setIsSaving] = useState(false);
   const [isValid, setIsValid] = useState(true);
+  const [outputFiles, setOutputFiles] = useState<string[]>([]);
+  const [expandedOutputs, setExpandedOutputs] = useState<Record<string, boolean>>({});
+  const [outputContents, setOutputContents] = useState<Record<string, string>>({});
+  const [loadingOutputs, setLoadingOutputs] = useState(false);
+  const [loadingOutputFile, setLoadingOutputFile] = useState<string | null>(null);
+  const [outputError, setOutputError] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedJob) {
@@ -97,6 +103,73 @@ export function JobsToolRight({
   useEffect(() => {
     setIsValid(CRON_REGEX.test(editedSchedule.trim()));
   }, [editedSchedule]);
+
+  useEffect(() => {
+    if (!selectedJob?.id) {
+      setOutputFiles([]);
+      setExpandedOutputs({});
+      setOutputContents({});
+      setOutputError(null);
+      setLoadingOutputs(false);
+      return;
+    }
+
+    const loadOutputFiles = async () => {
+      setLoadingOutputs(true);
+      setOutputError(null);
+
+      try {
+        const res = await fetch(`/api/jobs/output?jobId=${encodeURIComponent(selectedJob.id)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Unable to load output files');
+        }
+        setOutputFiles(Array.isArray(data.files) ? data.files : []);
+      } catch (err: any) {
+        console.error('Failed to load job output files:', err);
+        setOutputError(err.message || 'Failed to load job output files');
+        setOutputFiles([]);
+      } finally {
+        setLoadingOutputs(false);
+      }
+    };
+
+    loadOutputFiles();
+  }, [selectedJob?.id]);
+
+  const handleToggleOutput = async (file: string) => {
+    if (!selectedJob?.id) return;
+
+    if (expandedOutputs[file]) {
+      setExpandedOutputs((prev) => ({ ...prev, [file]: false }));
+      return;
+    }
+
+    if (outputContents[file]) {
+      setExpandedOutputs((prev) => ({ ...prev, [file]: true }));
+      return;
+    }
+
+    setLoadingOutputFile(file);
+    setOutputError(null);
+
+    try {
+      const res = await fetch(
+        `/api/jobs/output/content?jobId=${encodeURIComponent(selectedJob.id)}&file=${encodeURIComponent(file)}`
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Unable to load output content');
+      }
+      setOutputContents((prev) => ({ ...prev, [file]: data.content ?? '' }));
+      setExpandedOutputs((prev) => ({ ...prev, [file]: true }));
+    } catch (err: any) {
+      console.error('Failed to load output content:', err);
+      setOutputError(err.message || 'Failed to load output content');
+    } finally {
+      setLoadingOutputFile(null);
+    }
+  };
 
   if (!selectedJob) return <div className="p-8 text-[#B8860B]">Select a job to view details</div>;
 
@@ -240,6 +313,54 @@ export function JobsToolRight({
             })}
           </pre>
         </div>
+      </div>
+
+      <div className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5 space-y-4">
+        <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-3">Outputs</div>
+        {loadingOutputs ? (
+          <div className="flex items-center gap-2 text-[#B8860B]">
+            <Loader2 size={14} className="animate-spin" /> Loading output files...
+          </div>
+        ) : outputError ? (
+          <div className="text-red-400">{outputError}</div>
+        ) : outputFiles.length === 0 ? (
+          <div className="text-[#B8860B]">No output files found for this job.</div>
+        ) : (
+          <div className="space-y-3">
+            {outputFiles.map((file) => {
+              const isExpanded = !!expandedOutputs[file];
+              const isLoading = loadingOutputFile === file;
+
+              return (
+                <div key={file} className="bg-[#161616] border border-[#1F1F1F] rounded-xl overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleOutput(file)}
+                    className="w-full flex items-center justify-between gap-3 p-4 text-left"
+                  >
+                    <span className="text-[13px] text-[#FFF8DC] font-medium">{file}</span>
+                    <span className="text-[12px] text-[#B8860B] uppercase tracking-wider">
+                      {isExpanded ? 'Hide' : 'View'}
+                    </span>
+                  </button>
+                  {isExpanded && (
+                    <div className="border-t border-[#1F1F1F] bg-[#0D0D0D] p-4">
+                      {isLoading ? (
+                        <div className="flex items-center gap-2 text-[#B8860B]">
+                          <Loader2 size={14} className="animate-spin" /> Loading content...
+                        </div>
+                      ) : (
+                        <pre className="max-h-[340px] overflow-auto text-[12px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words">
+                          {outputContents[file] ?? 'No content available.'}
+                        </pre>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
