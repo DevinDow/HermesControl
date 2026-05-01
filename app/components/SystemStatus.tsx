@@ -62,11 +62,11 @@ export function SystemStatus({
               "w-1.5 h-1.5 rounded-full shadow-[0_0_8px]",
               gatewayStatus.online ? "bg-[#22C55E] shadow-green-500/30 animate-pulse" : "bg-red-500 shadow-red-500/30"
             )} />
-            GATEWAY {gatewayStatus.online ? 'ONLINE' : 'OFFLINE'}
+            {gatewayStatus.online ? 'ONLINE' : 'OFFLINE'}
           </div>
           {gatewayStatus.version && (
-            <div className="text-[10px] font-mono text-[#B8860B] font-bold px-1.5 py-0.5 rounded bg-[#1A1A1A] border border-[#1F1F1F]">
-              v{gatewayStatus.version}
+            <div className="text-[11px] font-mono text-[#B8860B] px-1.5 rounded bg-[#1A1A1A] border border-[#1F1F1F]">
+              {gatewayStatus.version.replace(/^Hermes Agent\s*/, '')}
             </div>
           )}
         </div>
@@ -74,7 +74,8 @@ export function SystemStatus({
         {gatewayStatus.updateAvailable && (
           <button 
             onClick={async () => {
-              if (!confirm(`Update Hermes to v${gatewayStatus.latestVersion}? This will restart the gateway.`)) return;
+              const promptText = gatewayStatus.updateString ? `Update Hermes? ${gatewayStatus.updateString}` : 'Update Hermes?';
+              if (!confirm(`${promptText}\nThis will restart the gateway.`)) return;
               setUpdating(true);
               try {
                 const res = await fetch('/api/update', { method: 'POST' });
@@ -99,8 +100,8 @@ export function SystemStatus({
                 {updating ? 'Updating...' : 'Update Available'}
               </div>
             </div>
-            <div className="text-[12px] text-[#FFF8DC] font-mono font-bold pl-5">
-              v{gatewayStatus.latestVersion}
+            <div className="text-[9px] text-[#FFF8DC] font-mono">
+              {gatewayStatus.updateString ?? 'Update available'}
             </div>
           </button>
         )}

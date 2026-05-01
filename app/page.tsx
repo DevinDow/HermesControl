@@ -138,6 +138,7 @@ export default function HermesControl() {
   const [gatewayStatus, setGatewayStatus] = useState<{
     online: boolean,
     version?: string,
+    updateString?: string,
     updateAvailable?: boolean,
     latestVersion?: string,
     channel?: string,
@@ -291,7 +292,7 @@ export default function HermesControl() {
           setter(data);
           return data;
         }
-      } else if (endpoint === '/api/cmd' || endpoint === '/api/git' || endpoint === '/api/skills' || endpoint === '/api/status' || endpoint === '/api/heartbeat' || endpoint === '/api/heartbeat/last' || endpoint === '/api/online' || endpoint === '/api/update' || endpoint === '/api/model' || endpoint.startsWith('/api/help')) {
+      } else if (endpoint === '/api/cmd' || endpoint === '/api/git' || endpoint === '/api/skills' || endpoint === '/api/status' || endpoint === '/api/heartbeat' || endpoint === '/api/heartbeat/last' || endpoint === '/api/online' || endpoint === '/api/version' || endpoint === '/api/model' || endpoint.startsWith('/api/help')) {
         setter(data);
         return data;
       } else {
@@ -385,20 +386,14 @@ export default function HermesControl() {
     // 1. Online Check: lightweight connectivity probe (No console.log)
     fetchData('/api/online', (data: any) => setGatewayStatus(prev => ({ ...prev, online: data.online })), 'status');
 
-    // 3. Status Check: full gateway metadata (version, runtime info, etc.)
-    fetchData('/api/status', (data: any) => {
-      console.log('Status check:', data);
-      setGatewayStatus(prev => ({ ...prev, version: data?.runtimeVersion }));
-    }, 'status');
-
-    // 4. Update Check: checks for newer registry versions (6h interval)
-    fetchData('/api/update', (data: any) => {
-      console.log('Update check:', data);
+    // 3. Version Check: use api/version for gateway metadata and update availability
+    fetchData('/api/version', (data: any) => {
+      console.log('Version check:', data);
       setGatewayStatus(prev => ({
         ...prev,
-        latestVersion: data.latestVersion,
-        updateAvailable: data.updateAvailable,
-        channel: data.channel
+        version: data?.version,
+        updateString: data?.updateString,
+        updateAvailable: !!data?.updateString
       }));
     }, 'status');
 
@@ -411,14 +406,13 @@ export default function HermesControl() {
             const wasOffline = prev.online === false;
             const isNowOnline = data.online === true;
 
-            // If it just came back online, re-check system/update status
+            // If it just came back online, re-check version/update status
             if (wasOffline && isNowOnline) {
-              fetchData('/api/status', (data: any) => setGatewayStatus(prev => ({ ...prev, version: data?.runtimeVersion })), 'status');
-              fetchData('/api/update', (data: any) => setGatewayStatus(prev => ({
+              fetchData('/api/version', (data: any) => setGatewayStatus(prev => ({
                 ...prev,
-                latestVersion: data.latestVersion,
-                updateAvailable: data.updateAvailable,
-                channel: data.channel
+                version: data?.version,
+                updateString: data?.updateString,
+                updateAvailable: !!data?.updateString
               })), 'status');
             }
 
@@ -428,15 +422,15 @@ export default function HermesControl() {
         .catch(() => { });
     }, 10000);
 
-    // Interval 3: Update Check (6h)
+    // Interval 3: Version Check (6h)
     const updateInterval = setInterval(() => {
-      fetchData('/api/update', (data: any) => {
-        console.log('Update check (interval):', data);
+      fetchData('/api/version', (data: any) => {
+        console.log('Version check (interval):', data);
         setGatewayStatus(prev => ({
           ...prev,
-          latestVersion: data.latestVersion,
-          updateAvailable: data.updateAvailable,
-          channel: data.channel
+          version: data?.version,
+          updateString: data?.updateString,
+          updateAvailable: !!data?.updateString
         }));
       }, 'status');
     }, 21600000);

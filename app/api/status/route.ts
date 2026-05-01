@@ -6,15 +6,18 @@ const execAsync = promisify(exec);
 
 export async function GET() {
   try {
-    const { stdout } = await execAsync('hermes status --json');
-    const data = JSON.parse(stdout);
-    return NextResponse.json(data);
+    const { stdout } = await execAsync('hermes status');
+    return new Response(stdout, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+    });
   } catch (error) {
-    // Return mock data for local testing environments where service isn't running natively
-    return NextResponse.json({
-      runtimeVersion: "Mock-Unknown",
-      status: "Not Running"
+    return new Response('Hermes status unavailable', {
+      status: 500,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
     });
   }
 }
-
