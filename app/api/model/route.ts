@@ -1,95 +1,76 @@
-﻿import { readdir, readFile } from 'fs/promises';
-import { stat } from 'fs/promises';
-import { join } from 'path';
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
+import yaml from 'js-yaml';
 import { HERMES_ROOT } from '../../lib/paths';
 
-/**
- * GET /api/model
- * 
- * Finds the most recently modified session .jsonl file and extracts
- * the modelId from the last line.
- */
 export async function GET() {
   try {
-    const sessionsDir = join(HERMES_ROOT, 'agents/main/sessions');
+    // Load config.yaml from the configured Hermes root directory
+    const configPath = path.join(HERMES_ROOT, 'config.yaml');
+    const configData = await fs.readFile(configPath, 'utf-8');
+    const hermesConfig = yaml.load(configData);
+
+    // Extract model configuration
+    const modelConfig = hermesConfig.model;
     
-    // Read all files in the sessions directory
-    const files = await readdir(sessionsDir);
-    
-    // Filter for .jsonl files
-    const jsonlFiles = files.filter(f => f.endsWith('.jsonl'));
-    
-    if (jsonlFiles.length === 0) {
-      return NextResponse.json({ error: 'No session files found' }, { status: 404 });
+    if (!modelConfig) {
+      return NextResponse.json(
+        { error: 'No model configuration found in config.yaml' },
+        { status: 400 }
+      );
     }
-    
-    // Find the most recently modified file
-    let mostRecentFile = jsonlFiles[0];
-    let mostRecentTime = (await stat(join(sessionsDir, jsonlFiles[0]))).mtime.getTime();
-    
-    for (const file of jsonlFiles) {
-      const filePath = join(sessionsDir, file);
-      const stats = await stat(filePath);
-      if (stats.mtime.getTime() > mostRecentTime) {
-        mostRecentTime = stats.mtime.getTime();
-        mostRecentFile = file;
-      }
-    }
-    
-    // Read the file content
-    const filePath = join(sessionsDir, mostRecentFile);
-    const content = await readFile(filePath, 'utf8');
-    
-    // Split into lines and find the last occurrence of modelId
-    const lines = content.trim().split('\n');
-    let modelId = null;
-    let provider = null;
-    
-    // Search from the end backwards to find the last modelId and provider
-    for (let i = lines.length - 1; i >= 0; i--) {
+
+    // Extract host from base_url domain
+    let host = '';
+    if (modelConfig.base_url) {
       try {
-        const line = lines[i];
-        if (!line.trim()) continue;
-        
-        const obj = JSON.parse(line);
-        if (obj.modelId && !modelId) {
-          modelId = obj.modelId;
-          provider = obj.provider || null;
-          break;
-        }
-        // Also check nested data objects (e.g., custom events with data field)
-        if (obj.data && obj.data.modelId && !modelId) {
-          modelId = obj.data.modelId;
-          provider = obj.data.provider || null;
-          break;
-        }
+        const url = new URL(modelConfig.base_url);
+        host = url.hostname;
       } catch (e) {
-        // Skip malformed JSON lines
-        continue;
+        host = modelConfig.base_url;
       }
     }
-    
-    if (!modelId) {
-      return NextResponse.json({ error: 'No modelId found in session file' }, { status: 404 });
+
+    // Extract provider and model from default (format: "provider/model")
+    let provider = '';
+    let model = '';
+    if (modelConfig.default) {
+      const parts = modelConfig.default.split('/');
+      if (parts.length >= 2) {
+        provider = parts[0];
+        model = parts.slice(1).join('/'); // Handle models with slashes
+      } else {
+        model = modelConfig.default;
+      }
     }
-    
-    // Extract the host (first part before the "/", e.g., "google/gemini-3.1-flash-lite-preview" -> "google")
-    const host = modelId.includes('/') ? modelId.split('/')[0] : modelId;
-    
-    // Extract the model name (the part after the first "/", e.g., "google/gemini-3.1-flash-lite-preview" -> "gemini-3.1-flash-lite-preview")
-    const modelName = modelId.includes('/') ? modelId.split('/').slice(1).join('/') : modelId;
-    
-    return NextResponse.json({
-      modelId,
-      provider,
-      host,
-      modelName,
-      sessionFile: mostRecentFile
-    });
-  } catch (error: any) {
-    console.error('Model API GET Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // Use provider from split default, fallback to provider field if needed
+    if (!provider && modelConfig.provider) {
+      provider = modelConfig.provider;
+    }
+
+    const modelData = {
+      host: host,
+      provider: provider,
+      model: model,
+      baseUrl: modelConfig.base_url,
+      apiMode: modelConfig.api_mode,
+      default: modelConfig.default
+    };
+
+    return NextResponse.json(modelData);
+  } catch (error) {
+    const configPath = path.join(HERMES_ROOT, 'config.yaml');
+    console.error('Failed to fetch model data:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      {
+        error: 'Failed to load model data',
+        details: errorMessage,
+        configPath: configPath
+      },
+      { status: 500 }
+    );
   }
 }
-
