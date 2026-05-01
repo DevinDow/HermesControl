@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Users, Clock, ArrowUpCircle, Loader2, GitBranch, Brain } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { ModalDialog } from './ModalDialog';
 
 export function SystemStatus({ 
   gatewayStatus,
@@ -12,16 +13,14 @@ export function SystemStatus({
   modelStatus,
   updating,
   setUpdating,
-  isMounted,
-  onNavigateToHeartbeat,
   onNavigateToSessions,
   onNavigateToJobs,
-  onNavigateToModel,
   onNavigateToGit
 }: any) {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
 
   return (
     <div className="flex flex-col p-2 border-t border-[#1F1F1F] bg-[#080808]">
@@ -36,7 +35,8 @@ export function SystemStatus({
               const res = await fetch('/api/status');
               const text = await res.text();
               if (res.ok) {
-                setModalContent(text);
+                setModalTitle('Hermes API Status');
+                setModalContent('api/status');
                 setModalOpen(true);
               } else {
                 alert(`api/status failed: ${text}`);
@@ -61,10 +61,11 @@ export function SystemStatus({
               const res = await fetch('/api/version');
               const data = await res.json();
               if (res.ok) {
-                setModalContent("api/version:\n" + JSON.stringify(data, null, 2));
+                setModalTitle('api/version');
+                setModalContent(JSON.stringify(data, null, 2));
                 setModalOpen(true);
               } else {
-                alert(`api/status failed: ${data.error}`);
+                alert(`api/version failed: ${data.error}`);
               }
             } catch (err) {
               console.error('api/version error:', err);
@@ -82,26 +83,9 @@ export function SystemStatus({
 
       </div>
 
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50"> {/* DIV for Background Opacity */}
-          <div className="fixed inset-20"> {/* DIV for INSET */}
-
-            <div className="bg-[#111111] p-4 rounded-xl border border-[#FFBF00]"> {/* DIV for FRAME */}
-
-              <div className="bg-[#222222] p-2 rounded border border-[#FFBF00] max-h-96 overflow-auto"> {/* DIV for modalContent PRE */}
-                <pre className="text-[#FFF8DC]">{modalContent}</pre> {/* modalContent PRE */}
-              </div>
-
-              {/* Close Button */}
-              <button className="bg-[#FFBF00]/50 text-black rounded stretch w-full mt-4 py-2 font-bold uppercase tracking-widest hover:bg-[#FFBF00]/90 transition-all"
-                onClick={() => setModalOpen(false)} >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ModalDialog open={modalOpen} title={modalTitle} onClose={() => setModalOpen(false)}>
+        <pre className="whitespace-pre-wrap break-words text-[#FFF8DC]">{modalContent}</pre>
+      </ModalDialog>
 
       {/* Update Available BUTTON */}
       {gatewayStatus.updateAvailable && (
