@@ -122,7 +122,7 @@ export function SystemStatus({
           </div>
 
           {/* Model Status Section */}
-          <button onClick={onNavigateToModel} className="flex items-center gap-2 pr-2 mb-1.5 hover:bg-[#1A1A1A]/50 rounded px-1.5 py-1 -mx-1.5 transition-all">
+          <div className="flex items-center gap-2 pr-2 mb-1.5 hover:bg-[#1A1A1A]/50 rounded px-1.5 py-1 -mx-1.5 transition-all">
             <Brain size={10} className="text-[#B8860B]" />
             <div className="flex flex-col gap-0 text-[10px] text-[#FFF8DC] font-mono truncate max-w-[200px]">
               {modelStatus?.model ? (
@@ -136,7 +136,7 @@ export function SystemStatus({
                 <div>Loading...</div>
               )}
             </div>
-          </button>
+          </div>
 
           {/* Heartbeat Status Section 
           <button

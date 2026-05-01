@@ -60,7 +60,6 @@ import { twMerge } from 'tailwind-merge';
 import { formatRelativeTime } from './components/tools/utils/dateFormatting';
 import { DocsToolLeft } from './components/tools/DocsTool';
 import { MemoryToolLeft } from './components/tools/MemoryTool';
-import { ModelsToolLeft, ModelsToolRight } from './components/tools/ModelsTool';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
 import { SpecsToolLeft } from './components/tools/SpecsTool';
@@ -121,7 +120,7 @@ export default function HermesControl() {
     modelId?: string,
     provider?: string,
     host?: string,
-    modelName?: string,
+    model?: string,
     sessionFile?: string
   } | null>(null);
   const [helpLinks, setHelpLinks] = useState<any[]>([]);
@@ -130,7 +129,6 @@ export default function HermesControl() {
   const [skills, setSkills] = useState<{ workspace: any[], system: any[] }>({ workspace: [], system: [] });
   const [logs, setLogs] = useState<any[]>([]);
   const [logContent, setLogContent] = useState<string>('');
-  const [modelsData, setModelsData] = useState<any>(null);
 
   // Stores the user's input for the middle column search/filter bar
   const [filterText, setFilterText] = useState<string>('');
@@ -173,7 +171,6 @@ export default function HermesControl() {
     files: false,
     content: false,
     logs: false,
-    models: false
   });
 
   // ============================================================================
@@ -188,7 +185,6 @@ export default function HermesControl() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedCmdId, setSelectedCmdId] = useState<string | null>(null);
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState<any | null>(null);
   const [selectedSkillFile, setSelectedSkillFile] = useState<string>('SKILL.md');
   const [selectedHelpId, setSelectedHelpId] = useState<string | null>(null);
   const [selectedGitFile, setSelectedGitFile] = useState<string | null>(null);
@@ -235,16 +231,9 @@ export default function HermesControl() {
     setSelectedSessionId(sessionId);
   };
 
-  const navigateToModel = (modelId: string) => {
-    setActiveTab('Models');
-    const modelMatch = modelsData?.models?.find((m: any) => m.id === modelId) || null;
-    setSelectedModel(modelMatch);
-  };
-
   const navItems = [
     { name: 'Docs', icon: FileText },
     { name: 'Memory', icon: Brain },
-    { name: 'Models', icon: BrainCog },
     { name: 'Jobs', icon: Clock },
     { name: 'Sessions', icon: Users },
     { name: 'Specs', icon: ScrollText },
@@ -302,7 +291,7 @@ export default function HermesControl() {
           setter(data);
           return data;
         }
-      } else if (endpoint === '/api/cmd' || endpoint === '/api/git' || endpoint === '/api/model' || endpoint === '/api/skills' || endpoint === '/api/models' || endpoint === '/api/status' || endpoint === '/api/heartbeat' || endpoint === '/api/heartbeat/last' || endpoint === '/api/online' || endpoint === '/api/update' || endpoint.startsWith('/api/help')) {
+      } else if (endpoint === '/api/cmd' || endpoint === '/api/git' || endpoint === '/api/skills' || endpoint === '/api/status' || endpoint === '/api/heartbeat' || endpoint === '/api/heartbeat/last' || endpoint === '/api/online' || endpoint === '/api/update' || endpoint === '/api/model' || endpoint.startsWith('/api/help')) {
         setter(data);
         return data;
       } else {
@@ -318,8 +307,6 @@ export default function HermesControl() {
         setter({ online: false, error: 'Connection failed' });
       } else if (endpoint === '/api/skills') {
         setter({ workspace: [], system: [] });
-      } else if (endpoint === '/api/model') {
-        setter({ provider: '?', host: '?', modelName: 'Error loading' });
       } else {
         setter([]);
       }
@@ -394,7 +381,6 @@ export default function HermesControl() {
     fetchData('/api/help/links', setHelpLinks, 'help');
     fetchData('/api/help/shortcuts', setHelpShortcuts, 'help');
     fetchData('/api/help/cli', (data: any) => setHelpCli(data.content), 'help');
-    fetchData('/api/models', setModelsData, 'models');
 
     // 1. Online Check: lightweight connectivity probe (No console.log)
     fetchData('/api/online', (data: any) => setGatewayStatus(prev => ({ ...prev, online: data.online })), 'status');
@@ -463,13 +449,13 @@ export default function HermesControl() {
         .catch(() => { });
     }, 60000);
 
-    // Interval 6: Model Status Refresh (60s) - Always on
+    // Interval 6: Model Status Refresh (10s) - Always on
     const modelStatusInterval = setInterval(() => {
       fetch('/api/model')
         .then(res => res.json())
         .then(data => setModelStatus(data))
         .catch(() => { });
-    }, 60000);
+    }, 10000);
 
     return () => {
       clearInterval(onlineInterval);
@@ -756,7 +742,6 @@ export default function HermesControl() {
   const renderLeft = () => {
     switch (activeTab) {
       case 'Docs': return <DocsToolLeft docsTree={docsTree} renderFileTree={renderFileTree} />;
-      case 'Models': return <ModelsToolLeft modelsData={modelsData} modelsLoading={loading.models} onSelectModel={setSelectedModel} selectedModelId={selectedModel?.id} />;
       case 'Memory': return <MemoryToolLeft memoryTree={memoryTree} renderFileTree={renderFileTree} />;
       case 'Logs': return <LogsToolLeft logsTree={logsTree} renderFileTree={renderFileTree} />;
       case 'Specs': return <SpecsToolLeft specsTree={specsTree} renderFileTree={renderFileTree} />;
@@ -795,7 +780,6 @@ export default function HermesControl() {
       case 'Skills': return <SkillsToolRight selectedSkill={selectedSkill} selectedSkillFile={selectedSkillFile} setSelectedSkillFile={setSelectedSkillFile} loading={loading} fileContent={fileContent} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} />;
       case 'Help': return <HelpToolRight selectedHelpId={selectedHelpId} helpLinks={helpLinks} helpShortcuts={helpShortcuts} helpCli={helpCli} gatewayStatus={gatewayStatus} />;
       case 'Old': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      case 'Models': return <ModelsToolRight selectedModel={selectedModel} allSessions={history} onNavigateToSession={navigateToSession} platform={modelsData?.platform} />;
       case 'Docs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Memory': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       default: return <div className="p-8 text-[#B8860B]">Select a tool</div>;
@@ -812,7 +796,6 @@ export default function HermesControl() {
     setSelectedGitCommit(null);
     setSelectedGitFile(null);
     setSelectedCmdId(null);
-    setSelectedModel(null);
   };
 
   const hasSelection = !!(
@@ -821,7 +804,6 @@ export default function HermesControl() {
     selectedTaskId ||
     selectedEventId ||
     selectedSkillId ||
-    selectedModel ||
     selectedHelpId ||
     selectedGitCommit ||
     selectedGitFile ||
@@ -876,10 +858,6 @@ export default function HermesControl() {
                 }
                 if (item.name === 'Help') setSelectedHelpId('Links');
                 if (item.name === 'Git') setSelectedGitFile(null);
-                if (item.name === 'Models') {
-                  fetchData('/api/models', setModelsData, 'models');
-                  setSelectedModel(null);
-                }
                 if (item.name === 'Memory') {
                   if (memoryTree.length > 0) {
                     const firstFile = memoryTree[0].type === 'file' ? memoryTree[0] : memoryTree[0].children?.[0];
@@ -935,9 +913,6 @@ export default function HermesControl() {
             }}
             onNavigateToJobs={() => {
               setActiveTab('Jobs');
-            }}
-            onNavigateToModel={() => {
-              setActiveTab('Models');
             }}
             onNavigateToGit={() => {
               setActiveTab('Git');
