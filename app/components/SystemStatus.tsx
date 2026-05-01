@@ -20,6 +20,9 @@ export function SystemStatus({
   onNavigateToGit
 }: any) {
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+
   return (
     <div className="flex flex-col p-2 border-t border-[#1F1F1F] bg-[#080808]">
         
@@ -33,15 +36,8 @@ export function SystemStatus({
               const res = await fetch('/api/status');
               const text = await res.text();
               if (res.ok) {
-                const win = window.open('', '_blank');
-                if (win) {
-                  win.document.write('<pre>' + text
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;') + '</pre>');
-                } else {
-                  console.log(text);
-                }
+                setModalContent(text);
+                setModalOpen(true);
               } else {
                 alert(`api/status failed: ${text}`);
               }
@@ -65,9 +61,10 @@ export function SystemStatus({
               const res = await fetch('/api/version');
               const data = await res.json();
               if (res.ok) {
-                alert("api/version:\n" + JSON.stringify(data, null, 2));
+                setModalContent("api/version:\n" + JSON.stringify(data, null, 2));
+                setModalOpen(true);
               } else {
-                alert(`api/version failed: ${data.error}`);
+                alert(`api/status failed: ${data.error}`);
               }
             } catch (err) {
               console.error('api/version error:', err);
@@ -84,6 +81,25 @@ export function SystemStatus({
         </button>
 
       </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="fixed inset-x-20 inset-y-10 bg-black bg-opacity-60 z-50">
+          {/* Container DIV for modalContent + BUTTON */}
+          <div className="bg-[#080808] p-4 rounded-xl border border-[#FFBF00]">
+            {/* DIV for modalContent */}
+            <div className="bg-[#222222] p-2 rounded border border-[#FFBF00] h-full max-h-96 overflow-auto">
+              {/* modalContent PRE */}
+              <pre className="text-[#FFF8DC]">{modalContent}</pre>
+            </div>
+            {/* Close Button */}
+            <button className="bg-[#FFBF00]/50 text-black rounded stretch w-full mt-4 py-2 font-bold uppercase tracking-widest hover:bg-[#FFBF00]/90 transition-all"
+              onClick={() => setModalOpen(false)} >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Update Available BUTTON */}
       {gatewayStatus.updateAvailable && (
@@ -188,6 +204,7 @@ export function SystemStatus({
           </div>
         </div>
       </button>
+
     </div>
   );
 }
