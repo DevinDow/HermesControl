@@ -90,7 +90,6 @@ export function JobsToolRight({
     if (selectedJob) {
       setEditedSchedule(selectedJob.schedule.expr);
       setEditedEnabled(selectedJob.enabled);
-      setEditedThinking(selectedJob.payload.thinking || 'off');
       setIsValid(true);
     }
   }, [selectedJob]);
@@ -101,7 +100,7 @@ export function JobsToolRight({
 
   if (!selectedJob) return <div className="p-8 text-[#B8860B]">Select a job to view details</div>;
 
-  const isDirty = editedSchedule !== selectedJob.schedule.expr || editedEnabled !== selectedJob.enabled || editedThinking !== (selectedJob.payload.thinking || 'off');
+  const isDirty = editedSchedule !== selectedJob.schedule.expr || editedEnabled !== selectedJob.enabled;
 
   const handleSave = async () => {
     if (!isDirty || !isValid || isSaving) return;
@@ -113,8 +112,7 @@ export function JobsToolRight({
         body: JSON.stringify({
           id: selectedJob.id,
           enabled: editedEnabled,
-          scheduleExpr: editedSchedule,
-          thinking: editedThinking
+          scheduleExpr: editedSchedule
         })
       });
       if (!res.ok) {
@@ -133,7 +131,6 @@ export function JobsToolRight({
   const handleReset = () => {
     setEditedSchedule(selectedJob.schedule.expr);
     setEditedEnabled(selectedJob.enabled);
-    setEditedThinking(selectedJob.payload.thinking || 'off');
   };
 
   return (
@@ -208,44 +205,22 @@ export function JobsToolRight({
             </button>
           </div>
           <div>
-            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Delivery</div>
+            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Last Status</div>
             <div className="text-[13px] text-[#FFF8DC] uppercase font-bold text-body-cornsilk/60">
-              {selectedJob.state?.lastDeliveryStatus || 'N/A'}
+              {selectedJob.last_status}
             </div>
           </div>
           <div>
-            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Consecutive Errors</div>
-            <div className={cn("text-[13px] font-bold", (selectedJob.state?.consecutiveErrors || 0) > 0 ? "text-red-500" : "text-[#FFF8DC]")}>
-              {selectedJob.state?.consecutiveErrors || 0}
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <Brain size={12} className="text-[#FFBF00]" />
-              Thinking Level
-            </div>
-            <div className="flex items-center gap-1 bg-[#161616] border border-[#2A2A2A] rounded p-0.5 w-fit">
-              {['off', 'low'].map((level) => (
-                <button
-                  key={level}
-                  onClick={() => setEditedThinking(level)}
-                  className={cn(
-                    "px-3 py-1 rounded text-[11px] font-bold uppercase transition-all",
-                    editedThinking === level 
-                      ? "bg-[#FFBF00] text-body-cornsilk" 
-                      : "text-[#B8860B] hover:text-body-cornsilk"
-                  )}
-                >
-                  {level}
-                </button>
-              ))}
+            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Last Error</div>
+            <div className="text-[13px] font-bold text-red-500">
+              {selectedJob.last_error}
             </div>
           </div>
         </div>
         <div>
           <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Instructions</div>
           <pre className="text-[13px] text-[#FFF8DC] font-mono whitespace-pre-wrap">
-            {selectedJob.payload.message?.split(/(specs\/[^\s]+\.md|[^\s]+\_spec\.md)/).map((part: string, i: number) => {
+            {selectedJob.prompt?.split(/(specs\/[^\s]+\.md|[^\s]+\_spec\.md)/).map((part: string, i: number) => {
               if (part.endsWith('_spec.md') || part.endsWith('.md')) {
                 return (
                   <button

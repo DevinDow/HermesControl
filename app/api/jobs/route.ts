@@ -10,37 +10,17 @@ export async function GET() {
     const runsDir = path.join(cronPath, 'runs');
     const fileContent = await fs.readFile(filePath, 'utf8');
     const data = JSON.parse(fileContent);
+    //console.log('Loaded jobs:', data.jobs);
     
-    // Enrich jobs with last session ID from runs dir
-    const enrichedJobs = await Promise.all(data.jobs.map(async (job: any) => {
-      try {
-        const runFile = path.join(runsDir, `${job.id}.jsonl`);
-        const content = await fs.readFile(runFile, 'utf8');
-        const lines = content.trim().split('\n');
-        if (lines.length > 0) {
-          const lastRun = JSON.parse(lines[lines.length - 1]);
-          return {
-            ...job,
-            state: {
-              ...job.state,
-              lastSessionId: lastRun.sessionId || job.state.lastSessionId
-            }
-          };
-        }
-      } catch (e) {
-        // Fallback to existing state
-      }
-      return job;
-    }));
-
     // Sort jobs by time (rough estimation from schedule expr)
-    const sortedJobs = enrichedJobs.sort((a: any, b: any) => {
+    const sortedJobs = data.jobs.sort((a: any, b: any) => {
       const getMinutes = (expr: string) => {
         const [m, h] = expr.split(' ');
         return parseInt(h) * 60 + parseInt(m);
       };
       return getMinutes(a.schedule.expr) - getMinutes(b.schedule.expr);
     });
+    //console.log('Sorted jobs:', sortedJobs);
 
     return NextResponse.json(sortedJobs);
   } catch (error) {
