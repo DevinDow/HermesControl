@@ -14,7 +14,7 @@ export function ModalDialog({ open, title, onClose, children }: ModalDialogProps
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 z-50"> {/* DIV for Background Opacity */}
-      <div className="fixed inset-20"> {/* DIV for INSET */}
+      <div className="fixed inset-20 top-5"> {/* DIV for INSET */}
 
         <div className="bg-[#111111] p-4 rounded-xl border border-[#FFBF00]"> {/* DIV for outer FRAME */}
           {title && (
@@ -22,7 +22,7 @@ export function ModalDialog({ open, title, onClose, children }: ModalDialogProps
               {title}
             </div>
           )}
-          <div className="bg-[#222222] p-2 rounded border border-[#FFBF00] max-h-96 overflow-auto"> {/* DIV for CHILDREN */}
+          <div className="bg-[#222222] p-2 rounded border border-[#FFBF00] max-h-[calc(100vh-10rem)] overflow-auto"> {/* DIV for CHILDREN */}
             {children}
           </div>
 
@@ -31,8 +31,8 @@ export function ModalDialog({ open, title, onClose, children }: ModalDialogProps
               onClick={onClose}>
               Close
             </button>
-            </div>
         </div>
+      </div>
     </div>
   );
 }
