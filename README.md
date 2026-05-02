@@ -41,12 +41,12 @@ We maximize code efficiency by reusing specialized components across multiple to
 *   **`FileViewerRight` (`app/components/tools/FileViewer.tsx`):**
     *   This is the primary component for viewing and editing files.
     *   It features Markdown rendering (via `react-markdown`), syntax highlighting for code, and a "Find in File" search bar.
-    *   **Shared by:** Docs, Memory, Specs, Scripts, Code, System, and Old tools.
+    *   **Shared by:** Docs, Memory, Specs, Scripts, Code, and System tools.
 *   **`SessionsToolLeft` (`app/components/tools/SessionsTool.tsx`):**
     *   Handles the display of session/log entries with status indicators and relative timestamps.
     *   **Shared by:** Sessions and History tools.
 *   **`renderFileTree` (Core utility in `page.tsx`):**
-    *   A recursive function that handles the rendering of hierarchical folder structures. It supports collapsible branches and virtual grouping (like grouping by extension in the Old tool).
+    *   A recursive function that handles the rendering of hierarchical folder structures. It supports collapsible branches and virtual grouping.
     *   **Shared by:** All file-based tools.
 
 ### Individual Tool Modules

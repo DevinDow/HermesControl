@@ -12,7 +12,7 @@ async function getJsonFiles(dir: string, baseDir: string): Promise<any[]> {
 
     // Exclude noisy directories
     if (entry.isDirectory()) {
-      if (['node_modules', '.next', '.git', 'user-data', 'OLD'].includes(entry.name)) continue;
+      if (['node_modules', '.next', '.git', 'user-data', 'hermes-agent', 'migration', 'state-snapshots'].includes(entry.name)) continue;
       
       const children = await getJsonFiles(fullPath, baseDir);
       if (children.length > 0) {

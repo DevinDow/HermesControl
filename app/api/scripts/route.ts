@@ -17,7 +17,7 @@ export async function GET(request: Request) {
           // Internal folders to always skip
           if (['node_modules', '.git', '.next', 'memory'].includes(entry.name)) return null;
 
-          // Only allow specific script-heavy directories (blacklisting OLD)
+          // Only allow specific script-heavy directories
           const isAllowedDir = entry.name === 'scripts' || 
                                entry.name === 'specs' || 
                                entry.name === 'maintenance' ||

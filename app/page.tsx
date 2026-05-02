@@ -245,7 +245,6 @@ export default function HermesControl() {
     { name: 'Git', icon: GitBranch },
     { name: 'Skills', icon: Wrench },
     { name: 'Help', icon: HelpCircle },
-    { name: 'Old', icon: Archive },
   ];
 
   useEffect(() => {
@@ -372,7 +371,6 @@ export default function HermesControl() {
     fetchData('/api/files?mode=specs', setSpecsTree, 'files');
     fetchData('/api/files?mode=docs', setDocsTree, 'files');
     fetchData('/api/files?mode=logs', setLogsTree, 'files');
-    fetchData('/api/files?mode=old', setOldTree, 'files');
     fetchData('/api/system', setSystemTree, 'files');
     fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/skills', setSkills, 'skills');
@@ -542,8 +540,8 @@ export default function HermesControl() {
         url = `/api/scripts/content?path=${encodeURIComponent(selectedFilePath)}`;
       } else if (activeTab === 'System' && selectedFilePath) {
         url = `/api/system/content?path=${encodeURIComponent(selectedFilePath)}`;
-      } else if (['Memory', 'Specs', 'Docs', 'Old', 'Logs'].includes(activeTab) && selectedFilePath) {
-        url = `/api/files/content?path=${encodeURIComponent(selectedFilePath)}`; // Memory/Specs/Docs/Old/Logs all use the same content endpoint with different initial trees
+      } else if (['Memory', 'Specs', 'Docs', 'Logs'].includes(activeTab) && selectedFilePath) {
+        url = `/api/files/content?path=${encodeURIComponent(selectedFilePath)}`; // Memory/Specs/Docs/Logs all use the same content endpoint with different initial trees
       }
 
       if (!url) return;
@@ -710,8 +708,7 @@ export default function HermesControl() {
                 "shrink-0 transition-colors",
                 selectedFilePath === node.path ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#B8860B]"
               )} />
-              {/* File name with strikethrough if archived */}
-              <span className={cn("truncate flex-1", node.isArchived && "line-through")}>{node.name}</span>
+              <span className={cn("truncate flex-1")}>{node.name}</span>
             </div>
             
             {/* Show relative time since last update (e.g., "5 min ago") */}
@@ -739,7 +736,6 @@ export default function HermesControl() {
       case 'Logs': return <LogsToolLeft logsTree={logsTree} renderFileTree={renderFileTree} />;
       case 'Specs': return <SpecsToolLeft specsTree={specsTree} renderFileTree={renderFileTree} />;
       case 'System': return <SystemToolLeft systemTree={systemTree} renderFileTree={renderFileTree} />;
-      case 'Old': return <OldToolLeft oldTree={oldTree} renderFileTree={renderFileTree} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} renderFileTree={renderFileTree} setActiveTab={setActiveTab} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
       case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
@@ -772,7 +768,6 @@ export default function HermesControl() {
       case 'Git': return <GitToolRight selectedGitFile={selectedGitFile} selectedGitCommit={selectedGitCommit} loading={loading} gitDiff={gitDiff} selectedGitType={selectedGitType} />;
       case 'Skills': return <SkillsToolRight selectedSkill={selectedSkill} selectedSkillFile={selectedSkillFile} setSelectedSkillFile={setSelectedSkillFile} loading={loading} fileContent={fileContent} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} />;
       case 'Help': return <HelpToolRight selectedHelpId={selectedHelpId} helpLinks={helpLinks} helpShortcuts={helpShortcuts} helpCli={helpCli} gatewayStatus={gatewayStatus} />;
-      case 'Old': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Docs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Memory': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       default: return <div className="p-8 text-[#B8860B]">Select a tool</div>;

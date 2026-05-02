@@ -46,9 +46,6 @@ export async function GET(request: Request) {
           } else if (mode === 'specs') {
             // Only include 'specs' folder and its contents
             if (entry.name !== 'specs' && !normalDir.includes('/specs')) return null;
-          } else if (mode === 'old') {
-            // Only include 'OLD' folder and its contents
-            if (entry.name !== 'OLD' && !normalDir.includes('/OLD')) return null;
           }
 
           // Recursively get FILES from this SUBDIRECTORY - this will return an array of FILE/DIRECTORY objects for the subdirectory, which we will attach as 'children' to this directory object
@@ -75,35 +72,28 @@ export async function GET(request: Request) {
           const isCode = codeExts.some(ext => entry.name.endsWith(ext));
           // Check if this is a SPEC FILE (ends with _spec.md or is in specs folder) but not code
           const isSpec = (entry.name.endsWith('_spec.md') || normalDir.includes('/specs')) && !isCode;
-          // Check if this FILE is in the OLD or archive directory (archived content)
-          const isOld = normalDir.includes('/OLD') || normalDir.includes('/memory/archive');
           // Check if this FILE is in the memories folder
           const isMemoryFile = normalDir.includes('/memories');
 
           // Filter FILES based on mode - only return FILES that match the mode's criteria
           if (mode === 'docs') {
             // Return only MARKDOWN FILES for 'docs' mode
-            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
+            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'memory') {
             // Return only MARKDOWN FILES from 'memories' folder that aren't specs
-            return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
+            return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'logs') {
             // Return only LOG FILES for 'logs' mode
-            return entry.name.endsWith('.log') ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
+            return entry.name.endsWith('.log') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'specs') {
             // Return only SPEC FILES for 'specs' mode (files that are identified as specs but not code files)
-            return isSpec ? { name: entry.name, type: 'file', path: relativePath, isArchived: isOld, updatedAt: stats.mtimeMs } : null;
-          }
-
-          if (mode === 'old') {
-            // Return only ARCHIVED/OLD files for 'old' mode - this includes any file in the OLD folder or memory archive, regardless of extension
-            return isOld ? { name: entry.name, type: 'file', path: relativePath, isArchived: true, updatedAt: stats.mtimeMs } : null;
+            return isSpec ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
           // If no mode matched, return null (file doesn't match any filter)
@@ -118,39 +108,6 @@ export async function GET(request: Request) {
     let fileTree = await getFiles(workspacePath);
 
     // Mode-specific sorting and formatting
-    if (mode === 'old') {
-      // For 'old' mode, we want a virtual grouping by file extension instead of a normal tree structure
-      const allOldFiles: any[] = [];
-      const flatten = (nodes: any[]) => {
-        for (const node of nodes) {
-          if (node.type === 'file') allOldFiles.push(node);
-          else if (node.type === 'directory' && node.children) flatten(node.children);
-        }
-      };
-      flatten(fileTree);
-
-      // Group the old files by extension so we can render synthetic folders by type
-      const groups: Record<string, any[]> = {};
-      for (const file of allOldFiles) {
-        const ext = file.name.includes('.') ? file.name.split('.').pop()?.toLowerCase() || 'other' : 'other';
-        if (!groups[ext]) groups[ext] = [];
-        groups[ext].push(file);
-      }
-
-      const newTree: any[] = [];
-      const sortedExts = Object.keys(groups).sort();
-      for (const ext of sortedExts) {
-        const sortedFiles = groups[ext].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-        newTree.push({
-          name: ext === 'other' ? 'NO EXTENSION' : `*.${ext.toUpperCase()}`,
-          type: 'directory',
-          path: `__VIRTUAL_EXT__/${ext}`,
-          children: sortedFiles
-        });
-      }
-      fileTree = newTree;
-    }
-
     if (mode === 'docs' || mode === 'memory' || mode === 'logs' || mode === 'specs') {
       // For these modes the UI expects a flat list of files, so flatten the directory tree completely
       //console.log('Flattening file tree for mode:', mode);
@@ -173,7 +130,7 @@ export async function GET(request: Request) {
       //console.log('Flattened file tree:', JSON.stringify(fileTree, null, 2));
     }
 
-    // Return the final JSON payload of files or grouped old files
+    // Return the final JSON payload of files
     return NextResponse.json(fileTree);
   } catch (error) {
     console.error('Failed to fetch files:', error);
