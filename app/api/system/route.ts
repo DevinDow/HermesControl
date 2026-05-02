@@ -1,8 +1,9 @@
 ﻿import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { INTERNAL_FOLDERS_TO_SKIP } from '../../lib/paths';
 
-async function getJsonFiles(dir: string, baseDir: string): Promise<any[]> {
+async function getSystemFiles(dir: string, baseDir: string): Promise<any[]> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files: any[] = [];
 
@@ -10,11 +11,14 @@ async function getJsonFiles(dir: string, baseDir: string): Promise<any[]> {
     const fullPath = path.join(dir, entry.name);
     const relativePath = path.relative(baseDir, fullPath);
 
-    // Exclude noisy directories
     if (entry.isDirectory()) {
-      if (['node_modules', '.next', '.git', 'user-data', 'hermes-agent', 'migration', 'state-snapshots'].includes(entry.name)) continue;
-      
-      const children = await getJsonFiles(fullPath, baseDir);
+      if (INTERNAL_FOLDERS_TO_SKIP.includes(entry.name)) {
+        //console.log('Skipping directory:', fullPath);
+        continue;
+      }
+      //console.log('Fetching directory:', fullPath);
+
+      const children = await getSystemFiles(fullPath, baseDir);
       if (children.length > 0) {
         files.push({
           name: entry.name,
@@ -23,7 +27,7 @@ async function getJsonFiles(dir: string, baseDir: string): Promise<any[]> {
           children
         });
       }
-    } else if (entry.isFile() && entry.name.endsWith('.json')) {
+    } else if (entry.isFile() && (entry.name.endsWith('.json') || entry.name.endsWith('.yaml'))) {
       const stats = await fs.stat(fullPath);
       files.push({
         name: entry.name,
@@ -45,7 +49,7 @@ export async function GET() {
   try {
     const { HERMES_ROOT } = await import('../../lib/paths');
     const baseDir = HERMES_ROOT;
-    const files = await getJsonFiles(baseDir, baseDir);
+    const files = await getSystemFiles(baseDir, baseDir);
     return NextResponse.json(files);
   } catch (error) {
     console.error('Failed to fetch system files:', error);

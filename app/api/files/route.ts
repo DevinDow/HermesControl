@@ -1,7 +1,7 @@
 ﻿import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, HERMES_ROOT } from '../../lib/paths';
+import { getWorkspacePath, HERMES_ROOT, INTERNAL_FOLDERS_TO_SKIP } from '../../lib/paths';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -26,10 +26,7 @@ export async function GET(request: Request) {
 
         // handle DIRECTORY
         if (entry.isDirectory()) {
-          // Skip these standard system folders regardless of mode
-          if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.next') {
-            return null;
-          }
+          if (INTERNAL_FOLDERS_TO_SKIP.includes(entry.name)) return null;
 
           //console.log('Checking', mode, 'mode for directory:', entry.name, 'in', normalDir);
 

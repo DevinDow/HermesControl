@@ -1,7 +1,7 @@
 ﻿import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath } from '../../lib/paths';
+import { getWorkspacePath, INTERNAL_FOLDERS_TO_SKIP } from '../../lib/paths';
 
 export async function GET(request: Request) {
   try {
@@ -14,13 +14,11 @@ export async function GET(request: Request) {
         const relativePath = path.relative(workspacePath, fullPath);
         
         if (entry.isDirectory()) {
-          // Internal folders to always skip
-          if (['node_modules', '.git', '.next', 'memory'].includes(entry.name)) return null;
+          if (INTERNAL_FOLDERS_TO_SKIP.includes(entry.name)) return null;
 
           // Only allow specific script-heavy directories
           const isAllowedDir = entry.name === 'scripts' || 
                                entry.name === 'specs' || 
-                               entry.name === 'maintenance' ||
                                dir.includes('/specs') ||
                                dir.includes('/scripts');
 

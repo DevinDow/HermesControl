@@ -875,7 +875,7 @@ export default function HermesControl() {
                   setSelectedFilePath('scripts/system_health_stats.py');
                 }
                 if (item.name === 'System' && (systemTree?.length || 0) > 0) {
-                  setSelectedFilePath('hermes.json');
+                  setSelectedFilePath('config.yaml');
                 }
                 if (item.name === 'Skills') {
                   const birdSkill = skills.workspace?.find(s => s.name === 'bird') || skills.workspace?.[0] || skills.system?.[0];
