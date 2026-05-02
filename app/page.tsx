@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   HeartPlus,
   HeartOff,
@@ -162,6 +162,7 @@ export default function HermesControl() {
   }>({ online: true });
 
   const [updating, setUpdating] = useState<boolean>(false);
+  const prevUpdatingRef = useRef<boolean>(false);
 
   // ============================================================================
   // LOADING STATES
@@ -455,6 +456,20 @@ export default function HermesControl() {
       clearInterval(modelStatusInterval);
     };
   }, [activeTab]);
+
+  useEffect(() => {
+    if (prevUpdatingRef.current && !updating) {
+      fetchData('/api/version', (data: any) => {
+        setGatewayStatus(prev => ({
+          ...prev,
+          version: data?.version,
+          updateString: data?.updateString,
+          updateAvailable: !!data?.updateString
+        }));
+      }, 'status');
+    }
+    prevUpdatingRef.current = updating;
+  }, [updating]);
 
   // Interval 5: Git Pulse Polling (2s) - Only when Git tab is active
   useEffect(() => {

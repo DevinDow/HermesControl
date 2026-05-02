@@ -25,10 +25,10 @@ export function SystemStatus({
   return (
     <div className="flex flex-col p-2 border-t border-[#1F1F1F] bg-[#080808]">
         
-      {/* ONLINE, Version */}
+      {/* ONLINE, Version row */}
       <div className="flex justify-between">
 
-        {/* • ONLINE */}
+        {/* • ONLINE button */}
         <button className="flex items-center p-1.5 text-[11px] text-[#B8860B] hover:bg-[#222222] rounded transition-all"
           onClick={async () => {
             try {
@@ -46,15 +46,15 @@ export function SystemStatus({
             }
           }}
         >
-          {/* • */}
+          {/* • pulsing green/red circle */}
           <div className={cn("w-1.5 h-1.5 mr-2 rounded-full shadow-[0_0_9px]",
             gatewayStatus.online ? "bg-[#22C55E] shadow-green-500/30 animate-pulse" : "bg-red-500 shadow-red-500/30")} 
           />
-          {/* ONLINE */}
+          {/* ONLINE text */}
           {gatewayStatus.online ? 'ONLINE' : 'OFFLINE'}
         </button>
 
-        {/* Version */}
+        {/* Version button */}
         <button className="flex items-center p-1.5 text-[11px] text-[#B8860B] hover:bg-[#222222] rounded transition-all"
           onClick={async () => {
             try {
@@ -72,12 +72,16 @@ export function SystemStatus({
             }
           }}
         >
-          {gatewayStatus.version ? (
+
+          {/* Version text = "updating..." : gatewayStatus.version : "fetching version..." */}
+          {updating ? (
+            <div className="font-mono">updating...</div>
+          ) : gatewayStatus.version ? (
             <div className="font-mono">
               {gatewayStatus.version.replace(/^Hermes Agent\s*/, '')}
             </div>
           ) : (
-            "version loading..."
+            "fetching version..."
           )}
         </button>
 
@@ -87,7 +91,7 @@ export function SystemStatus({
         <pre className="whitespace-pre-wrap break-words text-[#FFF8DC]">{modalContent}</pre>
       </ModalDialog>
 
-      {/* Update Available BUTTON */}
+      {/* Update Available button */}
       {gatewayStatus.updateAvailable && (
         <button className="mx-0.5 p-2 rounded-lg bg-[#FFBF00]/10 border border-[#FFBF00]/20 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-500 hover:bg-[#FFBF00]/20 transition-all text-left w-full group"
           onClick={async () => {
