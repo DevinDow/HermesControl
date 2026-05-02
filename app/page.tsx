@@ -841,41 +841,25 @@ export default function HermesControl() {
                 setSelectedSkillId(null);
                 setViewingJobLog(false);
 
-                // Pre-selections for better UX
+                // Preselect an Item per Tool
+                if (item.name === 'Docs') setSelectedFilePath('TODO.md');
+                if (item.name === 'Memory') setSelectedFilePath('MEMORY.md');
+                if (item.name === 'Sessions' && sessions.length > 0) setSelectedSessionId(sessions[0].id);
+                //if (item.name === 'Specs') setSelectedSpec(null);
+                if (item.name === 'Logs') setSelectedLog(null);
+                if (item.name === 'System') setSelectedFilePath('config.yaml');
+                //if (item.name === 'Scripts') setSelectedScript(null);
                 if (item.name === 'Cmd') {
                   if (cmdHistory.length === 0) {
                     fetchData('/api/cmd', setCmdHistory, 'cmd');
                   }
                   setSelectedCmdId(null);
                 }
+                if (item.name === 'Git') setSelectedGitFile(null);
+                if (item.name === 'Jobs' && (jobs?.length || 0) > 0) setSelectedJobId(jobs[0].id);
                 if (item.name === 'Git') {
                   setGitStale(false);
                   fetch('/api/git/pulse').then(r => r.json()).then(d => setGitFingerprint(d.fingerprint)).catch(() => { });
-                }
-                if (item.name === 'Sessions') {
-                  if (sessions.length > 0) setSelectedSessionId(sessions[0].id);
-                }
-                if (item.name === 'Logs') {
-                  if (logs.length === 0) fetchData('/api/files?mode=logs', setLogs, 'logs');
-                  else if (!selectedLog && logs.length > 0) setSelectedLog(logs[0].name);
-                }
-                if (item.name === 'Help') setSelectedHelpId('Links');
-                if (item.name === 'Git') setSelectedGitFile(null);
-                if (item.name === 'Memory') {
-                  if (memoryTree.length > 0) {
-                    const firstFile = memoryTree[0].type === 'file' ? memoryTree[0] : memoryTree[0].children?.[0];
-                    if (firstFile) setSelectedFilePath(firstFile.path);
-                  } else {
-                    setSelectedFilePath('MEMORY.md');
-                  }
-                }
-                if (item.name === 'Docs') setSelectedFilePath('__TODO__/TODO.md');
-                if (item.name === 'Jobs' && (jobs?.length || 0) > 0) setSelectedJobId(jobs[0].id);
-                if (item.name === 'Scripts') {
-                  setSelectedFilePath('scripts/system_health_stats.py');
-                }
-                if (item.name === 'System' && (systemTree?.length || 0) > 0) {
-                  setSelectedFilePath('config.yaml');
                 }
                 if (item.name === 'Skills') {
                   const birdSkill = skills.workspace?.find(s => s.name === 'bird') || skills.workspace?.[0] || skills.system?.[0];
@@ -884,6 +868,7 @@ export default function HermesControl() {
                     setSelectedSkillFile(birdSkill.hasReadme ? 'SKILL.md' : (birdSkill.files[0]?.name || ''));
                   }
                 }
+                if (item.name === 'Help') setSelectedHelpId('Links');
               }}
               className={cn(
                 "w-full flex items-center gap-0 md:gap-2.5 px-2 md:px-3 py-1.5 rounded-md text-[13px] font-medium transition-all group justify-center md:justify-start",
