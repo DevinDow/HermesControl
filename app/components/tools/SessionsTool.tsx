@@ -66,6 +66,37 @@ export function SessionsToolRight({ selectedSession }: any) {
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
+  const getMessageDetails = (message: any) => {
+    const reasoning = message.reasoning || '';
+    const finishReason = message.finish_reason || '';
+    const toolCallId = message.tool_call_id || '';
+
+    var toolCalls = '';
+    if (message.tool_calls && Array.isArray(message.tool_calls)) {
+      if (message.tool_calls.length === 0) {
+        toolCalls = '*EMPTY*';
+      } else if (message.tool_calls.length === 1) {
+        toolCalls = getToolCallDetails(message.tool_calls[0], true);
+      } else {
+        toolCalls = `${message.tool_calls.length} tool calls: ` + message.tool_calls.map((call: any) => getToolCallDetails(call, false)).join(', ');  
+      }
+    }
+
+    return `${reasoning} ${finishReason} ${toolCallId} ${toolCalls}`.trim();
+  };
+
+  const getToolCallDetails = (toolCall: any, args: boolean) => {
+    var s = toolCall.type || '';
+    if (toolCall.function) {
+      s = toolCall.function.name + '(';
+      if (args) {
+        s += toolCall.function.arguments.substring(0, 100);
+      }
+      s += ')';
+    }
+    return s;
+  }
+
   useEffect(() => {
     if (!selectedSession?.id) {
       setSessionData(null);
@@ -168,11 +199,10 @@ export function SessionsToolRight({ selectedSession }: any) {
                     {isExpanded ? <ChevronDown size={18} className="text-[#FFBF00]" /> : <ChevronRight size={18} className="text-[#B8860B]" />}
                     <span>#{messageNumber}</span>
                     <span className="font-bold text-[#FFD700]">{message.role}</span>
-                    <span className="text-sm text-[#888888]">{message.reasoning}</span>
-                    <span className="text-sm text-[#888888]">{message.finish_reason}</span>
+                    <span className="text-sm text-[#888888]">{getMessageDetails(message)}</span>
                   </div>
                   <pre className={`overflow-auto text-[11px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words ${!isExpanded ? "max-h-[250px]" : ""}`}>
-                    {message.content}
+                    {message.content?.replace(/\\n/g, '\n')}
                   </pre>
                   <pre className={`overflow-auto text-[11px] font-mono text-[#FFF8DC] whitespace-pre-wrap break-words ${!isExpanded ? "max-h-[250px]" : ""}`}>
                     {message.tool_calls ? JSON.stringify(message.tool_calls, null, 2) : ''}
