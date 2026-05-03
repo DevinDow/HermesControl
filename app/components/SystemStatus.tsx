@@ -101,9 +101,7 @@ export function SystemStatus({
             try {
               const res = await fetch('/api/update', { method: 'POST' });
               const data = await res.json();
-              if (res.ok) {
-                alert('Update initiated successfully. The dashboard will lose connection momentarily while the gateway restarts.');
-              } else {
+              if (!res.ok) {
                 alert(`Update failed: ${data.error}`);
               }
             } catch (err) {
