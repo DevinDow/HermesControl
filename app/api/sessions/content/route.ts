@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       platform: platform || null,
       sessionStart: sessionStart || null,
       lastUpdated: lastUpdated || null,
-      messages: messages.reverse(), // Show most recent messages first
+      messages: messages,
     });
   } catch (error: any) {
     console.error('Failed to read session file:', error);

@@ -54,8 +54,8 @@ export function SessionsToolLeft({
           matchesFilter(session.id)
         );
       }).length === 0 && (
-        <div className="p-4 text-[13px] text-[#B8860B]">No sessions match your filter.</div>
-      )}
+          <div className="p-4 text-[13px] text-[#B8860B]">No sessions match your filter.</div>
+        )}
     </>
   );
 }
@@ -65,6 +65,7 @@ export function SessionsToolRight({ selectedSession }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+  const [reverseOrder, setReverseOrder] = useState(true);
 
   const getMessageDetails = (message: any) => {
     const reasoning = message.reasoning || '';
@@ -78,7 +79,7 @@ export function SessionsToolRight({ selectedSession }: any) {
       } else if (message.tool_calls.length === 1) {
         toolCalls = getToolCallDetails(message.tool_calls[0], true);
       } else {
-        toolCalls = `${message.tool_calls.length} tool calls: ` + message.tool_calls.map((call: any) => getToolCallDetails(call, false)).join(', ');  
+        toolCalls = `${message.tool_calls.length} tool calls: ` + message.tool_calls.map((call: any) => getToolCallDetails(call, false)).join(', ');
       }
     }
 
@@ -149,6 +150,21 @@ export function SessionsToolRight({ selectedSession }: any) {
     <div className="p-2 space-y-2 overflow-y-auto">
       <div className="flex items-center gap-3">
         <MessageSquare size={24} className="text-[#FFBF00]" />
+
+        <button onClick={() => setReverseOrder(!reverseOrder)}>
+          {/* Toggle switch - RED/TOP = REVERSED */}
+          <div className={cn(
+            "w-5 h-10 rounded-full relative transition-colors",
+            reverseOrder ? "bg-red-500/20 border border-red-500/50" : "bg-green-500/20 border border-green-500/50"
+          )}>
+            {/* Toggle indicator */}
+            <div className={cn(
+              "absolute left-0.5 w-[14px] h-[14px] rounded-full transition-all",
+              reverseOrder ? "top-0.5 bg-red-400" : "bottom-0.5 bg-green-500"
+            )} />
+          </div>
+        </button>
+
         <div className="text-[13px] text-[#B8860B]">
           <h2 className="text-lg font-semibold text-[#FFF8DC]">Session {sessionData.id}</h2>
           <div>
@@ -161,21 +177,21 @@ export function SessionsToolRight({ selectedSession }: any) {
             <span> started </span>
             {(() => {
               const { text, color } = formatRelativeTime(sessionData.sessionStart);
-                return (
-                  <span className={cn("font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
-                    {text}
-                  </span>
-                );
-              })()}
+              return (
+                <span className={cn("font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
+                  {text}
+                </span>
+              );
+            })()}
             <span>, updated </span>
             {(() => {
               const { text, color } = formatRelativeTime(sessionData.lastUpdated);
-                return (
-                  <span className={cn("font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
-                    {text}
-                  </span>
-                );
-              })()}
+              return (
+                <span className={cn("font-mono shrink-0 self-start mt-0.5", color)} suppressHydrationWarning>
+                  {text}
+                </span>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -184,10 +200,13 @@ export function SessionsToolRight({ selectedSession }: any) {
         {sessionData.messages.length === 0 ? (
           <div className="text-[#B8860B]">No messages found in this session log.</div>
         ) : (
-          [...sessionData.messages].map((message: any, idx: number) => {
+          (reverseOrder
+            ? [...sessionData.messages].reverse()
+            : [...sessionData.messages]
+          ).map((message: any, idx: number) => {
             const isExpanded = !!expanded[idx];
-            const messageKey = message.id ?? `message-${idx}`;
-            const messageNumber = message.index != null ? message.index + 1 : sessionData.messages.length - idx;
+            const messageKey = `message-${idx}`;
+            const messageNumber = reverseOrder ? sessionData.messages.length - idx : idx + 1;
             return (
               <div key={messageKey} className="bg-[#222222] border border-[#B8860B] rounded-xl overflow-hidden">
                 <button
