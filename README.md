@@ -1,44 +1,142 @@
-# Hermes Control (HC)
+# Hermes Control (HC) Dashboard
 
-Hermes Control is the central management dashboard for the Hermes agent. It provides a visual, real-time interface to inspect system activity, manage files, monitor cron jobs, and review session history.
+Hermes Control is my custom central management dashboard for the Hermes agent. It provides a visual, real-time interface to inspect system activity, manage files, monitor cron jobs, and review session history.
+It runs on the Hermes computer, and the port can be accessed from across the network.
 
-## Architecture
-- **Framework:** [Next.js](https://nextjs.org/docs) (App Router)
-- **UI:** [React](https://react.dev/) + [Tailwind CSS](https://tailwindcss.com/docs)
-- **Type Safety:** [TypeScript](https://www.typescriptlang.org/docs/)
+- **Framework:** [Next.js](https://nextjs.org/docs) (App Router): The core framework providing server-side rendering and client-side interactivity.
+- **UI:** **[React](https://react.dev/)**: Used for building the UI components.
+- **Styles:** **[Tailwind CSS](https://tailwindcss.com/docs)**: Used for styling (Linear-inspired dark mode theme).
+- **Icons:** **[Lucide React](https://lucide.dev/guide/packages/lucide-react)**: Icon library for the sidebar and UI elements.
+- **Type Safety:** **[TypeScript](https://www.typescriptlang.org/docs/)**: Ensures type safety across the project.
 - **State Management:** React local state (shared via props through the application shell in `app/page.tsx`).
 
-## Core Layout
-The interface employs a three-column dashboard pattern:
-1. **Sidebar (Left):** Global navigation, system health status, and active tool selection.
-2. **Tool List (Middle):** Dynamic navigation/filtering for the selected tool.
-3. **Detail View (Right):** Primary workspace for file editing, markdown rendering, and log inspection.
+## ⚙️ Configuration
 
-## Key Features
-- **Thermal Activity Layers:** Real-time color-coding based on file modification timestamps.
-- **Log Management:** Deep inspection of session `.jsonl` files with search, filtering, and "Load All" capabilities.
-- **Agent Integration:** Direct interaction with Hermes commands, jobs, and file systems via local API Route Handlers (`app/api/`).
-- **Interactive Git/Cmd:** Integrated Git status and command-line execution.
+Hermes Control now runs as a separate repository. To connect it to your Hermes folder:
 
-## Getting Started
+1. Copy `.env.example` to `.env.local`
+2. Edit `.env.local` and set `HERMES_PATH` to your Hermes folder location
 
-1. **Environment Setup:**
-   Copy `.env.example` to `.env.local` and configure your Hermes path:
-   ```bash
-   HERMES_PATH=~/.hermes
-   ```
+**Example (.env.local):**
+```
+HERMES_PATH=~/.hermes
+```
 
-2. **Installation:**
+See [CONFIGURATION.md](CONFIGURATION.md) for detailed setup instructions.
+
+## 🏗️ Layout Structure
+
+The application follows a three-column layout pattern:
+
+1.  **Global Sidebar (Left):** Manages the `activeTab` state, allowing the user to switch between different tools (Docs, Memory, Jobs, etc.). It also displays global system health and Hermes status.
+2.  **Tool List (Middle):** Dynamically renders the "Left" component of the active tool. This column usually contains a filterable list or a navigation tree.
+3.  **Detail View (Right):** Dynamically renders the "Right" component of the active tool. This is where file content, logs, or detailed data objects are displayed.
+
+## 🧩 Modularization & Component Reuse
+
+To improve maintainability and prevent single points of failure, the tools have been extracted from the once-monolithic `page.tsx` into `app/components/tools/`.
+
+### Reusable Components
+
+We maximize code efficiency by reusing specialized components across multiple tools:
+
+*   **`FileViewerRight` (`app/components/tools/FileViewer.tsx`):**
+    *   This is the primary component for viewing and editing files.
+    *   It features Markdown rendering (via `react-markdown`), syntax highlighting for code, and a "Find in File" search bar.
+    *   **Shared by:** Docs, Memory, Specs, Scripts, Code, and System tools.
+*   **`SessionsToolLeft` (`app/components/tools/SessionsTool.tsx`):**
+    *   Handles the display of session/log entries with status indicators and relative timestamps.
+    *   **Shared by:** Sessions and History tools.
+*   **`renderFileTree` (Core utility in `page.tsx`):**
+    *   A recursive function that handles the rendering of hierarchical folder structures. It supports collapsible branches and virtual grouping.
+    *   **Shared by:** All file-based tools.
+
+### Individual Tool Modules
+
+*   **`JobsTool`:** Manages cron jobs and scheduled tasks.
+*   **`CmdTool`:** A persistent terminal emulator with "Favorites" support (persisted in `cmd_favorites.json`).
+*   **`GitTool`:** Interactive Git client for staging, committing, and viewing diffs.
+*   **`LogsTool`:** Viewer for log files from the logs directory.
+*   **`SkillsTool` / `HelpTool`:** Specialized modules for agent capabilities, scheduling, and documentation.
+
+## 🛠️ Development & Safety
+
+*   **State Management:** Global UI state (selection, navigation, search) is maintained in `app/page.tsx` and passed to tool components via props.
+*   **Error Isolation:** By moving implementation details into separate files, a syntax error in one tool's UI code will only prevent that specific component from rendering, rather than crashing the entire Hermes Control dashboard.
+
+## File Map (Where to Edit)
+
+### Frontend (The UI Shell)
+- **`app/page.tsx`**: The "Shell" of the app. It contains the sidebar layout, the tab logic, and the global state management.
+- **`app/components/tools/`**: Contains the individual implementation for every tool (Tasks, Sessions, Git, etc.).
+- **`app/components/tools/utils`**: dateFormatting & fileUtils.
+- **`app/components/SystemStatus.tsx**: Bottom-Left System Status.
+- **`app/components/ModalDialog.tsx**: Reusable Modal Dialog.
+- **`app/components/SystemStatus.tsx**: Bottom-Left System Status
+- **`app/globals.css`**: Global styles and Tailwind directives.
+
+### Backend (The Data Handlers)
+The app uses **Next.js Route Handlers** to talk to the machine. These are located in `app/api/`:
+- **`app/api/tasks/route.ts`**: Fetches the Google Sheets "TODO" list using the `gog` CLI.
+- **`app/api/jobs/route.ts`**: Lists Hermes jobs and execution metadata.
+- **`app/api/sessions/route.ts`**: Lists Hermes sessions.
+- **`app/api/files/route.ts`**: Scans the workspace directory to build file trees.
+
+## How to Launch
+
+Hermes Control runs on port **3000** by default. You can launch it using the helper script in the root directory:
+
+1. **Install:**
    ```bash
    npm install
    ```
 
-3. **Launch:**
-   Use the helper script in the root directory:
+2. **Manual Start (Advanced):**
    ```bash
-   ./mc.sh
+   cd ~/Development/HermesControl
+   npm run dev
    ```
    *Dashboard runs on port 3000.*
+   *Note: If the port is already in use, you can clear it with: `fuser -k 3000/tcp`*
+
+## Data Collection Features
+
+### 🌡️ Activity Thermal Layer
+Files and sessions feature real-time color-coded relative timestamps to visualize the "heatmap" of system activity.
+
+#### Middle Column Color Logic (General Navigation):
+*   **RED:** Modified < 30 mins ago.
+*   **YELLOW:** Modified < 2 hours ago.
+*   **GREEN:** Modified < 6 hours ago.
+*   **WHITE:** Everything else from today.
+*   **LIGHT GRAY:** Modified < 1 week ago.
+*   **DARK GRAY:** Older than 1 week.
+
+#### Right Column Color Logic (Session Log Detail):
+*   **RED (Extra Bold/Bright):** Logged < 1 minute ago.
+*   **YELLOW (Extra Bold/Bright):** Logged < 5 minutes ago.
+*   **GREEN (Extra Bold/Bright):** Logged < 10 minutes ago.
+*   **LIGHT GRAY (Bold):** Everything else.
+
+### 🔍 Search & Highlighting
+Integrated search in the detail view for files. It highlights instances using high-contrast yellow backgrounds and includes a result counter with automatic scrolling.
+
+### 📜 History Tool Indicators
+The History tab uses specific color-coded indicators to distinguish between different session log states:
+
+- **BLUE Left Border + RESET Tag:** Sessions that were cleared using `/reset`.
+- **RED Left Border + DELETED Tag:** Sessions that were manually removed via `/delete`.
+- **YELLOW Left Border + ARCHIVE Tag:** Sessions that have been moved to the historical archive.
+
+#### 🔍 Real-Time Search & Filtering
+- **Dynamic Filtering:** As you type in the search bar, the UI instantly filters for matching log entries.
+- **Match Counter:** When a search is active, a yellow "X MATCHES" indicator appears, showing how many total entries in the file contain your query.
+- **Persistent Visibility:** The "Showing" limit you select (e.g., 10 or 20) remains consistent even as you search, ensuring the UI doesn't jump around unexpectedly.
+
+#### 📂 Log Loading & Visibility
+- **Full Content Loading:** Sessions now load the entire `.jsonl` file context immediately upon selection, while only rendering a subset for performance.
+- **Row Selection Dropdown:** Choose exactly how many recent entries to display (10, 20, 50, 100, 500, or ALL).
+- **"Load All" Shortcut:** The total entry count (e.g., `/ 25 Entries`) is interactive. Clicking it instantly expands the view to reveal the full session history and automatically scrolls to the beginning of the log (the bottom of the list).
 
 ## Development Guide
 - **UI Shell:** `app/page.tsx`
