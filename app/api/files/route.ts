@@ -123,16 +123,16 @@ export async function GET(request: Request) {
 
       // Also add the HermesControl README as a virtual entry if it exists in docs mode
       // This ensures it has a unique path to avoid collision with the ROOT readme
-      const mcReadmePath = path.join(getHermesControlPath(), 'README.md');
+      const hcReadmePath = path.join(getHermesControlPath(), 'README.md');
       try {
-        const mcReadmeStats = await fs.stat(mcReadmePath);
+        const hcReadmeStats = await fs.stat(hcReadmePath);
         // Find and update the existing README entry if it exists
         const existingIdx = fileTree.findIndex(f => f.path === 'README.md');
         const entry = {
           name: 'README.md',
           type: 'file',
           path: '__HC__/README.md',
-          updatedAt: mcReadmeStats.mtimeMs,
+          updatedAt: hcReadmeStats.mtimeMs,
           virtualFolder: 'HermesControl',
           virtualName: 'README'
         };

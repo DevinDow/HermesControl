@@ -12,9 +12,6 @@ function resolveFilePath(filePath: string): string | null {
   if (filePath.startsWith('__HC__/')) {
     return path.join(getHermesControlPath(), filePath.replace('__HC__/', ''));
   }
-  if (filePath.startsWith('__MC__/')) {
-    return path.join(getHermesControlPath(), filePath.replace('__MC__/', ''));
-  }
   if (filePath.startsWith('__TODO__/')) {
     return path.join(getWorkspacePath(), filePath.replace('__TODO__/', ''));
   }
