@@ -22,17 +22,17 @@ function getHermesRoot(): string {
   // Hermes Control app was originally located at `<hermes-root>/tools/mc` (because it was vibe-coded with Hermes Agent as a tiny tool within the Hermes repo, but it quickly outgrew that).
   // By navigating up two directories from process.cwd() (which is `tools/mc` during Next.js run),
   // we dynamically resolve the workspace root without hardcoding it.
-  return path.resolve(process.cwd(), '../..');
+  return '/home/devin/.hermes';
 }
 
 export const HERMES_ROOT = getHermesRoot();
-
+export const getWorkspacePath = () => HERMES_ROOT;
 export const getSessionsPath = () => path.join(HERMES_ROOT, 'sessions');
 export const getCronPath = () => path.join(HERMES_ROOT, 'cron');
+export const getFavoritesPath = () => path.join(HERMES_ROOT, 'cmd_favorites.json');
+export const getSkillsPath = () => path.join(HERMES_ROOT, 'skills');
 
-export const getWorkspacePath = () => HERMES_ROOT;
-export const getFavoritesPath = () => path.join(getWorkspacePath(), 'cmd_favorites.json');
-export const getSkillsPath = () => path.join(getWorkspacePath(), 'skills');
+export const getHermesControlPath = () => '/home/devin/Development/HermesControl';
 
 export const INTERNAL_FOLDERS_TO_SKIP = [
   'node_modules',

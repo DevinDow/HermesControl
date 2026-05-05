@@ -1,7 +1,7 @@
 ﻿import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { HERMES_ROOT, getWorkspacePath } from '../../../lib/paths';
+import { HERMES_ROOT, getWorkspacePath, getHermesControlPath } from '../../../lib/paths';
 
 const HERMES_WORKSPACE = getWorkspacePath();
 
@@ -12,8 +12,8 @@ function resolveFilePath(filePath: string): string | null {
   if (filePath.startsWith('__ROOT__/')) {
     return path.join(HERMES_ROOT, filePath.replace('__ROOT__/', ''));
   }
-  if (filePath.startsWith('__MC__/')) {
-    return path.join(HERMES_ROOT, 'tools/mc', filePath.replace('__MC__/', ''));
+  if (filePath.startsWith('__HC__/')) {
+    return path.join(getHermesControlPath(), filePath.replace('__HC__/', ''));
   }
   if (filePath.startsWith('__TODO__/')) {
     return path.join(HERMES_ROOT, filePath.replace('__TODO__/', ''));
@@ -22,8 +22,10 @@ function resolveFilePath(filePath: string): string | null {
     return path.join(HERMES_ROOT, 'tools', filePath.replace('__TOOLS__/', ''));
   }
   
-  const absolutePath = path.resolve(HERMES_WORKSPACE, filePath);
-  if (absolutePath.startsWith(HERMES_WORKSPACE)) {
+  // Default workspace (HERMES_ROOT) resolution
+  const workspacePath = getWorkspacePath();
+  const absolutePath = path.resolve(workspacePath, filePath);
+  if (absolutePath.startsWith(workspacePath)) {
     return absolutePath;
   }
   

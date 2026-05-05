@@ -105,7 +105,7 @@ export default function HermesControl() {
   const [systemTree, setSystemTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
   const [expandedSystemFolders, setExpandedSystemFolders] = useState<Set<string>>(new Set());
-  const [expandedDocsFolders, setExpandedDocsFolders] = useState<Set<string>>(new Set(["__VIRTUAL__/README", "__VIRTUAL__/WORKSPACE", "plans"]));
+  const [expandedDocsFolders, setExpandedDocsFolders] = useState<Set<string>>(new Set(["__VIRTUAL__/README", "__VIRTUAL__/WORKSPACE", "__VIRTUAL__/HermesControl", "plans"]));
   const [cmdHistory, setCmdHistory] = useState<any[]>([]);
   const [gitStatus, setGitStatus] = useState<{
     commits: any[],

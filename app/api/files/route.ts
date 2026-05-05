@@ -1,7 +1,7 @@
 ﻿import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, HERMES_ROOT, INTERNAL_FOLDERS_TO_SKIP } from '../../lib/paths';
+import { getWorkspacePath, HERMES_ROOT, INTERNAL_FOLDERS_TO_SKIP, getHermesControlPath } from '../../lib/paths';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -104,27 +104,87 @@ export async function GET(request: Request) {
 
     let fileTree = await getFiles(workspacePath);
 
+    // Add Virtual Folders/Files
+    if (mode === 'docs') {
+      const readmePath = path.join(HERMES_ROOT, 'README.md');
+      try {
+        const readmeStats = await fs.stat(readmePath);
+        fileTree.push({
+          name: 'README.md',
+          type: 'file',
+          path: '__ROOT__/README.md',
+          updatedAt: readmeStats.mtimeMs,
+          virtualFolder: 'WORKSPACE',
+          virtualName: 'README'
+        });
+      } catch (e) {
+        // Skip if README doesn't exist
+      }
+
+      // Also add the HermesControl README as a virtual entry if it exists in docs mode
+      // This ensures it has a unique path to avoid collision with the ROOT readme
+      const hcReadmePath = path.join(getHermesControlPath(), 'README.md');
+      try {
+        const hcReadmeStats = await fs.stat(hcReadmePath);
+        // Find and update the existing README entry if it exists
+        const existingIdx = fileTree.findIndex(f => f.path === 'README.md');
+        const entry = {
+          name: 'README.md',
+          type: 'file',
+          path: '__HC__/README.md',
+          updatedAt: hcReadmeStats.mtimeMs,
+          virtualFolder: 'HermesControl',
+          virtualName: 'README'
+        };
+        if (existingIdx !== -1) {
+          fileTree[existingIdx] = entry;
+        } else {
+          fileTree.push(entry);
+        }
+      } catch (e) {
+        // Skip if HermesControl README doesn't exist
+      }
+    }
+
     // Mode-specific sorting and formatting
     if (mode === 'docs' || mode === 'memory' || mode === 'logs' || mode === 'specs') {
-      // For these modes the UI expects a flat list of files, so flatten the directory tree completely
-      //console.log('Flattening file tree for mode:', mode);
-      //console.log('Original file tree:', JSON.stringify(fileTree, null, 2));
       const allFiles: any[] = [];
+      const virtualFolders: Record<string, any[]> = {};
+
       const flatten = (nodes: any[]) => {
         for (const node of nodes) {
-          // collect all file nodes into a single flat array, ignoring directories (which are just organizational wrappers for the UI in these modes)
-          if (node.type === 'file') allFiles.push(node);
+          if (node.type === 'file') {
+            if (node.virtualFolder) {
+              if (!virtualFolders[node.virtualFolder]) {
+                virtualFolders[node.virtualFolder] = [];
+              }
+              virtualFolders[node.virtualFolder].push({
+                ...node,
+                name: node.virtualName || node.name
+              });
+            } else {
+              allFiles.push(node);
+            }
+          }
           else if (node.type === 'directory' && node.children) flatten(node.children);
         }
       };
       flatten(fileTree);
-      fileTree = allFiles;
 
-      // Ensure we only return file nodes, dropping any directory wrappers that may remain
-      const children = fileTree.filter(f => f.type === 'file');
       fileTree = [];
-      fileTree.push(...children);
-      //console.log('Flattened file tree:', JSON.stringify(fileTree, null, 2));
+
+      // Add virtual folders first
+      for (const [folderName, files] of Object.entries(virtualFolders)) {
+        fileTree.push({
+          name: folderName,
+          type: 'directory',
+          path: `__VIRTUAL__/${folderName}`,
+          children: files
+        });
+      }
+
+      // Add remaining files
+      fileTree.push(...allFiles);
     }
 
     // Return the final JSON payload of files
