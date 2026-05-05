@@ -1,10 +1,10 @@
-﻿import { exec } from 'child_process';
+import { exec } from 'child_process';
 import { promisify } from 'util';
 import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { HERMES_ROOT } from '../../../lib/paths';
+import { getWorkspacePath } from '../../../lib/paths';
 
 const execAsync = promisify(exec);
 
@@ -21,7 +21,7 @@ export async function GET() {
     // 1. Get porcelain status (fastest structure check)
     // We filter out high-churn session logs and database files to avoid false-positives
     const { stdout: statusStdoutRaw } = await execAsync(
-      `git -C ${HERMES_ROOT} status --porcelain`,
+      `git -C ${getWorkspacePath()} status --porcelain`,
       { encoding: 'utf8' }
     );
 
@@ -42,7 +42,7 @@ export async function GET() {
 
     // We also want to detect if local main is ahead of origin/main
     const { stdout: revStdout } = await execAsync(
-      `git -C ${HERMES_ROOT} rev-parse main origin/main`,
+      `git -C ${getWorkspacePath()} rev-parse main origin/main`,
       { encoding: 'utf8' }
     );
 
@@ -51,7 +51,7 @@ export async function GET() {
     for (const line of lines) {
       try {
         const file = line.slice(3).trim();
-        const stats = await fs.stat(path.join(HERMES_ROOT, file));
+        const stats = await fs.stat(path.join(getWorkspacePath, file));
         if (stats.mtimeMs > maxMtime) maxMtime = stats.mtimeMs;
       } catch (e) {
         // File might have been deleted/moved since status run

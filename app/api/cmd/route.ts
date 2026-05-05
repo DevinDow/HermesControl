@@ -1,8 +1,8 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
-import { HERMES_ROOT } from '../../lib/paths';
+import { getWorkspacePath } from '../../lib/paths';
 import fs from 'fs';
 import path from 'path';
 
@@ -14,7 +14,7 @@ const execAsync = promisify(exec);
  * platforms (like Windows), we want to be bulletproof about key availability.
  */
 function getExtendedEnv() {
-  const envPath = path.join(HERMES_ROOT, '.env');
+  const envPath = path.join(getWorkspacePath(), '.env');
   const envVars = { ...process.env };
   
   try {
@@ -54,7 +54,7 @@ let commandHistory: Array<{
   timestamp: number;
 }> = [];
 
-let currentCwd = HERMES_ROOT;
+let currentCwd = getWorkspacePath();
 
 const MAX_HISTORY = 10;
 
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
           output += `\n\n[DEBUG HINT]: Shell error detected. Current platform: ${debugInfo.platform}, target shell: ${debugInfo.shell}`;
       }
       if (!debugInfo.hasKey && command.includes('test_model.py')) {
-          output += `\n\n[DEBUG HINT]: OPENROUTER_API_KEY appears to be missing from the environment. Check ${path.join(HERMES_ROOT, '.env')}`;
+          output += `\n\n[DEBUG HINT]: OPENROUTER_API_KEY appears to be missing from the environment. Check ${path.join(getWorkspacePath(), '.env')}`;
       }
       exitCode = error.code || 1;
     }

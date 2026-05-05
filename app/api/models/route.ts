@@ -1,13 +1,13 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
-import { HERMES_ROOT } from '../../lib/paths';
+import { getWorkspacePath } from '../../lib/paths';
 
 export async function GET() {
   try {
     // Load config.yaml from the configured Hermes root directory
-    const configPath = path.join(HERMES_ROOT, 'config.yaml');
+    const configPath = path.join(getWorkspacePath(), 'config.yaml');
     const configData = await fs.readFile(configPath, 'utf-8');
     const hermesConfig = yaml.load(configData);
 
@@ -61,7 +61,7 @@ export async function GET() {
 
     return NextResponse.json(modelData);
   } catch (error) {
-    const configPath = path.join(HERMES_ROOT, 'config.yaml');
+    const configPath = path.join(getWorkspacePath(), 'config.yaml');
     console.error('Failed to fetch model data:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(

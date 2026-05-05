@@ -1,7 +1,7 @@
-﻿import { promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, HERMES_ROOT, INTERNAL_FOLDERS_TO_SKIP, getHermesControlPath } from '../../lib/paths';
+import { getWorkspacePath, INTERNAL_FOLDERS_TO_SKIP, getHermesControlPath } from '../../lib/paths';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -106,7 +106,7 @@ export async function GET(request: Request) {
 
     // Add Virtual Folders/Files
     if (mode === 'docs') {
-      const readmePath = path.join(HERMES_ROOT, 'README.md');
+      const readmePath = path.join(getWorkspacePath(), 'README.md');
       try {
         const readmeStats = await fs.stat(readmePath);
         fileTree.push({
@@ -123,16 +123,16 @@ export async function GET(request: Request) {
 
       // Also add the HermesControl README as a virtual entry if it exists in docs mode
       // This ensures it has a unique path to avoid collision with the ROOT readme
-      const hcReadmePath = path.join(getHermesControlPath(), 'README.md');
+      const mcReadmePath = path.join(getHermesControlPath(), 'README.md');
       try {
-        const hcReadmeStats = await fs.stat(hcReadmePath);
+        const mcReadmeStats = await fs.stat(mcReadmePath);
         // Find and update the existing README entry if it exists
         const existingIdx = fileTree.findIndex(f => f.path === 'README.md');
         const entry = {
           name: 'README.md',
           type: 'file',
           path: '__HC__/README.md',
-          updatedAt: hcReadmeStats.mtimeMs,
+          updatedAt: mcReadmeStats.mtimeMs,
           virtualFolder: 'HermesControl',
           virtualName: 'README'
         };

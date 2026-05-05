@@ -1,28 +1,28 @@
-﻿import { promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { HERMES_ROOT, getWorkspacePath, getHermesControlPath } from '../../../lib/paths';
+import { getWorkspacePath, getHermesControlPath } from '../../../lib/paths';
 
 const HERMES_WORKSPACE = getWorkspacePath();
 
-/**
- * Resolves a virtual or relative path to an absolute physical path.
- */
 function resolveFilePath(filePath: string): string | null {
   if (filePath.startsWith('__ROOT__/')) {
-    return path.join(HERMES_ROOT, filePath.replace('__ROOT__/', ''));
+    return path.join(getWorkspacePath(), filePath.replace('__ROOT__/', ''));
   }
   if (filePath.startsWith('__HC__/')) {
     return path.join(getHermesControlPath(), filePath.replace('__HC__/', ''));
   }
+  if (filePath.startsWith('__MC__/')) {
+    return path.join(getHermesControlPath(), filePath.replace('__MC__/', ''));
+  }
   if (filePath.startsWith('__TODO__/')) {
-    return path.join(HERMES_ROOT, filePath.replace('__TODO__/', ''));
+    return path.join(getWorkspacePath(), filePath.replace('__TODO__/', ''));
   }
   if (filePath.startsWith('__TOOLS__/')) {
-    return path.join(HERMES_ROOT, 'tools', filePath.replace('__TOOLS__/', ''));
+    return path.join(getWorkspacePath(), 'tools', filePath.replace('__TOOLS__/', ''));
   }
   
-  // Default workspace (HERMES_ROOT) resolution
+  // Default workspace (getWorkspacePath()) resolution
   const workspacePath = getWorkspacePath();
   const absolutePath = path.resolve(workspacePath, filePath);
   if (absolutePath.startsWith(workspacePath)) {
@@ -77,15 +77,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Access denied: Path outside allowed scope' }, { status: 403 });
     }
 
-    /* Backup not desired since we use Source Control and don't want .bak files.
-    // Backup current file before overwrite (safety first)
-    try {
-      const currentContent = await fs.readFile(absolutePath, 'utf8');
-      await fs.writeFile(`${absolutePath}.bak`, currentContent, 'utf8');
-    } catch (e) {
-      // If file doesn't exist yet, that's fine
-    }*/
-
     await fs.writeFile(absolutePath, content, 'utf8');
 
     return NextResponse.json({ success: true, path: relativePath });
@@ -94,4 +85,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

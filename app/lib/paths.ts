@@ -1,4 +1,4 @@
-﻿import path from 'path';
+import path from 'path';
 import os from 'os';
 
 /**
@@ -25,12 +25,11 @@ function getHermesRoot(): string {
   return '/home/devin/.hermes';
 }
 
-export const HERMES_ROOT = getHermesRoot();
-export const getWorkspacePath = () => HERMES_ROOT;
-export const getSessionsPath = () => path.join(HERMES_ROOT, 'sessions');
-export const getCronPath = () => path.join(HERMES_ROOT, 'cron');
-export const getFavoritesPath = () => path.join(HERMES_ROOT, 'cmd_favorites.json');
-export const getSkillsPath = () => path.join(HERMES_ROOT, 'skills');
+export const getWorkspacePath = () => getHermesRoot();
+export const getSessionsPath = () => path.join(getWorkspacePath(), 'sessions');
+export const getCronPath = () => path.join(getWorkspacePath(), 'cron');
+export const getFavoritesPath = () => path.join(getWorkspacePath(), 'cmd_favorites.json');
+export const getSkillsPath = () => path.join(getWorkspacePath(), 'skills');
 
 export const getHermesControlPath = () => '/home/devin/Development/HermesControl';
 
@@ -48,4 +47,3 @@ export const INTERNAL_FOLDERS_TO_SKIP = [
 // For system-installed skills, it may still fallback or install locally.
 // E.g., on Windows, the user likely won't have these, but we can resolve it gracefully.
 export const getSystemSkillsPath = () => path.join(os.homedir(), '.npm-global/lib/node_modules/hermes/skills');
-

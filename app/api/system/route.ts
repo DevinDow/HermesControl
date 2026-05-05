@@ -2,6 +2,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { INTERNAL_FOLDERS_TO_SKIP } from '../../lib/paths';
+import { getWorkspacePath } from '../../lib/paths';
 
 async function getSystemFiles(dir: string, baseDir: string): Promise<any[]> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -47,8 +48,7 @@ async function getSystemFiles(dir: string, baseDir: string): Promise<any[]> {
 
 export async function GET() {
   try {
-    const { HERMES_ROOT } = await import('../../lib/paths');
-    const baseDir = HERMES_ROOT;
+    const baseDir = getWorkspacePath();
     const files = await getSystemFiles(baseDir, baseDir);
     return NextResponse.json(files);
   } catch (error) {
