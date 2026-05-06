@@ -92,8 +92,12 @@ export function FileViewerRight({
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="p-6 border-b border-[#1F1F1F] bg-[#0D0D0D] flex items-center justify-between">
         <div className="flex items-center gap-3">
+          
+          {/* Filename */}
           <h2 className="text-lg font-semibold text-[#FFBF00]">{selectedFilePath.split('/').pop()}</h2>
-          {(activeTab === 'Docs' || activeTab === 'Memory' || activeTab === 'Specs') && !isEditing && (
+          
+          {/* Only show Edit button for certain tabs and when not already editing */}
+          {(activeTab === 'Dashboard' || activeTab === 'Docs' || activeTab === 'Memory' || activeTab === 'Specs') && !isEditing && (
             <button
               onClick={() => { setEditContent(fileContent); setIsEditing(true); }}
               className="p-1.5 rounded-md hover:bg-[#1F1F1F] text-[#B8860B] hover:text-[#FFBF00] transition-all"
@@ -102,6 +106,8 @@ export function FileViewerRight({
               <Edit3 size={16} />
             </button>
           )}
+
+          {/* Show Save/Cancel buttons when editing */}
           {isEditing && (
             <div className="flex items-center gap-2">
               <button
@@ -122,6 +128,8 @@ export function FileViewerRight({
             </div>
           )}
         </div>
+
+        {/* Search Bar */}
         <div className="flex items-center gap-2">
           <div className="relative w-64 flex items-center bg-[#222222] border border-[#1F1F1F] rounded-md overflow-hidden focus-within:border-[#FFBF00]/50">
             <Search size={14} className="ml-2.5 text-[#B8860B]" />
@@ -152,6 +160,8 @@ export function FileViewerRight({
           </div>
         </div>
       </div>
+
+      {/* File Content Area */}
       <div className="flex-1 overflow-y-auto p-8 prose prose-invert prose-sm max-w-none">
         {loading.content ? <Loader2 size={32} className="text-[#FFBF00] animate-spin mx-auto mt-20" /> :
           isEditing ? (

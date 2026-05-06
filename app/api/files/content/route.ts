@@ -5,7 +5,6 @@ import { getWorkspacePath, getDashboardPath } from '../../../lib/paths';
 
 function resolveFilePath(filePath: string): string | null {
   if (filePath.startsWith(getDashboardPath())){
-    console.log('Resolving file path:', filePath);
     return filePath; // Already an absolute path to the Dashboard folder, which is outside the workspace but allowed
   }
   

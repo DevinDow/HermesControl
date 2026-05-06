@@ -45,9 +45,6 @@ export function FileTree({
               filterText={filterText}
               matchesFilter={matchesFilter}
               setSelectedFilePath={setSelectedFilePath}
-              setSelectedSessionId={setSelectedSessionId}
-              setSelectedTaskId={setSelectedTaskId}
-              setSelectedEventId={setSelectedEventId}
               selectedFilePath={selectedFilePath}
             />
           );
@@ -111,9 +108,6 @@ export function FileTree({
               key={node.path}
               onClick={() => { 
                 setSelectedFilePath(node.path); 
-                setSelectedSessionId(null); 
-                setSelectedTaskId(null); 
-                setSelectedEventId(null); 
               }}
               className={cn(
                 "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex flex-col gap-0.5 border border-transparent group",

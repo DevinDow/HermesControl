@@ -63,7 +63,6 @@ export async function GET(request: Request) {
         else {
           // Process FILE entries
           const stats = await fs.stat(fullPath);
-          console.log('Processing file:', relativePath, fullPath, 'in', normalDir);
           
           // List of FILE EXTENSIONS that should be treated as code files
           const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css', '.json', '.gitignore', '.env', '.html', '.yaml', '.yml'];

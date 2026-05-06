@@ -1,11 +1,14 @@
 # TODO
 
+- Scripts is using "Tree" structure.  Shoud it not, or should others?  Which need tree? System.
+
+## Dashboard 
+
 ## Scripts
 - ScriptstoolLeft PLAY doesn't populate Cmd Tool
 
 ## page.tsx
 - understand each Section
-- sort each Section's Tools
 - extract parts to Components?
 
 ## Memory
