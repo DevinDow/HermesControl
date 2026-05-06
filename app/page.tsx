@@ -20,9 +20,7 @@ import {
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { formatRelativeTime } from './components/tools/utils/dateFormatting';
 import { FileTree } from './components/tools/FileTree';
-import { MemoryToolLeft } from './components/tools/MemoryTool';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
 import { SpecsToolLeft } from './components/tools/SpecsTool';
@@ -56,18 +54,14 @@ export default function HermesControl() {
   // They populate the middle column lists.
   // ============================================================================
   const [jobs, setJobs] = useState<any[]>([]);
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [memoryTree, setMemoryTree] = useState<any[]>([]);
   const [specsTree, setSpecsTree] = useState<any[]>([]);
   const [docsTree, setDocsTree] = useState<any[]>([]);
   const [logsTree, setLogsTree] = useState<any[]>([]);
-  const [oldTree, setOldTree] = useState<any[]>([]);
   const [systemTree, setSystemTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
   const [expandedSystemFolders, setExpandedSystemFolders] = useState<Set<string>>(new Set());
-  const [expandedDocsFolders, setExpandedDocsFolders] = useState<Set<string>>(new Set(["__VIRTUAL__/README", "__VIRTUAL__/WORKSPACE", "__VIRTUAL__/HermesControl", "plans"]));
   const [cmdHistory, setCmdHistory] = useState<any[]>([]);
   const [gitStatus, setGitStatus] = useState<{
     commits: any[],
@@ -588,7 +582,7 @@ export default function HermesControl() {
   const renderMiddle = () => {
     switch (activeTab) {
       case 'Docs': return <FileTree nodes={docsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Memory': return <MemoryToolLeft memoryTree={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'Memory': return <FileTree nodes={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Logs': return <LogsToolLeft logsTree={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
       case 'Specs': return <SpecsToolLeft specsTree={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
       case 'System': return <SystemToolLeft systemTree={systemTree} expandedSystemFolders={expandedSystemFolders} setExpandedSystemFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
