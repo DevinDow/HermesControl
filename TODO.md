@@ -1,9 +1,17 @@
 # TODO
 
-## Dashboard 
+## FileTree
+- Icon by File Type .py=(), .json, .md
+- Shows Folder Name - should I remove "flattening"?
+
+## Code Tool
+- 
 
 ## Scripts
 - ScriptsToolLeft PLAY doesn't populate Cmd Tool
+
+## Middle
+- Refresh
 
 ## page.tsx
 - understand each Section

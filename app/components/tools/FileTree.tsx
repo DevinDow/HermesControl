@@ -19,7 +19,7 @@ export function FileTree({
   return (
     <>
 
-      {/* Iterate over each node (file or directory) and render accordingly */}
+      {/* Iterate over each node (FILE or DIRECTORY) and render accordingly */}
       {nodes.map((node: any) => {
 
         // DIRECTORY
