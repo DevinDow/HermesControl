@@ -24,7 +24,6 @@ import { FileTree } from './components/tools/FileTree';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
 import { SystemStatus } from './components/SystemStatus';
-import { SystemToolLeft } from './components/tools/SystemTool';
 import { ScriptsToolLeft } from './components/tools/ScriptsTool';
 import { FileViewerRight } from './components/tools/FileViewer';
 import { CmdToolLeft, CmdToolRight } from './components/tools/CmdTool';
@@ -60,7 +59,7 @@ export default function HermesControl() {
   const [logsTree, setLogsTree] = useState<any[]>([]);
   const [systemTree, setSystemTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
-  const [expandedSystemFolders, setExpandedSystemFolders] = useState<Set<string>>(new Set());
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [cmdHistory, setCmdHistory] = useState<any[]>([]);
   const [gitStatus, setGitStatus] = useState<{
     commits: any[],
@@ -578,7 +577,7 @@ export default function HermesControl() {
       case 'Specs': return <FileTree nodes={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'System': return <SystemToolLeft systemTree={systemTree} expandedSystemFolders={expandedSystemFolders} setExpandedSystemFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
+      case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedFolders} setExpandedFolders={setExpandedFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setViewingJobLog={setViewingJobLog} />;
       case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;

@@ -6,64 +6,54 @@ import { formatRelativeTime } from './utils/dateFormatting';
 // Recursively renders a file tree structure as interactive UI components
 // Parameters:
 //   - nodes: array of file/folder nodes to render
-//   - isSystem: whether this is a System folder tree (shows expand/collapse UI)
-//   - isDocs: whether this is a Docs folder tree (shows expand/collapse UI)
 export function FileTree({ 
   nodes, 
-  isSystem = false, 
-  isDocs = false, 
-  expandedSystemFolders, 
-  setExpandedSystemFolders, 
-  expandedDocsFolders, 
-  setExpandedDocsFolders, 
+  collapsibleFolders = false, 
+  expandedFolders, 
+  setExpandedFolders, 
   filterText,
   matchesFilter,
   setSelectedFilePath,
-  setSelectedSessionId,
-  setSelectedTaskId,
-  setSelectedEventId,
   selectedFilePath
 }: any) {
   return (
     <>
+
+      {/* Iterate over each node (file or directory) and render accordingly */}
       {nodes.map((node: any) => {
-        // ========== DIRECTORY NODE HANDLING ==========
+
+        // DIRECTORY
         if (node.type === 'directory') {
-          const isExpanded = isSystem 
-            ? expandedSystemFolders.has(node.path) 
-            : (isDocs ? expandedDocsFolders.has(node.path) : true);
-          
+          {/* Determine if this directory should be rendered as expanded or collapsed based on whether its path is in the expandedFolders set (for recursive mode) */}
+          const isExpanded = collapsibleFolders ? expandedFolders.has(node.path) : true;
+
+         // CHILDREN
           const children = (
             <FileTree 
               nodes={node.children} 
-              isSystem={isSystem} 
-              isDocs={isDocs}
-              expandedSystemFolders={expandedSystemFolders}
-              setExpandedSystemFolders={setExpandedSystemFolders}
-              expandedDocsFolders={expandedDocsFolders}
-              setExpandedDocsFolders={setExpandedDocsFolders}
+              collapsibleFolders={collapsibleFolders} 
+              expandedFolders={expandedFolders}
+              setExpandedFolders={setExpandedFolders}
               filterText={filterText}
               matchesFilter={matchesFilter}
               setSelectedFilePath={setSelectedFilePath}
               selectedFilePath={selectedFilePath}
             />
           );
-          
-          // Check if any children will be visible (not filtered out)
-          // Note: In React, we can't easily check children visibility this way without pre-filtering
-          // but for simplicity in refactor, we'll keep the logic. 
-          // However, node.children pre-filtering is safer.
-          
-          if (isSystem || isDocs) {
+
+          // FOLDER is collapsible
+          if (collapsibleFolders) {
             return (
               <div key={node.path}>
+                {/* FOLDER - clickable to expand/collapse */}
                 <button
                   onClick={() => {
-                    const setter = isSystem ? setExpandedSystemFolders : setExpandedDocsFolders;
-                    setter((prev: Set<string>) => {
+                    setExpandedFolders((prev: Set<string>) => {
                       const next = new Set(prev);
-                      if (next.has(node.path)) next.delete(node.path);
-                      else next.add(node.path);
+                      if (next.has(node.path)) 
+                        next.delete(node.path);
+                      else 
+                        next.add(node.path);
                       return next;
                     });
                   }}
@@ -77,6 +67,7 @@ export function FileTree({
                   <span className="uppercase tracking-wider">{node.name}</span>
                 </button>
                 
+                {/* CHILDREN (if expanded) */}
                 {isExpanded && (
                   <div className="ml-2 border-l border-[#1F1F1F]">
                     {children}
@@ -86,6 +77,7 @@ export function FileTree({
             );
           }
 
+          // FOLDER is always-expanded section header
           return (
             <div key={node.path}>
               <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
@@ -99,7 +91,7 @@ export function FileTree({
           );
         } 
         
-        // ========== FILE NODE HANDLING ==========
+        // FILE
         else {
           if (!matchesFilter(node.name)) return null;
           
@@ -116,6 +108,8 @@ export function FileTree({
                   : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#222222]/50"
               )}
             >
+
+              {/* File Icon + Name */}
               <div className="flex items-center gap-2 w-full">
                 <FileText size={14} className={cn(
                   "shrink-0 transition-colors",
@@ -123,7 +117,8 @@ export function FileTree({
                 )} />
                 <span className={cn("truncate flex-1")}>{node.name}</span>
               </div>
-              
+
+              {/* Time (relative formatting) (updatedAt) */}
               {node.updatedAt && (() => {
                 const { text, color } = formatRelativeTime(node.updatedAt);
                 return (
