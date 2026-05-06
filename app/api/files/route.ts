@@ -74,14 +74,14 @@ export async function GET(request: Request) {
           const isMemoryFile = normalDir.includes('/memories');
 
           // Filter FILES based on mode - only return FILES that match the mode's criteria
-          if (mode === 'docs') {
-            // Return only MARKDOWN FILES for 'docs' mode
-            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
-          }
-
           if (mode === 'dashboard') {
             // Return only MARKDOWN FILES for 'dashboard' mode, and include fullPath
             return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: fullPath, updatedAt: stats.mtimeMs } : null;
+          }
+
+          if (mode === 'docs') {
+            // Return only MARKDOWN FILES for 'docs' mode
+            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'memory') {
@@ -89,14 +89,14 @@ export async function GET(request: Request) {
             return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
-          if (mode === 'logs') {
-            // Return only LOG FILES for 'logs' mode
-            return entry.name.endsWith('.log') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
-          }
-
           if (mode === 'specs') {
             // Return only SPEC FILES for 'specs' mode (files that are identified as specs but not code files)
             return isSpec ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
+          }
+
+          if (mode === 'logs') {
+            // Return only LOG FILES for 'logs' mode
+            return entry.name.endsWith('.log') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
           // If no mode matched, return null (file doesn't match any filter)
@@ -104,43 +104,13 @@ export async function GET(request: Request) {
         }
       }));
       
-      // Flatten the array (removes nested arrays from directory recursion) and remove null entries
+      // flat() removes nested arrays from directory recursion
+      // filter(f => f !== null) removes null entries
       return files.flat().filter(f => f !== null);
     }
 
     const workspacePath = mode === 'dashboard' ? getDashboardPath() : getWorkspacePath();
     let fileTree = await getFiles(workspacePath);
-
-    // Mode-specific sorting and formatting
-    if (mode === 'dashboard' || mode === 'docs' || mode === 'memory' || mode === 'logs' || mode === 'specs') {
-      const allFiles: any[] = [];
-      const virtualFolders: Record<string, any[]> = {};
-
-      const flatten = (nodes: any[]) => {
-        for (const node of nodes) {
-          if (node.type === 'file') {
-            if (node.virtualFolder) {
-              if (!virtualFolders[node.virtualFolder]) {
-                virtualFolders[node.virtualFolder] = [];
-              }
-              virtualFolders[node.virtualFolder].push({
-                ...node,
-                name: node.virtualName || node.name
-              });
-            } else {
-              allFiles.push(node);
-            }
-          }
-          else if (node.type === 'directory' && node.children) flatten(node.children);
-        }
-      };
-      flatten(fileTree);
-
-      fileTree = [];
-
-      // Add remaining files
-      fileTree.push(...allFiles);
-    }
 
     // Return the final JSON payload of files
     return NextResponse.json(fileTree);

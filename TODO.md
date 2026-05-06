@@ -1,8 +1,11 @@
 # TODO
 
+## api/file
+- should this be used for Scripts & ?
+
 ## FileTree
 - Icon by File Type .py=(), .json, .md
-- Shows Folder Name - should I remove "flattening"?
+- Shows Folder Name
 
 ## Code Tool
 - 
