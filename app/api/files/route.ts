@@ -63,6 +63,7 @@ export async function GET(request: Request) {
         else {
           // Process FILE entries
           const stats = await fs.stat(fullPath);
+          console.log('Processing file:', relativePath, fullPath, 'in', normalDir);
           
           // List of FILE EXTENSIONS that should be treated as code files
           const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css', '.json', '.gitignore', '.env', '.html', '.yaml', '.yml'];
@@ -80,8 +81,8 @@ export async function GET(request: Request) {
           }
 
           if (mode === 'dashboard') {
-            // Return only MARKDOWN FILES for 'dashboard' mode
-            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
+            // Return only MARKDOWN FILES for 'dashboard' mode, and include fullPath
+            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: fullPath, updatedAt: stats.mtimeMs } : null;
           }
 
           if (mode === 'memory') {
@@ -111,48 +112,6 @@ export async function GET(request: Request) {
     const workspacePath = mode === 'dashboard' ? getDashboardPath() : getWorkspacePath();
     let fileTree = await getFiles(workspacePath);
 
-    // Add Virtual Folders/Files
-    if (mode === 'docs') {
-      const readmePath = path.join(getWorkspacePath(), 'README.md');
-      try {
-        const readmeStats = await fs.stat(readmePath);
-        fileTree.push({
-          name: 'README.md',
-          type: 'file',
-          path: '__ROOT__/README.md',
-          updatedAt: readmeStats.mtimeMs,
-          virtualFolder: 'WORKSPACE',
-          virtualName: 'README'
-        });
-      } catch (e) {
-        // Skip if README doesn't exist
-      }
-
-      // Also add the HermesControl README as a virtual entry if it exists in docs mode
-      // This ensures it has a unique path to avoid collision with the ROOT readme
-      const hcReadmePath = path.join(getDashboardPath(), 'README.md');
-      try {
-        const hcReadmeStats = await fs.stat(hcReadmePath);
-        // Find and update the existing README entry if it exists
-        const existingIdx = fileTree.findIndex(f => f.path === 'README.md');
-        const entry = {
-          name: 'README.md',
-          type: 'file',
-          path: '__HC__/README.md',
-          updatedAt: hcReadmeStats.mtimeMs,
-          virtualFolder: 'HermesControl',
-          virtualName: 'README'
-        };
-        if (existingIdx !== -1) {
-          fileTree[existingIdx] = entry;
-        } else {
-          fileTree.push(entry);
-        }
-      } catch (e) {
-        // Skip if HermesControl README doesn't exist
-      }
-    }
-
     // Mode-specific sorting and formatting
     if (mode === 'dashboard' || mode === 'docs' || mode === 'memory' || mode === 'logs' || mode === 'specs') {
       const allFiles: any[] = [];
@@ -179,16 +138,6 @@ export async function GET(request: Request) {
       flatten(fileTree);
 
       fileTree = [];
-
-      // Add virtual folders first
-      for (const [folderName, files] of Object.entries(virtualFolders)) {
-        fileTree.push({
-          name: folderName,
-          type: 'directory',
-          path: `__VIRTUAL__/${folderName}`,
-          children: files
-        });
-      }
 
       // Add remaining files
       fileTree.push(...allFiles);

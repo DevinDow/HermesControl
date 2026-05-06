@@ -3,23 +3,13 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { getWorkspacePath, getDashboardPath } from '../../../lib/paths';
 
-const HERMES_WORKSPACE = getWorkspacePath();
-
 function resolveFilePath(filePath: string): string | null {
-  if (filePath.startsWith('__ROOT__/')) {
-    return path.join(getWorkspacePath(), filePath.replace('__ROOT__/', ''));
-  }
-  if (filePath.startsWith('__HC__/')) {
-    return path.join(getDashboardPath(), filePath.replace('__HC__/', ''));
-  }
-  if (filePath.startsWith('__TODO__/')) {
-    return path.join(getWorkspacePath(), filePath.replace('__TODO__/', ''));
-  }
-  if (filePath.startsWith('__TOOLS__/')) {
-    return path.join(getWorkspacePath(), 'tools', filePath.replace('__TOOLS__/', ''));
+  if (filePath.startsWith(getDashboardPath())){
+    console.log('Resolving file path:', filePath);
+    return filePath; // Already an absolute path to the Dashboard folder, which is outside the workspace but allowed
   }
   
-  // Default workspace (getWorkspacePath()) resolution
+  // resolve Relative Paths
   const workspacePath = getWorkspacePath();
   const absolutePath = path.resolve(workspacePath, filePath);
   if (absolutePath.startsWith(workspacePath)) {
