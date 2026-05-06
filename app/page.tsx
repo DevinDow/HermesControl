@@ -670,13 +670,14 @@ export default function HermesControl() {
                 setViewingJobLog(false);
 
                 // Preselect an Item per Tool
-                if (item.name === 'Dashboard') setSelectedFilePath('TODO.md');
-                //if (item.name === 'Docs') setSelectedFilePath('TODO.md');
+                //if (item.name === 'Dashboard') setSelectedFilePath(null);
+                //if (item.name === 'Docs') setSelectedFilePath(null);
                 if (item.name === 'Memory') setSelectedFilePath('MEMORY.md');
                 //if (item.name === 'Specs') setSelectedSpec(null);
                 //if (item.name === 'Scripts') setSelectedScript(null);
-                if (item.name === 'Logs') setSelectedLog(null);
+                //if (item.name === 'Logs') setSelectedLog(null);
                 if (item.name === 'System') setSelectedFilePath('config.yaml');
+                //if (item.name === 'Jobs' && (jobs?.length || 0) > 0) setSelectedJobId(jobs[0].id);
                 if (item.name === 'Cmd') {
                   if (cmdHistory.length === 0) {
                     fetchData('/api/cmd', setCmdHistory, 'cmd');
@@ -684,7 +685,6 @@ export default function HermesControl() {
                   setSelectedCmdId(null);
                 }
                 if (item.name === 'Git') setSelectedGitFile(null);
-                if (item.name === 'Jobs' && (jobs?.length || 0) > 0) setSelectedJobId(jobs[0].id);
                 if (item.name === 'Git') {
                   setGitStale(false);
                   fetch('/api/git/pulse').then(r => r.json()).then(d => setGitFingerprint(d.fingerprint)).catch(() => { });
