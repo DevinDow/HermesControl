@@ -23,7 +23,6 @@ import { twMerge } from 'tailwind-merge';
 import { FileTree } from './components/tools/FileTree';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
-import { SpecsToolLeft } from './components/tools/SpecsTool';
 import { LogsToolLeft } from './components/tools/LogsTool';
 import { SystemStatus } from './components/SystemStatus';
 import { SystemToolLeft } from './components/tools/SystemTool';
@@ -53,11 +52,11 @@ export default function HermesControl() {
   // These arrays hold the raw data fetched from the backend API routes.
   // They populate the middle column lists.
   // ============================================================================
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [docsTree, setDocsTree] = useState<any[]>([]);
   const [memoryTree, setMemoryTree] = useState<any[]>([]);
   const [specsTree, setSpecsTree] = useState<any[]>([]);
-  const [docsTree, setDocsTree] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
   const [logsTree, setLogsTree] = useState<any[]>([]);
   const [systemTree, setSystemTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
@@ -136,8 +135,8 @@ export default function HermesControl() {
   // These track what the user has clicked in the middle column.
   // Changes to these states trigger the 'fetchContent' useEffect to load details.
   // ============================================================================
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>('__TODO__/TODO.md');
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -191,14 +190,15 @@ export default function HermesControl() {
 
   // navItems[] defines the left sidebar buttons and their icons
   const navItems = [
+    { name: 'Dashboard', icon: Activity },
     { name: 'Docs', icon: FileText },
     { name: 'Memory', icon: Brain },
-    { name: 'Jobs', icon: Clock },
-    { name: 'Sessions', icon: Users },
     { name: 'Specs', icon: ScrollText },
+    { name: 'Scripts', icon: Parentheses },
     { name: 'Logs', icon: Activity },
     { name: 'System', icon: Settings },
-    { name: 'Scripts', icon: Parentheses },
+    { name: 'Jobs', icon: Clock },
+    { name: 'Sessions', icon: Users },
     { name: 'Cmd', icon: Terminal },
     { name: 'Git', icon: GitBranch },
     { name: 'Skills', icon: Wrench },
@@ -317,28 +317,27 @@ export default function HermesControl() {
   useEffect(() => {
     setIsMounted(true);
     // Initial data load for all tools
-    fetchData('/api/jobs', setJobs, 'jobs').then(data => {
-      if (Array.isArray(data) && data.length > 0) setSelectedJobId(data[0].id);
-    });
-    fetchData('/api/sessions', setSessions, 'sessions');
     fetchData('/api/files?mode=memory', setMemoryTree, 'files').then(data => {
       if (Array.isArray(data) && data.length > 0 && activeTab === 'Memory') {
         const firstFile = data[0].type === 'file' ? data[0] : data[0].children?.[0];
         if (firstFile) setSelectedFilePath(firstFile.path);
       }
     });
-    fetchData('/api/files?mode=specs', setSpecsTree, 'files');
     fetchData('/api/files?mode=docs', setDocsTree, 'files');
+    fetchData('/api/files?mode=specs', setSpecsTree, 'files');
+    fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/files?mode=logs', setLogsTree, 'files');
     fetchData('/api/system', setSystemTree, 'files');
-    fetchData('/api/scripts', setScriptsTree, 'files');
-    fetchData('/api/skills', setSkills, 'skills');
-    fetchData('/api/files?mode=logs', setLogs, 'logs');
+    fetchData('/api/jobs', setJobs, 'jobs').then(data => {
+      if (Array.isArray(data) && data.length > 0) setSelectedJobId(data[0].id);
+    });
+    fetchData('/api/sessions', setSessions, 'sessions');
     fetchData('/api/git', setGitStatus, 'git');
-    fetchData('/api/model', setModelStatus, 'model');
+    fetchData('/api/skills', setSkills, 'skills');
     fetchData('/api/help/links', setHelpLinks, 'help');
     fetchData('/api/help/shortcuts', setHelpShortcuts, 'help');
     fetchData('/api/help/cli', (data: any) => setHelpCli(data.content), 'help');
+    fetchData('/api/model', setModelStatus, 'model');
 
     // 1. Online Check: lightweight connectivity probe (No console.log)
     fetchData('/api/online', (data: any) => setGatewayStatus(prev => ({ ...prev, online: data.online })), 'status');
@@ -583,10 +582,10 @@ export default function HermesControl() {
     switch (activeTab) {
       case 'Docs': return <FileTree nodes={docsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Memory': return <FileTree nodes={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Logs': return <LogsToolLeft logsTree={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
-      case 'Specs': return <SpecsToolLeft specsTree={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
-      case 'System': return <SystemToolLeft systemTree={systemTree} expandedSystemFolders={expandedSystemFolders} setExpandedSystemFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'Specs': return <FileTree nodes={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'Logs': return <LogsToolLeft logsTree={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'System': return <SystemToolLeft systemTree={systemTree} expandedSystemFolders={expandedSystemFolders} setExpandedSystemFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
       case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
@@ -661,7 +660,7 @@ export default function HermesControl() {
           <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center bg-[#222222] border border-[#1F1F1F] shrink-0">
             <img src="/avatars/darvis_head.jpg" alt="Darvis" className="w-full h-full object-cover" />
           </div>
-          <span className="hidden md:block text-[13px] font-semibold tracking-tight text-[#FFD700] truncate">Hermes Control</span>
+          <span className="hidden md:block text-[13px] font-semibold tracking-tight text-[#FFD700] truncate">Hermes Control Dashboard</span>
         </div>
 
         <nav className="flex-1 px-1.5 md:px-2 space-y-0.5 overflow-y-auto scrollbar-thin scrollbar-thumb-[#1F1F1F] scrollbar-track-transparent">
