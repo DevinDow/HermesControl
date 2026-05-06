@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, Folder, FileText } from 'lucide-react';
+import { ChevronRight, Folder, FileText, Parentheses, ScrollText, Braces, Brackets, FileCode, FileCog } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { formatRelativeTime } from './utils/dateFormatting';
 
@@ -94,7 +94,18 @@ export function FileTree({
         // FILE
         else {
           if (!matchesFilter(node.name)) return null;
-          
+
+          const iconMap = {
+            md: ScrollText,
+            py: Parentheses,
+            json: Braces,
+            jsonl: Brackets,
+            log: FileCog,
+            // default: FileText (handled below)
+          };
+          const ext = node.name.split('.').pop().toLowerCase();
+          const IconComponent = iconMap[ext] || FileText;
+
           return (
             <button
               key={node.path}
@@ -111,7 +122,7 @@ export function FileTree({
 
               {/* File Icon + Name */}
               <div className="flex items-center gap-2 w-full">
-                <FileText size={14} className={cn(
+                <IconComponent size={14} className={cn(
                   "shrink-0 transition-colors",
                   selectedFilePath === node.path ? "text-[#FFBF00]" : "text-[#B8860B] group-hover:text-[#B8860B]"
                 )} />

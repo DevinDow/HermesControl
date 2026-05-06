@@ -65,7 +65,7 @@ export async function GET(request: Request) {
           const stats = await fs.stat(fullPath);
           
           // List of FILE EXTENSIONS that should be treated as code files
-          const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css', '.json', '.gitignore', '.env', '.html', '.yaml', '.yml'];
+          const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css', '.json', '.jsonl', '.gitignore', '.env', '.html', '.yaml', '.yml'];
           // Check if this FILE has a code extension
           const isCode = codeExts.some(ext => entry.name.endsWith(ext));
           // Check if this is a SPEC FILE (ends with _spec.md or is in specs folder) but not code

@@ -28,7 +28,7 @@ async function getSystemFiles(dir: string, baseDir: string): Promise<any[]> {
           children
         });
       }
-    } else if (entry.isFile() && (entry.name.endsWith('.json') || entry.name.endsWith('.yaml'))) {
+    } else if (entry.isFile() && (entry.name.endsWith('.json') || entry.name.endsWith('.jsonl') || entry.name.endsWith('.yaml'))) {
       const stats = await fs.stat(fullPath);
       files.push({
         name: entry.name,

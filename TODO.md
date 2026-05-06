@@ -1,14 +1,15 @@
 # TODO
 
 ## api/file
-- should this be used for Scripts & ?
+- should this be used for Scripts & System? or should Logs move above Scripts?
 
 ## FileTree
-- Icon by File Type .py=(), .json, .md
 - Shows Folder Name
+
 
 ## Code Tool
 - 
+
 
 ## Scripts
 - ScriptsToolLeft PLAY doesn't populate Cmd Tool
