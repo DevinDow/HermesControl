@@ -1,8 +1,8 @@
-﻿import React from 'react';
-export function LogsToolLeft({ logsTree, renderFileTree }: any) {
+import React from 'react';
+import { FileTree } from './FileTree';
+
+export function LogsToolLeft({ logsTree, ...props }: any) {
   return (
-    <>
-      {renderFileTree(logsTree)}
-    </>
+    <FileTree nodes={logsTree} {...props} />
   );
 }

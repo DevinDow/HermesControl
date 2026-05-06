@@ -1,10 +1,8 @@
-﻿import React from 'react';
-export function SpecsToolLeft({ specsTree, renderFileTree }: any) {
+import React from 'react';
+import { FileTree } from './FileTree';
+
+export function SpecsToolLeft({ specsTree, ...props }: any) {
   return (
-    <>
-      {renderFileTree(specsTree)}
-    </>
+    <FileTree nodes={specsTree} {...props} />
   );
 }
-
-

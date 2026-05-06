@@ -1,8 +1,8 @@
-﻿import React from 'react';
-export function DocsToolLeft({ docsTree, renderFileTree }: any) {
+import React from 'react';
+import { FileTree } from './FileTree';
+
+export function DocsToolLeft({ docsTree, ...props }: any) {
   return (
-    <>
-      {renderFileTree(docsTree, false, true)}
-    </>
+    <FileTree nodes={docsTree} isDocs={true} {...props} />
   );
 }

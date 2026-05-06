@@ -1,10 +1,8 @@
-﻿import React from 'react';
-export function MemoryToolLeft({ memoryTree, renderFileTree }: any) {
+import React from 'react';
+import { FileTree } from './FileTree';
+
+export function MemoryToolLeft({ memoryTree, ...props }: any) {
   return (
-    <>
-      {renderFileTree(memoryTree)}
-    </>
+    <FileTree nodes={memoryTree} {...props} />
   );
 }
-
-

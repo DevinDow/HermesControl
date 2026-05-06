@@ -1,7 +1,8 @@
-﻿import React from 'react';
+import React from 'react';
 import { Play } from 'lucide-react';
+import { FileTree } from './FileTree';
 
-export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: any) {
+export function ScriptsToolLeft({ scriptsTree, setActiveTab, ...props }: any) {
   // Enhanced render function to inject the Execute button
   const renderScriptsWithExecute = (nodes: any[]) => {
     return nodes.map((node: any) => {
@@ -20,7 +21,7 @@ export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: a
         return (
           <div key={node.path} className="group flex items-center gap-1 pr-2">
             <div className="flex-1 min-w-0">
-              {renderFileTree([node])}
+              <FileTree nodes={[node]} {...props} />
             </div>
             <button
               onClick={(e) => {
@@ -53,5 +54,3 @@ export function ScriptsToolLeft({ scriptsTree, renderFileTree, setActiveTab }: a
     </div>
   );
 }
-
-

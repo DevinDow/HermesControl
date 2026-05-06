@@ -1,10 +1,8 @@
-﻿import React from 'react';
-export function SystemToolLeft({ systemTree, renderFileTree }: any) {
+import React from 'react';
+import { FileTree } from './FileTree';
+
+export function SystemToolLeft({ systemTree, ...props }: any) {
   return (
-    <>
-      {renderFileTree(systemTree, true)}
-    </>
+    <FileTree nodes={systemTree} isSystem={true} {...props} />
   );
 }
-
-
