@@ -233,6 +233,7 @@ export default function HermesControl() {
     setSelectedSessionId(sessionId);
   };
 
+  // navItems[] defines the left sidebar buttons and their icons
   const navItems = [
     { name: 'Docs', icon: FileText },
     { name: 'Memory', icon: Brain },
@@ -248,6 +249,7 @@ export default function HermesControl() {
     { name: 'Help', icon: HelpCircle },
   ];
 
+  // handleKeyDown() listens for global keyboard shortcuts:
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Focus Search on "/"
