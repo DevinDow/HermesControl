@@ -2,63 +2,26 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  HeartPlus,
-  HeartOff,
-  RefreshCw,
-  LayoutGrid,
   Users,
   FileText,
-  CheckSquare,
-  Calendar as CalendarIcon,
   Brain,
   Settings,
   Search,
-  ChevronRight,
   ChevronLeft,
   Terminal,
-  Zap,
-  Shield,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   HelpCircle,
-  Loader2,
-  Play,
-  Folder,
-  File,
   ScrollText,
-  Star,
   Activity,
-  History,
-  Archive,
-  Cpu,
   GitBranch,
-  Layers,
-  MessageSquare,
-  Trophy,
-  ArrowUpCircle,
-  ZapOff,
-  Footprints,
-  Compass,
-  MapPin,
-  User,
   Wrench,
   Link as LinkIcon,
   Parentheses,
-  Plus,
-  Minus,
-  Send,
-  GitCommit,
-  Edit3,
-  Save,
-  X,
-  Code2,
-  BrainCog
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { formatRelativeTime } from './components/tools/utils/dateFormatting';
-import { DocsToolLeft } from './components/tools/DocsTool';
+import { FileTree } from './components/tools/FileTree';
 import { MemoryToolLeft } from './components/tools/MemoryTool';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
@@ -72,7 +35,6 @@ import { CmdToolLeft, CmdToolRight } from './components/tools/CmdTool';
 import { GitToolLeft, GitToolRight } from './components/tools/GitTool';
 import { SkillsToolLeft, SkillsToolRight } from './components/tools/SkillsTool';
 import { HelpToolLeft, HelpToolRight } from './components/tools/HelpTool';
-import { OldToolLeft } from './components/tools/OldTool';
 
 
 function cn(...inputs: ClassValue[]) {
@@ -625,7 +587,7 @@ export default function HermesControl() {
   // Render page's MIDDLE column based on active tab
   const renderMiddle = () => {
     switch (activeTab) {
-      case 'Docs': return <DocsToolLeft docsTree={docsTree} expandedDocsFolders={expandedDocsFolders} setExpandedDocsFolders={setExpandedDocsFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'Docs': return <FileTree nodes={docsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Memory': return <MemoryToolLeft memoryTree={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
       case 'Logs': return <LogsToolLeft logsTree={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
       case 'Specs': return <SpecsToolLeft specsTree={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
