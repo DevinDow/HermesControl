@@ -1,15 +1,13 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, INTERNAL_FOLDERS_TO_SKIP, getHermesControlPath } from '../../lib/paths';
+import { getWorkspacePath, INTERNAL_FOLDERS_TO_SKIP, getDashboardPath } from '../../lib/paths';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get('mode') || 'memory';
 
   try {
-    const workspacePath = getWorkspacePath();
-
     // Recursively traverses directory structure and filters files based on the current 'mode'
     // Each call returns an ARRAY of FILE/DIRECTORY objects with metadata, which are then flattened and filtered according to the mode's criteria
     async function getFiles(dir: string): Promise<any[]> {
@@ -31,7 +29,10 @@ export async function GET(request: Request) {
           //console.log('Checking', mode, 'mode for directory:', entry.name, 'in', normalDir);
 
           // Filter directories based on the current mode - only include matching directory patterns
-          if (mode === 'docs') {
+          if (mode === 'dashboard') {
+            // Don't recurse into subfolders for dashboard mode - only get top-level markdown files
+            return null;
+          } else if (mode === 'docs') {
             // Don't recurse into subfolders for docs mode - only get top-level markdown files
             return null;
           } else if (mode === 'memory') {
@@ -78,6 +79,11 @@ export async function GET(request: Request) {
             return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
+          if (mode === 'dashboard') {
+            // Return only MARKDOWN FILES for 'dashboard' mode
+            return entry.name.endsWith('.md') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
+          }
+
           if (mode === 'memory') {
             // Return only MARKDOWN FILES from 'memories' folder that aren't specs
             return (isMemoryFile && entry.name.endsWith('.md') && !isSpec) ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
@@ -102,6 +108,7 @@ export async function GET(request: Request) {
       return files.flat().filter(f => f !== null);
     }
 
+    const workspacePath = mode === 'dashboard' ? getDashboardPath() : getWorkspacePath();
     let fileTree = await getFiles(workspacePath);
 
     // Add Virtual Folders/Files
@@ -123,7 +130,7 @@ export async function GET(request: Request) {
 
       // Also add the HermesControl README as a virtual entry if it exists in docs mode
       // This ensures it has a unique path to avoid collision with the ROOT readme
-      const hcReadmePath = path.join(getHermesControlPath(), 'README.md');
+      const hcReadmePath = path.join(getDashboardPath(), 'README.md');
       try {
         const hcReadmeStats = await fs.stat(hcReadmePath);
         // Find and update the existing README entry if it exists
@@ -147,7 +154,7 @@ export async function GET(request: Request) {
     }
 
     // Mode-specific sorting and formatting
-    if (mode === 'docs' || mode === 'memory' || mode === 'logs' || mode === 'specs') {
+    if (mode === 'dashboard' || mode === 'docs' || mode === 'memory' || mode === 'logs' || mode === 'specs') {
       const allFiles: any[] = [];
       const virtualFolders: Record<string, any[]> = {};
 

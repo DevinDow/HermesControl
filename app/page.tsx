@@ -43,7 +43,7 @@ export default function HermesControl() {
   // ============================================================================
 
   // Tracks the currently selected tool in the left sidebar (e.g., 'Docs', 'Jobs', 'Sessions')
-  const [activeTab, setActiveTab] = useState('Docs');
+  const [activeTab, setActiveTab] = useState('Dashboard');
   const [isMounted, setIsMounted] = useState(false);
 
   // ============================================================================
@@ -51,6 +51,7 @@ export default function HermesControl() {
   // These arrays hold the raw data fetched from the backend API routes.
   // They populate the middle column lists.
   // ============================================================================
+  const [dashboardTree, setDashboardTree] = useState<any[]>([]);
   const [docsTree, setDocsTree] = useState<any[]>([]);
   const [memoryTree, setMemoryTree] = useState<any[]>([]);
   const [specsTree, setSpecsTree] = useState<any[]>([]);
@@ -137,8 +138,6 @@ export default function HermesControl() {
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>('__TODO__/TODO.md');
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedCmdId, setSelectedCmdId] = useState<string | null>(null);
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
   const [selectedSkillFile, setSelectedSkillFile] = useState<string>('SKILL.md');
@@ -217,8 +216,6 @@ export default function HermesControl() {
       if (e.key === 'Escape') {
         setSelectedFilePath(null);
         setSelectedSessionId(null);
-        setSelectedTaskId(null);
-        setSelectedEventId(null);
         setSelectedSkillId(null);
         setSelectedHelpId(null);
       }
@@ -322,6 +319,7 @@ export default function HermesControl() {
         if (firstFile) setSelectedFilePath(firstFile.path);
       }
     });
+    fetchData('/api/files?mode=dashboard', setDashboardTree, 'files');
     fetchData('/api/files?mode=docs', setDocsTree, 'files');
     fetchData('/api/files?mode=specs', setSpecsTree, 'files');
     fetchData('/api/scripts', setScriptsTree, 'files');
@@ -462,11 +460,6 @@ export default function HermesControl() {
     }
   }, [gitStale, activeTab]);
 
-  useEffect(() => {
-    if (activeTab !== 'Sessions' || selectedSessionId || sessions.length === 0) return;
-    setSelectedSessionId(sessions[0].id);
-  }, [activeTab, sessions, selectedSessionId]);
-
   // No active timestamp polling for Sessions because the current backend only exposes the sessions list endpoint.
   useEffect(() => {
     if (!selectedSessionId || !isMounted) return;
@@ -511,7 +504,7 @@ export default function HermesControl() {
         url = `/api/scripts/content?path=${encodeURIComponent(selectedFilePath)}`;
       } else if (activeTab === 'System' && selectedFilePath) {
         url = `/api/system/content?path=${encodeURIComponent(selectedFilePath)}`;
-      } else if (['Memory', 'Specs', 'Docs', 'Logs'].includes(activeTab) && selectedFilePath) {
+      } else if (['Dashboard', 'Docs', 'Memory', 'Specs', 'Logs'].includes(activeTab) && selectedFilePath) {
         url = `/api/files/content?path=${encodeURIComponent(selectedFilePath)}`; // Memory/Specs/Docs/Logs all use the same content endpoint with different initial trees
       }
 
@@ -579,14 +572,15 @@ export default function HermesControl() {
   // Render page's MIDDLE column based on active tab
   const renderMiddle = () => {
     switch (activeTab) {
+      case 'Dashboard': return <FileTree nodes={dashboardTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Docs': return <FileTree nodes={docsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Memory': return <FileTree nodes={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Specs': return <FileTree nodes={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'System': return <SystemToolLeft systemTree={systemTree} expandedSystemFolders={expandedSystemFolders} setExpandedSystemFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'System': return <SystemToolLeft systemTree={systemTree} expandedSystemFolders={expandedSystemFolders} setExpandedSystemFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
-      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
+      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
       case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
         const data = await fetchData('/api/git', setGitStatus, 'git');
@@ -598,8 +592,8 @@ export default function HermesControl() {
           }).catch(() => { });
         }
       }} />;
-      case 'Skills': return <SkillsToolLeft skills={skills} matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setSelectedSessionId={setSelectedSessionId} selectedSkillId={selectedSkillId} />;
-      case 'Help': return <HelpToolLeft setSelectedHelpId={setSelectedHelpId} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setSelectedSessionId={setSelectedSessionId} selectedHelpId={selectedHelpId} />;
+      case 'Skills': return <SkillsToolLeft skills={skills} matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedSkillId={selectedSkillId} />;
+      case 'Help': return <HelpToolLeft setSelectedHelpId={setSelectedHelpId} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedHelpId={selectedHelpId} />;
       default: return null;
     }
   };
@@ -607,18 +601,18 @@ export default function HermesControl() {
   // Render page's RIGHT column based on active tab and selection states
   const renderRight = () => {
     switch (activeTab) {
+      case 'Docs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
+      case 'Memory': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
+      case 'Specs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
+      case 'Scripts': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
+      case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
       case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} />;
-      case 'Specs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      case 'Scripts': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Cmd': return <CmdToolRight selectedCmd={selectedCmd} />;
       case 'Git': return <GitToolRight selectedGitFile={selectedGitFile} selectedGitCommit={selectedGitCommit} loading={loading} gitDiff={gitDiff} selectedGitType={selectedGitType} />;
       case 'Skills': return <SkillsToolRight selectedSkill={selectedSkill} selectedSkillFile={selectedSkillFile} setSelectedSkillFile={setSelectedSkillFile} loading={loading} fileContent={fileContent} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} />;
       case 'Help': return <HelpToolRight selectedHelpId={selectedHelpId} helpLinks={helpLinks} helpShortcuts={helpShortcuts} helpCli={helpCli} gatewayStatus={gatewayStatus} />;
-      case 'Docs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      case 'Memory': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       default: return <div className="p-8 text-[#B8860B]">Select a tool</div>;
     }
   };
@@ -626,8 +620,6 @@ export default function HermesControl() {
   const clearSelection = () => {
     setSelectedFilePath(null);
     setSelectedSessionId(null);
-    setSelectedTaskId(null);
-    setSelectedEventId(null);
     setSelectedSkillId(null);
     setSelectedHelpId(null);
     setSelectedGitCommit(null);
@@ -638,8 +630,6 @@ export default function HermesControl() {
   const hasSelection = !!(
     selectedFilePath ||
     selectedSessionId ||
-    selectedTaskId ||
-    selectedEventId ||
     selectedSkillId ||
     selectedHelpId ||
     selectedGitCommit ||
@@ -675,19 +665,17 @@ export default function HermesControl() {
                 setCurrentMatchIndex(0); // Reset match index when switching tabs
                 setSelectedFilePath(null); // Clear file selection when switching tools
                 setSelectedSessionId(null);
-                setSelectedTaskId(null);
-                setSelectedEventId(null);
                 setSelectedSkillId(null);
                 setViewingJobLog(false);
 
                 // Preselect an Item per Tool
-                if (item.name === 'Docs') setSelectedFilePath('TODO.md');
+                if (item.name === 'Dashboard') setSelectedFilePath('TODO.md');
+                //if (item.name === 'Docs') setSelectedFilePath('TODO.md');
                 if (item.name === 'Memory') setSelectedFilePath('MEMORY.md');
-                if (item.name === 'Sessions' && sessions.length > 0) setSelectedSessionId(sessions[0].id);
                 //if (item.name === 'Specs') setSelectedSpec(null);
+                //if (item.name === 'Scripts') setSelectedScript(null);
                 if (item.name === 'Logs') setSelectedLog(null);
                 if (item.name === 'System') setSelectedFilePath('config.yaml');
-                //if (item.name === 'Scripts') setSelectedScript(null);
                 if (item.name === 'Cmd') {
                   if (cmdHistory.length === 0) {
                     fetchData('/api/cmd', setCmdHistory, 'cmd');
@@ -731,10 +719,6 @@ export default function HermesControl() {
             updating={updating}
             setUpdating={setUpdating}
             isMounted={isMounted}
-            onNavigateToHeartbeat={() => {
-              setActiveTab('Docs');
-              setSelectedFilePath('HEARTBEAT.md');
-            }}
             onNavigateToSessions={() => {
               setActiveTab('Sessions');
             }}

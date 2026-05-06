@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, getHermesControlPath } from '../../../lib/paths';
+import { getWorkspacePath, getDashboardPath } from '../../../lib/paths';
 
 const HERMES_WORKSPACE = getWorkspacePath();
 
@@ -10,7 +10,7 @@ function resolveFilePath(filePath: string): string | null {
     return path.join(getWorkspacePath(), filePath.replace('__ROOT__/', ''));
   }
   if (filePath.startsWith('__HC__/')) {
-    return path.join(getHermesControlPath(), filePath.replace('__HC__/', ''));
+    return path.join(getDashboardPath(), filePath.replace('__HC__/', ''));
   }
   if (filePath.startsWith('__TODO__/')) {
     return path.join(getWorkspacePath(), filePath.replace('__TODO__/', ''));
