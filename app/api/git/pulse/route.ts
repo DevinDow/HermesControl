@@ -51,7 +51,7 @@ export async function GET() {
     for (const line of lines) {
       try {
         const file = line.slice(3).trim();
-        const stats = await fs.stat(path.join(getWorkspacePath, file));
+        const stats = await fs.stat(path.join(getWorkspacePath(), file));
         if (stats.mtimeMs > maxMtime) maxMtime = stats.mtimeMs;
       } catch (e) {
         // File might have been deleted/moved since status run

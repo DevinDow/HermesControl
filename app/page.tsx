@@ -742,9 +742,8 @@ export default function HermesControl() {
   };
 
 
-
-  // Dynamic tool rendering
-  const renderLeft = () => {
+  // Render page's MIDDLE column based on active tab
+  const renderMiddle = () => {
     switch (activeTab) {
       case 'Docs': return <DocsToolLeft docsTree={docsTree} renderFileTree={renderFileTree} />;
       case 'Memory': return <MemoryToolLeft memoryTree={memoryTree} renderFileTree={renderFileTree} />;
@@ -771,6 +770,7 @@ export default function HermesControl() {
     }
   };
 
+  // Render page's RIGHT column based on active tab and selection states
   const renderRight = () => {
     switch (activeTab) {
       case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
@@ -813,10 +813,14 @@ export default function HermesControl() {
     selectedCmdId
   );
 
+  // Main render
   return (
     <div className="flex h-screen bg-[#0A0A0A] text-[#FFF8DC] font-sans selection:bg-[#FFBF00]/30">
+
       {/* Sidebar */}
       <aside className="flex w-[60px] md:w-[240px] bg-[#080808] flex-col border-r border-[#1F1F1F] h-screen overflow-hidden">
+
+        {/* "Hermes Control" branding with darvis_head.jpg */}
         <div className="p-2 md:p-4 flex items-center gap-0 md:gap-3 mb-2 shrink-0 justify-center md:justify-start">
           <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center bg-[#222222] border border-[#1F1F1F] shrink-0">
             <img src="/avatars/darvis_head.jpg" alt="Darvis" className="w-full h-full object-cover" />
@@ -825,6 +829,7 @@ export default function HermesControl() {
         </div>
 
         <nav className="flex-1 px-1.5 md:px-2 space-y-0.5 overflow-y-auto scrollbar-thin scrollbar-thumb-[#1F1F1F] scrollbar-track-transparent">
+          {/* Navigation Items (navItems) added as Buttons */}
           {navItems.map((item) => (
             <button
               key={item.name}
@@ -881,7 +886,7 @@ export default function HermesControl() {
           ))}
         </nav>
 
-        {/* Status & Version Footer */}
+        {/* System Status Footer */}
         <div className="hidden md:block">
           <SystemStatus
             gatewayStatus={gatewayStatus}
@@ -912,6 +917,7 @@ export default function HermesControl() {
       {/* Main Container */}
       <main className="flex-1 flex flex-col min-w-0 bg-[#0A0A0A]">
         <div className="flex-1 overflow-hidden flex flex-col sm:flex-row p-2 md:p-4 gap-4">
+
           {/* Middle Column */}
           <div className={cn(
             "w-full sm:w-[260px] md:w-[280px] lg:w-[320px] flex flex-col gap-3",
@@ -928,7 +934,7 @@ export default function HermesControl() {
               />
             </div>
             <div className="flex-1 overflow-y-auto space-y-1 pr-2">
-              {renderLeft()}
+              {renderMiddle()}
             </div>
           </div>
 
@@ -952,6 +958,7 @@ export default function HermesControl() {
           </div>
         </div>
       </main>
+
     </div>
   );
 }
