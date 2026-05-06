@@ -23,7 +23,6 @@ import { twMerge } from 'tailwind-merge';
 import { FileTree } from './components/tools/FileTree';
 import { JobsToolLeft, JobsToolRight } from './components/tools/JobsTool';
 import { SessionsToolLeft, SessionsToolRight } from './components/tools/SessionsTool';
-import { LogsToolLeft } from './components/tools/LogsTool';
 import { SystemStatus } from './components/SystemStatus';
 import { SystemToolLeft } from './components/tools/SystemTool';
 import { ScriptsToolLeft } from './components/tools/ScriptsTool';
@@ -584,7 +583,7 @@ export default function HermesControl() {
       case 'Memory': return <FileTree nodes={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Specs': return <FileTree nodes={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
-      case 'Logs': return <LogsToolLeft logsTree={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
+      case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'System': return <SystemToolLeft systemTree={systemTree} expandedSystemFolders={expandedSystemFolders} setExpandedSystemFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} setSelectedSessionId={setSelectedSessionId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setSelectedTaskId={setSelectedTaskId} setSelectedEventId={setSelectedEventId} setViewingJobLog={setViewingJobLog} />;
       case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
