@@ -27,8 +27,14 @@ export async function GET() {
     
     // Parse each data line into columns
     const sessions = dataLines.map(line => {
-      // Split by multiple spaces to handle column separation
-      // The columns are: Title, Preview, Last Active, ID
+      return {
+        title: line.slice(0, 33).trim(),
+        preview: line.slice(33, 74).trim(),
+        lastActive: line.slice(74, 88).trim(),
+        id: line.slice(88).trim(),
+      };
+
+      /*// Split by 3 spaces to handle column separation - PROBLEM: This can break if the preview text contains 3 spaces!
       const parts = line.split(/\s{3,}/).map(p => p.trim()).filter(Boolean);
       
       if (parts.length >= 4) {
@@ -46,7 +52,7 @@ export async function GET() {
         preview: parts[1] || '',
         lastActive: parts[parts.length - 2] || '',
         id: parts[parts.length - 1] || '',
-      };
+      };*/
     });
     
     return NextResponse.json(sessions);
