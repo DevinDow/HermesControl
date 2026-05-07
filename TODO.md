@@ -29,7 +29,6 @@
 - `hermes cron edit --schedule ""` to save schedule changes that update "next_run_at"
 
 ## Sessions
-- 1- refresh polling - see MC page 606 api/sessions/timestamp 2s
 - sort by File Modified DateTime, display File Modified DateTime
 - Should it use `hermes sessions list` or /sessions?
 - .jsonl?

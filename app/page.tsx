@@ -164,12 +164,54 @@ export default function HermesControl() {
   // Session-specific search
   const [sessionSearch, setSessionSearch] = useState<string>('');
 
-  // Tracks if the currently viewed session log has new data on the server
+  // ===========================================================================
+  // SESSION STALENESS STATE  (explainer below)
+  //
+  // These three variables work together to power the "Refresh History" button
+  // in SessionsToolRight. The system has three moving parts:
+  //
+  //   PART 1 — "Staleness polling useEffect" (below in this file)
+  //     Every 3 seconds while you're on the Sessions tab, it asks the server:
+  //       "how many messages does session X have right now?"
+  //     If that number is HIGHER than what we loaded last time, it sets:
+  //       sessionStale       = true
+  //       sessionNewLineCount = (new server count) − (last loaded count)
+  //     The SessionsToolRight button then glows purple with "+N NEW".
+  //
+  //   PART 2 — SessionsToolRight component
+  //     Displays the button and the message list. It receives sessionStale
+  //     and sessionNewLineCount as props and just reads them — it does NOT
+  //     set them. Clicking the button calls handleRefreshSession() below.
+  //
+  //   PART 3 — handleRefreshSession() (below)
+  //     User clicks "Refresh history" → this fn runs:
+  //       (a) Resets sessionStale=false, sessionNewLineCount=0
+  //           (the polling will re-detect if there are STILL more new lines)
+  //       (b) Increments sessionRefreshTrigger — this re-fires SessionsToolRight's
+  //           internal useEffect so it re-fetches and re-renders the message list
+  //       (c) Updates fileContent in page.tsx (used by some other panels too)
+  //       (d) Surgically updates the sidebar session list metadata
+  // ===========================================================================
+
+  // sessionStale: true when PART 1 polling detected the server has new messages
   const [sessionStale, setSessionStale] = useState<boolean>(false);
+
+  // sessionNewLineCount: how many new messages PART 1 found (shown as "+N NEW")
   const [sessionNewLineCount, setSessionNewLineCount] = useState<number>(0);
-  const [currentLinesCount, setCurrentLinesCount] = useState<number>(0);
+
+  // contentLoadedAt: timestamp (ms) of when we last loaded the message list;
+  //                  currently informational only, used in console logs
   const [contentLoadedAt, setContentLoadedAt] = useState<number>(0);
+
   const [contentError, setContentError] = useState<string | null>(null);
+
+  // sessionRefreshTrigger: a counter that increments every time the user
+  //                        clicks "Refresh history".  SessionsToolRight's
+  //                        useEffect watches this — when it changes, the
+  //                        component re-fetches the message list from the server.
+  //                        We use a counter (not a boolean) so rapid clicks are
+  //                        handled correctly — each increment triggers the effect.
+  const [sessionRefreshTrigger, setSessionRefreshTrigger] = useState<number>(0);
 
   // Live Editing States
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -270,40 +312,83 @@ export default function HermesControl() {
     }
   };
 
+  // ===========================================================================
+  // handleRefreshSession — called when user clicks "Refresh history" button
+  //
+  // Flow:
+  //   1. Guard: if no session is selected, do nothing
+  //   2. Increment sessionRefreshTrigger → SessionsToolRight's useEffect fires →
+  //      it re-fetches /api/sessions/content and updates its displayed message list
+  //   3. Reset sessionStale=false, sessionNewLineCount=0 → button returns to idle
+  //      (if there are STILL more new lines after the refresh, the 3s polling
+  //       will detect them and re-activate the button automatically)
+  //   4. Also updates fileContent in page.tsx state (used by other panels)
+  //   5. Surgically update only the changed metadata (size, updatedAt) in the
+  //      sidebar session list, so it reflects the new state without a full reload
+  // ===========================================================================
   const handleRefreshSession = async () => {
-    if (!selectedSessionId) return;
+    if (!selectedSessionId) {
+      console.log('[handleRefreshSession] No session selected — doing nothing');
+      return;
+    }
 
     const refreshStart = Date.now();
-    console.log(`[Frontend] handleRefreshSession start for id: ${selectedSessionId}`);
+    console.log(`[handleRefreshSession] ▶ START — sessionId="${selectedSessionId}"`);
 
+    // ── Step 2: Signal SessionsToolRight to re-fetch ──────────────────────────
+    // Incrementing the trigger counter makes SessionsToolRight's useEffect fire,
+    // which calls /api/sessions/content and updates the displayed messages.
+    console.log(`[handleRefreshSession] Incrementing sessionRefreshTrigger (SessionsToolRight will re-fetch)`);
+    setSessionRefreshTrigger(t => t + 1);
+
+    // ── Step 3: Reset staleness so the button returns to idle ────────────────
+    // We set these to false/0 here so the button immediately looks idle.
+    // If new lines are still arriving after this refresh, the 3-second polling
+    // useEffect (PART 1) will detect them and set sessionStale=true again.
+    console.log(`[handleRefreshSession] Resetting sessionStale=false, sessionNewLineCount=0`);
     setSessionStale(false);
     setSessionNewLineCount(0);
     setContentLoadedAt(Date.now());
-    // Clear content first for visual feedback
-    setFileContent('');
+
+    // Set loading spinner in page.tsx (affects the right panel border/etc.)
     setLoading(prev => ({ ...prev, content: true }));
 
     try {
-      // 2. Re-fetch session list to update metadata (Size/Updated)
-      const res = await fetch(`/api/sessions/content?id=${selectedSessionId}`);
+      // ── Step 4: Fetch latest session content ────────────────────────────────
+      const url = `/api/sessions/content?id=${selectedSessionId}`;
+      console.log(`[handleRefreshSession] Fetching ${url} …`);
+
+      const res  = await fetch(url);
       const data = await res.json();
-      console.log(`[Frontend] handleRefreshSession fetched content in ${Date.now() - refreshStart}ms`);
 
+      console.log(
+        `[handleRefreshSession] ✅ Fetched in ${Date.now() - refreshStart}ms — ` +
+        `${data.messages?.length ?? 0} messages, ` +
+        `model="${data.model ?? '?'}", ` +
+        `platform="${data.platform ?? '?'}"`
+      );
+
+      // Update page.tsx state (used by some of the other right-panel tools)
       setFileContent(data.content || '');
-      const lines = (data.content || '').split('\n').filter((l: string) => l.trim());
-      setCurrentLinesCount(lines.length);
 
-      // Surgically update the metadata in the sidebar without a full list reload
+      // ── Step 5: Update sidebar session list metadata surgically ────────────
+      // Only update the size and updatedAt for THIS session in the sidebar list,
+      // so it reflects the new state without a full /api/sessions reload.
       if (data.metadata) {
+        console.log(`[handleRefreshSession] Updating sidebar metadata: size=${data.metadata.size}, updatedAt=${data.metadata.updatedAt}`);
         setSessions(prev => prev.map(s =>
           s.id === selectedSessionId
             ? { ...s, size: data.metadata.size, updatedAt: data.metadata.updatedAt }
             : s
         ));
+      } else {
+        console.log(`[handleRefreshSession] No metadata in response — skipping sidebar update`);
       }
-      setSessionStale(false);
+
+      // Re-enable the trigger logger for easy tracking
+      console.log(`[handleRefreshSession] ✅ DONE — sessionId="${selectedSessionId}"  (${Date.now() - refreshStart}ms total)`);
     } catch (err) {
-      console.error('Surgical refresh error:', err);
+      console.error(`[handleRefreshSession] ❌ ERROR:`, err);
     } finally {
       setLoading(prev => ({ ...prev, content: false }));
     }
@@ -459,17 +544,123 @@ export default function HermesControl() {
     }
   }, [gitStale, activeTab]);
 
-  // No active timestamp polling for Sessions because the current backend only exposes the sessions list endpoint.
+  // ===========================================================================
+  // PART 1: Session Staleness Polling — the background 3-second heartbeat
+  //
+  // WHAT IT DOES:
+  //   While you are on the Sessions tab, this useEffect polls the server every
+  //   3 seconds and asks: "how many messages does the currently selected session
+  //   have right now?"  If that number is higher than what we saw last time,
+  //   it means the Hermes agent has been chatting and produced new messages.
+  //
+  //   In that case it sets:
+  //     sessionStale        = true
+  //     sessionNewLineCount = (server's new count) − (what we loaded last time)
+  //
+  //   These two values are passed as props to SessionsToolRight, which uses
+  //   them to make the "Refresh history" button glow purple and show "+N NEW".
+  //
+  // WHY POLLING, NOT WEBSOCKET:
+  //   The session data is stored in a JSON file on disk (session_<id>.json).
+  //   There is no live WebSocket or file-system watcher — so the simplest way
+  //   to detect changes is to just ask the API "how many messages do you have?"
+  //   on a short interval. 3 seconds is a good balance between responsive and polite.
+  //
+  // WHY TRACK lastLoadedCount HERE AND NOT IN SessionsToolRight:
+  //   Because SessionsToolRight's useEffect only fires when selectedSession.id
+  //   changes OR when the refresh button is clicked. It doesn't run continuously.
+  //   The polling needs a separate persistent counter — so we hold it in the
+  //   closure of this useEffect. It is NOT React state (which would cause
+  //   re-renders on every tick); it's a plain mutable variable.
+  //
+  // CAVEATS:
+  //   - lastLoadedCount starts at 0 on first poll — the first poll only SEEDS
+  //     the count and never fires stale=true (that's intentional, so opening
+  //     a session doesn't immediately show "new" when you just loaded it).
+  //   - If you switch to a DIFFERENT session while polling, the useEffect
+  //     restarts (because activeTab or selectedSessionId changed), so
+  //     lastLoadedCount resets to 0 and the first poll on the new session
+  //     also seeds without firing stale.
+  //   - When the user clicks "Refresh history", we reset sessionStale=false.
+  //     Polling continues and if there are STILL new messages after the
+  //     manual refresh, it will fire stale=true again automatically.
+  // ===========================================================================
   useEffect(() => {
-    if (!selectedSessionId || !isMounted) return;
-
-    const currentSession = sessions.find(s => s.id === selectedSessionId);
-    if (currentSession && fileContent && contentLoadedAt > 0) {
-      if (currentSession.updatedAt > contentLoadedAt + 2000) {
-        setSessionStale(true);
-      }
+    // Only run when: on Sessions tab AND a session is selected AND mounted
+    if (activeTab !== 'Sessions' || !selectedSessionId || !isMounted) {
+      return;
     }
-  }, [sessions, selectedSessionId, fileContent, contentLoadedAt]);
+
+    console.log(
+      `[SessionPoll] 🟢 Started polling for sessionId="${selectedSessionId}"  (every 3s)`
+    );
+
+    // lastLoadedCount lives in the closure of this useEffect.
+    // It is NOT state — it doesn't trigger re-renders. It's just a counter
+    // we use to compare server count vs. what we last saw.
+    let lastLoadedCount = 0;
+
+    const pollSession = async () => {
+      try {
+        const url = `/api/sessions/content?id=${selectedSessionId}`;
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          console.warn(`[SessionPoll] Poll fetch failed: HTTP ${res.status}`);
+          return;
+        }
+
+        const data = await res.json();
+        const serverCount = Array.isArray(data.messages) ? data.messages.length : 0;
+
+        console.log(
+          `[SessionPoll] Poll tick — sessionId="${selectedSessionId}"  ` +
+          `serverCount=${serverCount}  lastLoadedCount=${lastLoadedCount}`
+        );
+
+        // First poll (lastLoadedCount === 0) — seed the counter, don't fire stale
+        if (lastLoadedCount === 0) {
+          console.log(`[SessionPoll] First poll — seeding lastLoadedCount=${serverCount}  (no stale flag this run)`);
+          lastLoadedCount = serverCount;
+          return;
+        }
+
+        // Subsequent polls: compare
+        if (serverCount > lastLoadedCount) {
+          const delta = serverCount - lastLoadedCount;
+          console.log(
+            `[SessionPoll] 🔔 NEW MESSAGES DETECTED — ` +
+            `${delta} new (serverCount=${serverCount} > lastLoadedCount=${lastLoadedCount})  ` +
+            `→ setting sessionStale=true, sessionNewLineCount=${delta}`
+          );
+          setSessionNewLineCount(delta);
+          setSessionStale(true);
+          lastLoadedCount = serverCount;
+        } else if (serverCount < lastLoadedCount) {
+          // This happens if the session file was rotated/truncated — rare but possible.
+          // Reset to the new (lower) count silently.
+          console.warn(
+            `[SessionPoll] ⚠️  Message count DECREASED (${serverCount} < ${lastLoadedCount}) — ` +
+            `session file may have changed. Resetting lastLoadedCount=${serverCount}`
+          );
+          lastLoadedCount = serverCount;
+        } else {
+          console.log(`[SessionPoll] No change — serverCount=${serverCount} === lastLoadedCount=${lastLoadedCount}  (no action)`);
+        }
+      } catch (err) {
+        // Silent — polling errors should not spam the console every 3 seconds
+      }
+    };
+
+    // Run once immediately (on mount), then every 3 seconds
+    pollSession();
+    const interval = setInterval(pollSession, 3000);
+
+    return () => {
+      console.log(`[SessionPoll] 🔴 Stopped polling for sessionId="${selectedSessionId}"`);
+      clearInterval(interval);
+    };
+  }, [activeTab, selectedSessionId, isMounted]);
 
   // Consolidated content fetcher
   useEffect(() => {
@@ -537,7 +728,6 @@ export default function HermesControl() {
           setFileContent(data.content || '');
           if (activeTab === 'Sessions' || activeTab === 'History') {
             const lines = (data.content || '').split('\n').filter((l: string) => l.trim());
-            setCurrentLinesCount(lines.length);
           }
         }
 
@@ -608,7 +798,7 @@ export default function HermesControl() {
       case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
-      case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} sessionStale={sessionStale} sessionNewLineCount={sessionNewLineCount} handleRefreshSession={handleRefreshSession} />;
+      case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} sessionStale={sessionStale} sessionNewLineCount={sessionNewLineCount} handleRefreshSession={handleRefreshSession} refreshTrigger={sessionRefreshTrigger} />;
       case 'Cmd': return <CmdToolRight selectedCmd={selectedCmd} />;
       case 'Git': return <GitToolRight selectedGitFile={selectedGitFile} selectedGitCommit={selectedGitCommit} loading={loading} gitDiff={gitDiff} selectedGitType={selectedGitType} />;
       case 'Skills': return <SkillsToolRight selectedSkill={selectedSkill} selectedSkillFile={selectedSkillFile} setSelectedSkillFile={setSelectedSkillFile} loading={loading} fileContent={fileContent} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} />;
