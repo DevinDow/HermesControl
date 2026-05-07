@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Activity, Loader2, ChevronDown, ChevronRight, MessageSquare, RefreshCw, History } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { formatRelativeTime, formatSessionTime } from './utils/dateFormatting';
@@ -13,14 +13,36 @@ import { formatRelativeTime, formatSessionTime } from './utils/dateFormatting';
 //     selectedSessionId — id of whichever row is currently highlighted
 //     setSelectedSessionId — callback to tell page.tsx which session to show
 //     refreshSessions  — re-fetches the session LIST (sidebar) from the server
+//     timeTick        — counter from page.tsx that increments every 60s; included
+//                       in React.memo deps so the component re-renders on tick,
+//                       recalculating formatRelativeTime() without any API call
+//     sessionsRefreshCount — incremented on each "Refresh List" click; forces a
+//                       remount so fresh lastActive / updatedAt values from the
+//                       API are displayed
 // =============================================================================
-export function SessionsToolLeft ({
+function SessionsToolLeft_ ({
   sessions,
   matchesFilter,
   selectedSessionId,
   setSelectedSessionId,
   refreshSessions,
-}: any) {
+  timeTick,
+  sessionsRefreshCount,
+}: {
+  sessions: any[];
+  matchesFilter: (text: string) => boolean;
+  selectedSessionId: string | null;
+  setSelectedSessionId: (id: string) => void;
+  refreshSessions?: () => void;
+  timeTick: number;
+  sessionsRefreshCount: number;
+}) {
+  // NOTE: We display session.updatedAt (ISO timestamp) via formatRelativeTime()
+  // rather than session.lastActive (pre-formatted relative string from the CLI).
+  // Because formatRelativeTime() calls Date.now() on every render, the relative
+  // time is RECALCULATED on every re-render — giving live "X ago" values.
+  // timeTick (60s interval) and sessionsRefreshCount (manual click) both cause
+  // re-renders that refresh these values without any API call.
   return (
     <>
 
@@ -60,8 +82,13 @@ export function SessionsToolLeft ({
               {session.title || 'Untitled Session'}
             </div>
             {/* SESSION LAST ACTIVE */}
-            <div className="text-[11px] text-[#FFBF00] tracking-wider">
-              {session.lastActive || 'Unknown'}
+            <div className="text-[11px] text-[#FFBF00] tracking-wider shrink-0">
+              {session.updatedAt
+                ? (() => {
+                    const { text, color } = formatRelativeTime(session.updatedAt);
+                    return <span className={color}>{text}</span>;
+                  })()
+                : (session.lastActive || 'Unknown')}
             </div>
           </div>
 
@@ -90,6 +117,11 @@ export function SessionsToolLeft ({
     </>
   );
 }
+
+// Wrap in React.memo so that a timeTick or sessionsRefreshCount change forces
+// a re-render even when sessions/selectedSessionId haven't changed — which is
+// what updates formatRelativeTime() timestamps in the sidebar without any API call.
+export const SessionsToolLeft = React.memo(SessionsToolLeft_);
 
 // =============================================================================
 // SessionsToolRight  —  the right-panel detail view for ONE selected session
@@ -135,6 +167,41 @@ export function SessionsToolRight ({
   const [reverseOrder, setReverseOrder] = useState(true);    // display order
 
   // ---------------------------------------------------------------------------
+  // prevId / prevTrigger — track the values that actually trigger a re-fetch.
+  //
+  // We compare against these inside the useEffect so that a `timeTick` change
+  // (which is only meant to force a re-render for relative timestamps) does
+  // NOT cause loadSession() to fire.  Without these refs, every 60-second tick
+  // would call loadSession() → setLoading(true) → loading flash.
+  // ---------------------------------------------------------------------------
+  const prevIdRef      = useRef<string | undefined>(undefined);
+  const prevTriggerRef = useRef<number>(0);
+
+  // ---------------------------------------------------------------------------
+  // timeTick: a counter that increments every 60 seconds.
+  //
+  // WHY: formatRelativeTime() uses Date.now() internally — "3 minutes ago"
+  // is only accurate at the moment of render.  After 60 seconds that same
+  // render would say "4 minutes ago" but we wouldn't re-render unless something
+  // else changed.
+  //
+  // By incrementing a counter every 60s and including it in the useEffect deps,
+  // we force a "free" re-render that updates the relative timestamps WITHOUT
+  // making any API call or changing sessionData.  The message list and expand
+  // states are all preserved — only the "started X ago / updated Y ago" text
+  // in the header updates.
+  // ---------------------------------------------------------------------------
+  const [timeTick, setTimeTick] = useState<number>(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('[SessionsToolRight] timeTick — incrementing to force relative-time re-render (no API call)');
+      setTimeTick(t => t + 1);
+    }, 60_000); // 60 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // Helper: summarize a message's non-content fields for the collapsed preview
   // ---------------------------------------------------------------------------
   const getMessageDetails = (message: any) => {
@@ -171,6 +238,9 @@ export function SessionsToolRight ({
   //
   // Does NOT fire on every staleness poll tick — that's intentional so the
   // detailed message list doesn't jump around while you're reading it.
+  //
+  // The guard clause below also ensures that a `timeTick` change (60s interval,
+  // used only for relative-time re-renders) does NOT trigger a re-fetch.
   // ---------------------------------------------------------------------------
   useEffect(() => {
     // No session selected — clear the panel
@@ -178,11 +248,30 @@ export function SessionsToolRight ({
       console.log('[SessionsToolRight] No session selected — clearing panel');
       setSessionData(null);
       setError(null);
+      prevIdRef.current = undefined;
       return;
     }
 
     const sessionId = selectedSession.id;
-    console.log(`[SessionsToolRight] useEffect fired for session="${sessionId}"  (selectedSession changed or refreshTrigger fired)`);
+
+    // ── Guard: only re-fetch when id or refreshTrigger actually changed ──────
+    // If ONLY timeTick changed (the 60s tick for relative timestamps), skip the
+    // fetch entirely — just let the component re-render with the existing data.
+    const idChanged      = prevIdRef.current !== sessionId;
+    const triggerChanged = prevTriggerRef.current !== refreshTrigger;
+
+    if (!idChanged && !triggerChanged) {
+      // timeTick-only tick — log and skip
+      console.log(`[SessionsToolRight] useEffect — timeTick only (id/trigger unchanged), skipping loadSession()`);
+      return;
+    }
+
+    // Update refs BEFORE the async fetch so they capture the current values
+    prevIdRef.current      = sessionId;
+    prevTriggerRef.current = refreshTrigger;
+
+    console.log(`[SessionsToolRight] useEffect fired for session="${sessionId}"  ` +
+      `(idChanged=${idChanged}, triggerChanged=${triggerChanged}) — calling loadSession()`);
 
     const loadSession = async () => {
       setLoading(true);
@@ -213,7 +302,10 @@ export function SessionsToolRight ({
     loadSession();
   // NOTE: refreshTrigger is intentionally in the deps array — that's what makes
   // the "Refresh history" button actually reload the message list.
-  }, [selectedSession, refreshTrigger]);
+  // timeTick is also in deps — it simply causes a re-render (the guard clause
+  // above prevents an unnecessary re-fetch).  This re-render updates the
+  // "started X ago / updated Y ago" relative timestamps for free, every 60s.
+  }, [selectedSession, refreshTrigger, timeTick]);
 
   // ---------------------------------------------------------------------------
   // Render: nothing selected yet

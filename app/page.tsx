@@ -213,6 +213,33 @@ export default function HermesControl() {
   //                        handled correctly — each increment triggers the effect.
   const [sessionRefreshTrigger, setSessionRefreshTrigger] = useState<number>(0);
 
+  // ---------------------------------------------------------------------------
+  // sessionsRefreshCount: incremented whenever the user clicks "Refresh List"
+  // in SessionsToolLeft.  We use a counter (not a boolean) so each click is
+  // guaranteed to force SessionsToolLeft to remount via React.memo, picking up
+  // the latest lastActive / updatedAt values from the API.
+  // ---------------------------------------------------------------------------
+  const [sessionsRefreshCount, setSessionsRefreshCount] = useState<number>(0);
+
+  // ---------------------------------------------------------------------------
+  // timeTick: a counter that increments every 60 seconds.
+  //
+  // This is lifted to page.tsx (rather than living inside SessionsToolLeft)
+  // so the tick is guaranteed to fire: even when no other state changes in
+  // page.tsx, this counter increments and forces a re-render of the entire
+  // component tree — including SessionsToolLeft, which recalculates relative
+  // timestamps via formatRelativeTime() without making any API call.
+  // ---------------------------------------------------------------------------
+  const [timeTick, setTimeTick] = useState<number>(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('[page.tsx] timeTick — incrementing to force relative-time re-render across the whole tree');
+      setTimeTick(t => t + 1);
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Live Editing States
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editContent, setEditContent] = useState<string>('');
@@ -662,6 +689,101 @@ export default function HermesControl() {
     };
   }, [activeTab, selectedSessionId, isMounted]);
 
+  // ===========================================================================
+  // PART 0 (bonus): Sessions List Auto-Polling
+  //
+  // WHAT IT DOES:
+  //   While you are on the Sessions tab, this polls /api/sessions every 5 seconds
+  //   and updates the sidebar list.  New sessions appear automatically, updated
+  //   timestamps (lastActive, updatedAt) refresh without a manual click.
+  //
+  // WHY prevSessionIds (closure variable, NOT state):
+  //   We compare the new list's IDs against the previous list's IDs.  Only when
+  //   they differ do we call setSessions — which prevents React from re-rendering
+  //   page.tsx unnecessarily.  Without this guard, every poll tick would create
+  //   a new `sessions` array reference, which flows down to renderRight(), which
+  //   creates a new `selectedSession` object, which flows down to
+  //   SessionsToolRight and fires its useEffect → loading spinner flash every 5s.
+  //
+  //   Using a closure variable (not useState) for prevSessionIds is correct because
+  //   we only care about the previous tick's value within this useEffect's scope —
+  //   we don't need React to preserve it across renders or trigger re-renders.
+  //
+  // HOW IT PRESERVES STATE:
+  //   - selectedSessionId is NOT cleared — the currently selected session stays
+  //     selected even if the list changes around it.
+  //   - SessionsToolRight (right panel) has its OWN useEffect based on
+  //     selectedSession.id and refreshTrigger.  Updating `sessions` in page.tsx
+  //     state does NOT cause SessionsToolRight to re-fetch — only a change to
+  //     selectedSessionId or a manual refresh click does that.  So the right
+  //     panel's scroll position and expand states are completely unaffected.
+  //   - SessionsToolLeft is a pure rendering component — it receives `sessions`
+  //     as a prop and just maps over it.  React re-renders it when `sessions`
+  //     changes (new array reference from setSessions), showing fresh data but
+  //     preserving the user's selection in the list itself.
+  //
+  // INFRASTRUCTURE SHARED WITH THE STALE DETECTION POLLING:
+  //   Both useEffects (this one and SessionPoll above) are active at the same
+  //   time on the Sessions tab.  They are independent — one keeps the sidebar
+  //   list fresh, the other watches for new messages in the selected session.
+  //   5s vs 3s intervals are intentionally different to avoid thundering-herd
+  //   sync issues with the server.
+  // ===========================================================================
+  useEffect(() => {
+    if (activeTab !== 'Sessions' || !isMounted) return;
+
+    console.log('[SessionsListPoll] 🟢 Started — polling /api/sessions every 5s for new sessions');
+
+    // prevSessionIds is a CLOSURE variable — NOT React state.
+    // It tracks the last-seen list of session IDs so we can skip setSessions
+    // when nothing has actually changed (avoids unnecessary re-renders downstream).
+    let prevSessionIds: string[] = [];
+
+    const pollSessionsList = async () => {
+      try {
+        const res  = await fetch('/api/sessions');
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.warn(`[SessionsListPoll] Failed to fetch sessions: HTTP ${res.status}`);
+          return;
+        }
+
+        // Normalize: fetchData returns an array directly or extracts .sessions
+        const list = Array.isArray(data) ? data : (data.sessions || []);
+
+        // Derive the IDs from the new list for comparison
+        const newIds = list.map((s: any) => s.id);
+
+        console.log(
+          `[SessionsListPoll] Poll — ${list.length} sessions, ` +
+          `changed=${JSON.stringify(newIds) !== JSON.stringify(prevSessionIds)}`
+        );
+
+        // Only call setSessions if the list of IDs has actually changed.
+        // This prevents unnecessary React re-renders of page.tsx → renderRight()
+        // → new selectedSession object → SessionsToolRight useEffect → loading flash.
+        if (JSON.stringify(newIds) !== JSON.stringify(prevSessionIds)) {
+          console.log(`[SessionsListPoll] Session list changed — updating sidebar (${newIds.length} sessions)`);
+          prevSessionIds = newIds;          // update before setState so reads are consistent
+          setSessions(list);
+        } else {
+          console.log('[SessionsListPoll] Session list unchanged — skipping setSessions (no downstream re-render)');
+        }
+      } catch (err) {
+        // Silent — polling errors should not spam console
+      }
+    };
+
+    pollSessionsList();
+    const interval = setInterval(pollSessionsList, 5000);
+
+    return () => {
+      console.log('[SessionsListPoll] 🔴 Stopped');
+      clearInterval(interval);
+    };
+  }, [activeTab, isMounted]);
+
   // Consolidated content fetcher
   useEffect(() => {
     async function fetchContent() {
@@ -769,7 +891,7 @@ export default function HermesControl() {
       case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedFolders} setExpandedFolders={setExpandedFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setViewingJobLog={setViewingJobLog} />;
-      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} refreshSessions={() => fetchData('/api/sessions', setSessions, 'sessions')} />;
+      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} refreshSessions={() => { fetchData('/api/sessions', setSessions, 'sessions'); setSessionsRefreshCount(c => c + 1); }} timeTick={timeTick} sessionsRefreshCount={sessionsRefreshCount} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
       case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
         const data = await fetchData('/api/git', setGitStatus, 'git');
