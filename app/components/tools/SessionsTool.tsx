@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Activity, Loader2, ChevronDown, ChevronRight, MessageSquare, RefreshCw } from 'lucide-react';
+import { Activity, Loader2, ChevronDown, ChevronRight, MessageSquare, RefreshCw, History } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { formatRelativeTime, formatSessionTime } from './utils/dateFormatting';
 
@@ -70,7 +70,7 @@ export function SessionsToolLeft({
   );
 }
 
-export function SessionsToolRight({ selectedSession }: any) {
+export function SessionsToolRight({ selectedSession, sessionStale, sessionNewLineCount, handleRefreshSession}: any) {
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -204,6 +204,26 @@ export function SessionsToolRight({ selectedSession }: any) {
             })()}
           </div>
         </div>
+          <button
+            onClick={handleRefreshSession}
+            className={cn(
+              "group relative px-2.5 py-1.5 rounded flex items-center gap-2 transition-all border",
+              sessionStale
+                ? "bg-[#5E6AD2]/10 border-[#5E6AD2]/30 text-[#5E6AD2] shadow-[0_0_15px_rgba(94,106,210,0.1)]"
+                : "bg-transparent border-transparent hover:bg-[#1F1F1F] text-[#555555] hover:text-[#EDEDED]"
+            )}
+            title={sessionStale ? "New activity detected! Refresh now." : "Refresh history"}
+          >
+            <History size={16} className={cn(sessionStale && "text-[#5E6AD2]")} />
+            {sessionStale && (
+              <span className="text-[10px] font-bold tracking-tight">
+                {sessionNewLineCount > 0 ? `+${sessionNewLineCount} NEW` : 'REFRESH'}
+              </span>
+            )}
+            {sessionStale && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#5E6AD2] rounded-full border-2 border-[#0D0D0D] animate-pulse" />
+            )}
+          </button>
       </div>
 
       <div className="space-y-3">

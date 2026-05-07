@@ -134,7 +134,7 @@ export default function HermesControl() {
   // These track what the user has clicked in the middle column.
   // Changes to these states trigger the 'fetchContent' useEffect to load details.
   // ============================================================================
-  const [selectedFilePath, setSelectedFilePath] = useState<string | null>('__TODO__/TODO.md');
+  const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedCmdId, setSelectedCmdId] = useState<string | null>(null);
@@ -608,7 +608,7 @@ export default function HermesControl() {
       case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
-      case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} />;
+      case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} sessionStale={sessionStale} sessionNewLineCount={sessionNewLineCount} handleRefreshSession={handleRefreshSession} />;
       case 'Cmd': return <CmdToolRight selectedCmd={selectedCmd} />;
       case 'Git': return <GitToolRight selectedGitFile={selectedGitFile} selectedGitCommit={selectedGitCommit} loading={loading} gitDiff={gitDiff} selectedGitType={selectedGitType} />;
       case 'Skills': return <SkillsToolRight selectedSkill={selectedSkill} selectedSkillFile={selectedSkillFile} setSelectedSkillFile={setSelectedSkillFile} loading={loading} fileContent={fileContent} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} />;
