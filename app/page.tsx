@@ -579,7 +579,7 @@ export default function HermesControl() {
       case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedFolders} setExpandedFolders={setExpandedFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setViewingJobLog={setViewingJobLog} />;
-      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} />;
+      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
       case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
         const data = await fetchData('/api/git', setGitStatus, 'git');
