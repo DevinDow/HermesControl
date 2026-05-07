@@ -7,8 +7,15 @@ const execAsync = promisify(exec);
 /**
  * GET /api/sessions
  * 
- * Executes `hermes sessions list` and returns the parsed session data as JSON.
- */
+ * Executes `hermes sessions list`, which returns tabular session data in the format:
+Title                            Preview                                  Last Active   ID
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+—                                [IMPORTANT: You are running as a sched   6h ago        cron_3e02bb43d4a1_20260506_130026
+Cron Jobs and Watchdog Process   Darvis (OpenClaw) had a HEARTBEAT.  Do   6h ago        20260506_044256_5c559f37
+—                                [IMPORTANT: You are running as a sched   14h ago       cron_5a709e34f548_20260506_041041
+
+ * returns the parsed SESSIONS data as JSON
+*/
 export async function GET() {
   try {
     const { stdout } = await execAsync('hermes sessions list', { encoding: 'utf8' });
@@ -22,7 +29,7 @@ export async function GET() {
     const sessions = dataLines.map(line => {
       // Split by multiple spaces to handle column separation
       // The columns are: Title, Preview, Last Active, ID
-      const parts = line.split(/\s{2,}/).map(p => p.trim()).filter(Boolean);
+      const parts = line.split(/\s{3,}/).map(p => p.trim()).filter(Boolean);
       
       if (parts.length >= 4) {
         return {
@@ -35,7 +42,7 @@ export async function GET() {
       
       // Handle cases with fewer columns (like the "—" entries)
       return {
-        title: parts[0] || '—',
+        title: parts[0] || '',
         preview: parts[1] || '',
         lastActive: parts[parts.length - 2] || '',
         id: parts[parts.length - 1] || '',

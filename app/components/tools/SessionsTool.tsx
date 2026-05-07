@@ -14,6 +14,8 @@ export function SessionsToolLeft({
 }: any) {
   return (
     <>
+
+      {/* REFRESH button */}
       {refreshSessions && (
         <button
           onClick={refreshSessions}
@@ -23,6 +25,8 @@ export function SessionsToolLeft({
           Refresh List
         </button>
       )}
+
+      {/* SESSIONS matching FILTER */}
       {(sessions || []).filter((session: any) => {
         if (!matchesFilter) return true;
         return (
@@ -31,6 +35,8 @@ export function SessionsToolLeft({
           matchesFilter(session.id)
         );
       }).map((session: any) => (
+
+        // SESSION
         <button
           key={session.id}
           onClick={() => setSelectedSessionId(session.id)}
@@ -39,18 +45,24 @@ export function SessionsToolLeft({
             selectedSessionId === session.id ? 'bg-[#222222] border-[#1F1F1F]' : 'border-transparent hover:bg-[#222222]/50'
           )}
         >
-          <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex items-center justify-between">
+            {/* SESSION TITLE */}
             <div className="text-[13px] font-semibold text-[#FFF8DC] truncate">
               {session.title || 'Untitled Session'}
             </div>
+            {/* SESSION LAST ACTIVE */}
             <div className="text-[11px] text-[#FFBF00] tracking-wider">
               {session.lastActive || 'Unknown'}
             </div>
           </div>
+
+          {/* SESSION PREVIEW */}
           <div className="text-[12px] text-[#B8860B] leading-5 truncate">
             {session.preview || 'No preview available'}
           </div>
-          <div className="text-[10px] text-[#888888] mt-2 font-mono truncate">
+
+          {/* SESSION ID */}
+          <div className="text-[12px] text-[#888888] font-mono truncate">
             {session.id}
           </div>
         </button>
