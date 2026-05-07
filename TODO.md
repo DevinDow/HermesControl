@@ -15,7 +15,7 @@
 - ScriptsToolLeft PLAY doesn't populate Cmd Tool
 
 ## Middle
-- Refresh
+- Refresh - pass in a function for Refresh then add a button that calls it
 
 ## page.tsx
 - understand each Section

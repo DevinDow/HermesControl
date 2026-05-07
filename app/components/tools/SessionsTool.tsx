@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Activity, Loader2, ChevronDown, ChevronRight, MessageSquare } from 'lucide-react';
+import { Activity, Loader2, ChevronDown, ChevronRight, MessageSquare, RefreshCw } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { formatRelativeTime, formatSessionTime } from './utils/dateFormatting';
 
@@ -9,10 +9,20 @@ export function SessionsToolLeft({
   sessions,
   matchesFilter,
   selectedSessionId,
-  setSelectedSessionId
+  setSelectedSessionId,
+  refreshSessions,
 }: any) {
   return (
     <>
+      {refreshSessions && (
+        <button
+          onClick={refreshSessions}
+          className="w-full flex items-center justify-center gap-2 p-2 mb-2 rounded-lg border border-[#1F1F1F] bg-[#111111] hover:bg-[#1A1A1A] disabled:opacity-50 disabled:cursor-not-allowed text-[#8A8A8A] hover:text-[#EDEDED] transition-all text-xs font-medium focus:outline-none"
+        >
+          <RefreshCw size={14} />
+          Refresh List
+        </button>
+      )}
       {(sessions || []).filter((session: any) => {
         if (!matchesFilter) return true;
         return (
