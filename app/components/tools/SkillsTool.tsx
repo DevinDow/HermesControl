@@ -3,7 +3,7 @@ import { MarkdownRenderer } from './MarkdownRenderer';
 import { Wrench, Search, ChevronRight, Link as LinkIcon, Loader2, File } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export function SkillsToolLeft({ skills, matchesFilter, setSelectedSkillId, setSelectedSkillFile, setSelectedJobId, setSelectedFilePath, setSelectedTaskId, setSelectedEventId, setSelectedSessionId, selectedSkillId }: any) {
+export function SkillsToolLeft({ skills, matchesFilter, setSelectedSkillId, setSelectedSkillFile, setSelectedJobId, setSelectedFilePath, setSelectedSessionId, selectedSkillId }: any) {
   return (
     <div className="space-y-4">
       <div className="space-y-4">
@@ -18,7 +18,7 @@ export function SkillsToolLeft({ skills, matchesFilter, setSelectedSkillId, setS
                           setSelectedSkillId(skill.id);
                           const defaultFile = skill.hasReadme ? 'SKILL.md' : (skill.files[0]?.name || '');
                           setSelectedSkillFile(defaultFile);
-                          setSelectedJobId(null); setSelectedFilePath(null); setSelectedTaskId(null); setSelectedEventId(null); setSelectedSessionId(null);
+                          setSelectedJobId(null); setSelectedFilePath(null); setSelectedSessionId(null);
                         }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",
@@ -41,7 +41,7 @@ export function SkillsToolLeft({ skills, matchesFilter, setSelectedSkillId, setS
                           setSelectedSkillId(skill.id);
                           const defaultFile = skill.hasReadme ? 'SKILL.md' : (skill.files[0]?.name || '');
                           setSelectedSkillFile(defaultFile);
-                          setSelectedJobId(null); setSelectedFilePath(null); setSelectedTaskId(null); setSelectedEventId(null); setSelectedSessionId(null);
+                          setSelectedJobId(null); setSelectedFilePath(null); setSelectedSessionId(null);
                         }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",

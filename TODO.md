@@ -1,5 +1,7 @@
 # TODO
 
+## Dron
+
 ## api/file
 - should this be used for Scripts & System? or should Logs move above Scripts?
 
@@ -25,16 +27,14 @@
 - Tree for MemoryToolLeft
 
 ## Jobs
-- Play Button to trigger Job
-- `hermes cron edit --schedule ""` to save schedule changes that update "next_run_at"
+- Play Button to trigger Job `hermes cron run job_id`
+- `hermes cron edit --schedule "" job_id` to save schedule changes that update "next_run_at"
+- `hermes cron pause/resume job_id`
 
 ## Sessions
 - sort by File Modified DateTime, display File Modified DateTime
-- Should it use `hermes sessions list` or /sessions?
+- Should it use `hermes sessions list` or something else?
 - .jsonl?
-
-## Git
-- see MC page 576 api/git/pulse 2s
 
 ## Logs
 - long lines

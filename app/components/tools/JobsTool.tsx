@@ -8,8 +8,6 @@ export function JobsToolLeft({
   matchesFilter, 
   selectedJobId, 
   setSelectedJobId, 
-  setSelectedTaskId, 
-  setSelectedEventId, 
   setViewingJobLog 
 }: any) {
   
@@ -42,8 +40,6 @@ export function JobsToolLeft({
             key={job.id} 
             onClick={() => { 
               setSelectedJobId(job.id); 
-              setSelectedTaskId(null); 
-              setSelectedEventId(null); 
               setViewingJobLog(false); 
             }} 
             className={cn(
@@ -83,7 +79,6 @@ export function JobsToolRight({
   const CRON_REGEX = /^((((\d+,)+\d+|(\d+(\/|-|#)\d+)|(\d+L?)|(\*(\/\d+)?)|(L(-\d+)?)|(\?)|([A-Z]{3}(-[A-Z]{3})?)) ?){5,7})$/;
   const [editedSchedule, setEditedSchedule] = useState('');
   const [editedEnabled, setEditedEnabled] = useState(false);
-  const [editedThinking, setEditedThinking] = useState('off');
   const [isSaving, setIsSaving] = useState(false);
   const [isValid, setIsValid] = useState(true);
   const [outputFiles, setOutputFiles] = useState<string[]>([]);

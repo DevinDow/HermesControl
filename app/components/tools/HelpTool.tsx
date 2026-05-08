@@ -2,7 +2,7 @@
 import { Link as LinkIcon, Terminal, Zap, HelpCircle, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export function HelpToolLeft({ setSelectedHelpId, setSelectedJobId, setSelectedFilePath, setSelectedTaskId, setSelectedEventId, setSelectedSessionId, selectedHelpId }: any) {
+export function HelpToolLeft({ setSelectedHelpId, setSelectedJobId, setSelectedFilePath, setSelectedSessionId, selectedHelpId }: any) {
   return (
     <div className="space-y-4">
       <div className="space-y-4">
@@ -17,7 +17,7 @@ export function HelpToolLeft({ setSelectedHelpId, setSelectedJobId, setSelectedF
                     ].map(item => (
                       <button
                         key={item.id}
-                        onClick={() => { setSelectedHelpId(item.id); setSelectedJobId(null); setSelectedFilePath(null); setSelectedTaskId(null); setSelectedEventId(null); setSelectedSessionId(null); }}
+                        onClick={() => { setSelectedHelpId(item.id); setSelectedJobId(null); setSelectedFilePath(null); setSelectedSessionId(null); }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",
                           selectedHelpId === item.id ? "bg-[#222222] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
