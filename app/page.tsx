@@ -190,7 +190,6 @@ export default function HermesControl() {
   //       (b) Increments sessionRefreshTrigger — this re-fires SessionsToolRight's
   //           internal useEffect so it re-fetches and re-renders the message list
   //       (c) Updates fileContent in page.tsx (used by some other panels too)
-  //       (d) Surgically updates the sidebar session list metadata
   // ===========================================================================
 
   // sessionStale: true when PART 1 polling detected the server has new messages
@@ -198,11 +197,6 @@ export default function HermesControl() {
 
   // sessionNewLineCount: how many new messages PART 1 found (shown as "+N NEW")
   const [sessionNewLineCount, setSessionNewLineCount] = useState<number>(0);
-
-  // contentLoadedAt: timestamp (ms) of when we last loaded the message list;
-  //                  currently informational only, used in console logs
-  const [contentLoadedAt, setContentLoadedAt] = useState<number>(0);
-
   const [contentError, setContentError] = useState<string | null>(null);
 
   // sessionRefreshTrigger: a counter that increments every time the user
@@ -217,7 +211,7 @@ export default function HermesControl() {
   // sessionsRefreshCount: incremented whenever the user clicks "Refresh List"
   // in SessionsToolLeft.  We use a counter (not a boolean) so each click is
   // guaranteed to force SessionsToolLeft to remount via React.memo, picking up
-  // the latest lastActive / updatedAt values from the API.
+  // the latest lastActive values from the API.
   // ---------------------------------------------------------------------------
   const [sessionsRefreshCount, setSessionsRefreshCount] = useState<number>(0);
 
@@ -355,12 +349,12 @@ export default function HermesControl() {
   // ===========================================================================
   const handleRefreshSession = async () => {
     if (!selectedSessionId) {
-      console.log('[handleRefreshSession] No session selected — doing nothing');
+      //console.log('[handleRefreshSession] No session selected — doing nothing');
       return;
     }
 
     const refreshStart = Date.now();
-    console.log(`[handleRefreshSession] ▶ START — sessionId="${selectedSessionId}"`);
+    //console.log(`[handleRefreshSession] ▶ START — sessionId="${selectedSessionId}"`);
 
     // ── Step 2: Signal SessionsToolRight to re-fetch ──────────────────────────
     // Incrementing the trigger counter makes SessionsToolRight's useEffect fire,
@@ -372,10 +366,9 @@ export default function HermesControl() {
     // We set these to false/0 here so the button immediately looks idle.
     // If new lines are still arriving after this refresh, the 3-second polling
     // useEffect (PART 1) will detect them and set sessionStale=true again.
-    console.log(`[handleRefreshSession] Resetting sessionStale=false, sessionNewLineCount=0`);
+    //console.log(`[handleRefreshSession] Resetting sessionStale=false, sessionNewLineCount=0`);
     setSessionStale(false);
     setSessionNewLineCount(0);
-    setContentLoadedAt(Date.now());
 
     // Set loading spinner in page.tsx (affects the right panel border/etc.)
     setLoading(prev => ({ ...prev, content: true }));
@@ -388,34 +381,17 @@ export default function HermesControl() {
       const res  = await fetch(url);
       const data = await res.json();
 
-      console.log(
+      /*console.log(
         `[handleRefreshSession] ✅ Fetched in ${Date.now() - refreshStart}ms — ` +
         `${data.messages?.length ?? 0} messages, ` +
         `model="${data.model ?? '?'}", ` +
         `platform="${data.platform ?? '?'}"`
-      );
+      );*/
 
       // Update page.tsx state (used by some of the other right-panel tools)
       setFileContent(data.content || '');
-
-      // ── Step 5: Update sidebar session list metadata surgically ────────────
-      // Only update the size and updatedAt for THIS session in the sidebar list,
-      // so it reflects the new state without a full /api/sessions reload.
-      if (data.metadata) {
-        console.log(`[handleRefreshSession] Updating sidebar metadata: size=${data.metadata.size}, updatedAt=${data.metadata.updatedAt}`);
-        setSessions(prev => prev.map(s =>
-          s.id === selectedSessionId
-            ? { ...s, size: data.metadata.size, updatedAt: data.metadata.updatedAt }
-            : s
-        ));
-      } else {
-        console.log(`[handleRefreshSession] No metadata in response — skipping sidebar update`);
-      }
-
-      // Re-enable the trigger logger for easy tracking
-      console.log(`[handleRefreshSession] ✅ DONE — sessionId="${selectedSessionId}"  (${Date.now() - refreshStart}ms total)`);
     } catch (err) {
-      console.error(`[handleRefreshSession] ❌ ERROR:`, err);
+      console.error(`[handleRefreshSession] ERROR:`, err);
     } finally {
       setLoading(prev => ({ ...prev, content: false }));
     }
@@ -633,21 +609,21 @@ export default function HermesControl() {
         const res = await fetch(url);
 
         if (!res.ok) {
-          console.warn(`[SessionPoll] Poll fetch failed: HTTP ${res.status}`);
+          //console.warn(`[SessionPoll] Poll fetch failed: HTTP ${res.status}`);
           return;
         }
 
         const data = await res.json();
         const serverCount = Array.isArray(data.messages) ? data.messages.length : 0;
 
-        console.log(
+        /*console.log(
           `[SessionPoll] Poll tick — sessionId="${selectedSessionId}"  ` +
           `serverCount=${serverCount}  lastLoadedCount=${lastLoadedCount}`
-        );
+        );*/
 
         // First poll (lastLoadedCount === 0) — seed the counter, don't fire stale
         if (lastLoadedCount === 0) {
-          console.log(`[SessionPoll] First poll — seeding lastLoadedCount=${serverCount}  (no stale flag this run)`);
+          //console.log(`[SessionPoll] First poll — seeding lastLoadedCount=${serverCount}  (no stale flag this run)`);
           lastLoadedCount = serverCount;
           return;
         }
@@ -655,36 +631,35 @@ export default function HermesControl() {
         // Subsequent polls: compare
         if (serverCount > lastLoadedCount) {
           const delta = serverCount - lastLoadedCount;
-          console.log(
+          /*console.log(
             `[SessionPoll] 🔔 NEW MESSAGES DETECTED — ` +
             `${delta} new (serverCount=${serverCount} > lastLoadedCount=${lastLoadedCount})  ` +
             `→ setting sessionStale=true, sessionNewLineCount=${delta}`
-          );
+          );*/
           setSessionNewLineCount(delta);
           setSessionStale(true);
           lastLoadedCount = serverCount;
         } else if (serverCount < lastLoadedCount) {
           // This happens if the session file was rotated/truncated — rare but possible.
           // Reset to the new (lower) count silently.
-          console.warn(
+          /*console.warn(
             `[SessionPoll] ⚠️  Message count DECREASED (${serverCount} < ${lastLoadedCount}) — ` +
             `session file may have changed. Resetting lastLoadedCount=${serverCount}`
-          );
+          );*/
           lastLoadedCount = serverCount;
         } else {
-          console.log(`[SessionPoll] No change — serverCount=${serverCount} === lastLoadedCount=${lastLoadedCount}  (no action)`);
+          //console.log(`[SessionPoll] No change — serverCount=${serverCount} === lastLoadedCount=${lastLoadedCount}  (no action)`);
         }
       } catch (err) {
         // Silent — polling errors should not spam the console every 3 seconds
       }
     };
 
-    // Run once immediately (on mount), then every 3 seconds
-    pollSession();
+    // Run every 3 seconds
     const interval = setInterval(pollSession, 3000);
 
     return () => {
-      console.log(`[SessionPoll] 🔴 Stopped polling for sessionId="${selectedSessionId}"`);
+      //console.log(`[SessionPoll] 🔴 Stopped polling for sessionId="${selectedSessionId}"`);
       clearInterval(interval);
     };
   }, [activeTab, selectedSessionId, isMounted]);
@@ -732,7 +707,7 @@ export default function HermesControl() {
   useEffect(() => {
     if (activeTab !== 'Sessions' || !isMounted) return;
 
-    console.log('[SessionsListPoll] 🟢 Started — polling /api/sessions every 5s for new sessions');
+    //console.log('[SessionsListPoll] 🟢 Started — polling /api/sessions every 5s for new sessions');
 
     // prevSessionIds is a CLOSURE variable — NOT React state.
     // It tracks the last-seen list of session IDs so we can skip setSessions
@@ -755,27 +730,26 @@ export default function HermesControl() {
         // Derive the IDs from the new list for comparison
         const newIds = list.map((s: any) => s.id);
 
-        console.log(
+        /*console.log(
           `[SessionsListPoll] Poll — ${list.length} sessions, ` +
           `changed=${JSON.stringify(newIds) !== JSON.stringify(prevSessionIds)}`
-        );
+        );*/
 
         // Only call setSessions if the list of IDs has actually changed.
         // This prevents unnecessary React re-renders of page.tsx → renderRight()
         // → new selectedSession object → SessionsToolRight useEffect → loading flash.
         if (JSON.stringify(newIds) !== JSON.stringify(prevSessionIds)) {
-          console.log(`[SessionsListPoll] Session list changed — updating sidebar (${newIds.length} sessions)`);
+          //console.log(`[SessionsListPoll] Session list changed — updating sidebar (${newIds.length} sessions)`);
           prevSessionIds = newIds;          // update before setState so reads are consistent
           setSessions(list);
         } else {
-          console.log('[SessionsListPoll] Session list unchanged — skipping setSessions (no downstream re-render)');
+          //console.log('[SessionsListPoll] Session list unchanged — skipping setSessions (no downstream re-render)');
         }
       } catch (err) {
         // Silent — polling errors should not spam console
       }
     };
 
-    pollSessionsList();
     const interval = setInterval(pollSessionsList, 5000);
 
     return () => {
@@ -794,7 +768,6 @@ export default function HermesControl() {
       setIsEditing(false);
       setSessionStale(false);
       setSessionNewLineCount(0);
-      setContentLoadedAt(Date.now());
 
       // 2. Resolve URL based on state
       let url = '';
@@ -848,14 +821,6 @@ export default function HermesControl() {
           }
         } else {
           setFileContent(data.content || '');
-          if (activeTab === 'Sessions' || activeTab === 'History') {
-            const lines = (data.content || '').split('\n').filter((l: string) => l.trim());
-          }
-        }
-
-        // Handle Session metadata update
-        if (activeTab === 'Sessions' && data.metadata) {
-          setSessions(prev => prev.map(s => s.id === selectedSessionId ? { ...s, size: data.metadata.size, updatedAt: data.metadata.updatedAt } : s));
         }
       } catch (err) {
         console.error(`Fetch failed:`, err);

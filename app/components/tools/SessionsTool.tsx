@@ -83,12 +83,7 @@ function SessionsToolLeft_ ({
             </div>
             {/* SESSION LAST ACTIVE */}
             <div className="text-[11px] text-[#FFBF00] tracking-wider shrink-0">
-              {session.updatedAt
-                ? (() => {
-                    const { text, color } = formatRelativeTime(session.updatedAt);
-                    return <span className={color}>{text}</span>;
-                  })()
-                : (session.lastActive || 'Unknown')}
+              {session.lastActive || 'Unknown'}
             </div>
           </div>
 

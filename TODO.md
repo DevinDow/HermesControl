@@ -32,6 +32,7 @@
 - `hermes cron pause/resume job_id`
 
 ## Sessions
+- 1- scroll Session contents while keeping Title at the top
 - sort by File Modified DateTime, display File Modified DateTime
 - Should it use `hermes sessions list` or something else?
 - .jsonl?
