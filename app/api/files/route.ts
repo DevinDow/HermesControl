@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, INTERNAL_FOLDERS_TO_SKIP, getDashboardPath } from '../../lib/paths';
+import { getWorkspacePath, INTERNAL_FOLDERS_TO_SKIP, getDashboardPath, getDronPath } from '../../lib/paths';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -81,7 +81,13 @@ export async function GET(request: Request) {
       });
     }
 
-    const workspacePath = mode === 'dashboard' ? getDashboardPath() : getWorkspacePath();
+    let workspacePath = getWorkspacePath();
+    if (mode === 'dashboard') {
+      workspacePath = getDashboardPath();
+    }
+    if (mode === 'dron') {
+      workspacePath = getDronPath();
+    }
     let fileTree = await getFiles(workspacePath);
 
     // Return the final JSON payload of files
