@@ -48,7 +48,6 @@ export async function GET(request: Request) {
 
   try {
     const absolutePath = resolveFilePath(folderPath, filePath);
-    console.log('Resolved absolute path:', absolutePath);
 
     if (!absolutePath) {
       return NextResponse.json({ error: 'Access denied: Path outside allowed scope' }, { status: 403 });
@@ -75,7 +74,6 @@ export async function POST(request: Request) {
     }
 
     const absolutePath = resolveFilePath(folderPath, filePath);
-    console.log('Resolved absolute path:', absolutePath);
 
     await fs.writeFile(absolutePath, content, 'utf8');
 
