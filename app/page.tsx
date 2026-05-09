@@ -58,8 +58,10 @@ export default function HermesControl() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [logsTree, setLogsTree] = useState<any[]>([]);
   const [systemTree, setSystemTree] = useState<any[]>([]);
+  const [dronTree, setDronTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [expandedSystemFolders, setExpandedSystemFolders] = useState<Set<string>>(new Set());
+  const [expandedDronFolders, setExpandedDronFolders] = useState<Set<string>>(new Set());
   const [cmdHistory, setCmdHistory] = useState<any[]>([]);
   const [gitStatus, setGitStatus] = useState<{
     commits: any[],
@@ -257,6 +259,7 @@ export default function HermesControl() {
     { name: 'Scripts', icon: Parentheses },
     { name: 'Logs', icon: Activity },
     { name: 'System', icon: Settings },
+    { name: 'Dron', icon: Settings },
     { name: 'Jobs', icon: Clock },
     { name: 'Sessions', icon: Users },
     { name: 'Cmd', icon: Terminal },
@@ -412,6 +415,7 @@ export default function HermesControl() {
     fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/files?mode=logs', setLogsTree, 'files');
     fetchData('/api/system', setSystemTree, 'files');
+    fetchData('/api/dron', setDronTree, 'files');
     fetchData('/api/jobs', setJobs, 'jobs').then(data => {
       if (Array.isArray(data) && data.length > 0) setSelectedJobId(data[0].id);
     });
@@ -789,6 +793,8 @@ export default function HermesControl() {
         url = `/api/scripts/content?path=${encodeURIComponent(selectedFilePath)}`;
       } else if (activeTab === 'System' && selectedFilePath) {
         url = `/api/system/content?path=${encodeURIComponent(selectedFilePath)}`;
+      } else if (activeTab === 'Dron' && selectedFilePath) {
+        url = `/api/dron/content?path=${encodeURIComponent(selectedFilePath)}`;
       } else if (['Dashboard', 'Docs', 'Memory', 'Specs', 'Logs'].includes(activeTab) && selectedFilePath) {
         url = `/api/files/content?path=${encodeURIComponent(selectedFilePath)}`; // Memory/Specs/Docs/Logs all use the same content endpoint with different initial trees
       }
@@ -854,7 +860,8 @@ export default function HermesControl() {
       case 'Specs': return <FileTree nodes={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedFolders} setExpandedFolders={setExpandedFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
+      case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedSystemFolders} setExpandedFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
+      case 'Dron': return <FileTree nodes={dronTree} collapsibleFolders={true} expandedFolders={expandedDronFolders} setExpandedFolders={setExpandedDronFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setViewingJobLog={setViewingJobLog} />;
       case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} refreshSessions={() => { fetchData('/api/sessions', setSessions, 'sessions'); setSessionsRefreshCount(c => c + 1); }} timeTick={timeTick} sessionsRefreshCount={sessionsRefreshCount} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
@@ -884,6 +891,7 @@ export default function HermesControl() {
       case 'Scripts': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
+      case 'Dron': return <FileViewerRight selectedFilePath={selectedFilePath} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
       case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} sessionStale={sessionStale} sessionNewLineCount={sessionNewLineCount} handleRefreshSession={handleRefreshSession} refreshTrigger={sessionRefreshTrigger} />;
       case 'Cmd': return <CmdToolRight selectedCmd={selectedCmd} />;

@@ -32,6 +32,7 @@ export const getFavoritesPath = () => path.join(getWorkspacePath(), 'cmd_favorit
 export const getSkillsPath = () => path.join(getWorkspacePath(), 'skills');
 
 export const getDashboardPath = () => '/home/devin/Development/HermesControl';
+export const getDronPath = () => '/home/devin/Development/Dron';
 
 export const INTERNAL_FOLDERS_TO_SKIP = [
   'node_modules',
