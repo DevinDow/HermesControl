@@ -2,6 +2,7 @@
 
 ## HTML
 - HTML viewer
+  - weather_spec.md has both Markdown & HTML
 
 ## FileTree
 - Shows Folder Name
