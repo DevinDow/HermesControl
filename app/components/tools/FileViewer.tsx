@@ -77,7 +77,7 @@ export function FileViewerRight({
     if (!selectedFilePath) return;
     setSaveLoading(true);
     try {
-      await saveFile(selectedFilePath, editContent);
+      await saveFile(selectedFilePath, selectedFileFolder, editContent);
       setFileContent(editContent);
       setIsEditing(false);
     } catch (err) {

@@ -1,20 +1,13 @@
 # TODO
 
-***
-## Dron Files
-* GET & POST /api/file/content uses the wrong Directory for Dashboard & Dron (becaue resolveRelativePath() uses getWorkspacePath())*
+## HTML
+- HTML viewer
 
-  api/dron/content is handling getDronPth()
-  api/file/content is using getWorkspacePath()
+## FileTree
+- Shows Folder Name
 
-- delete api/system & api/dron
-***
-
-## Dron Tool
-- TODO
-- Code
-- tmp
-- (that's just the whole Dron file tree)
+## Code Tool
+- so can read/edit HermesControl code
 
 ## Sessions
 - 1- scroll Session contents while keeping Title at the top
@@ -26,17 +19,6 @@
 ## Middle
 - 1-first improve Sessions Refresh (layout, spinner)
 - Refresh - pass in a function for Refresh then add a button that calls it
-
-## APIs
-
-### api/file
-- should this be used for Scripts & System? or should Logs move above Scripts?
-
-## FileTree
-- Shows Folder Name
-
-## Code Tool
-- so can read/edit HermesControl code
 
 ## Scripts
 - ScriptsToolLeft PLAY doesn't populate Cmd Tool

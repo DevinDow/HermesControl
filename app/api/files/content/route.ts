@@ -4,12 +4,28 @@ import { NextResponse } from 'next/server';
 import { getWorkspacePath, getDashboardPath, getDronPath } from '../../../lib/paths';
 
 function resolveFilePath(folderPath: string, filePath: string): string | null {
-  /*if (path.startsWith(getWorkspacePath()) || path.startsWith(getDashboardPath()) || path.startsWith(getDronPath())) {
-    return path;
-  }*/
+  if (!folderPath || !filePath) return null;
 
-  // resolve Relative Paths
+  // Define allowed root paths
+  const allowedRoots = [
+    getWorkspacePath(),
+    getDashboardPath(),
+    getDronPath()
+  ];
+
+  // If folderPath is already one of the exact allowed roots, or a sub-path of one
+  const isAllowedRoot = allowedRoots.some(root => 
+    folderPath === root || folderPath.startsWith(root + path.sep)
+  );
+
+  if (!isAllowedRoot) {
+    return null;
+  }
+
+  // resolve Relative Paths against the provided folderPath
   const absolutePath = path.resolve(folderPath, filePath);
+  
+  // Security check: ensure the resolved absolute path is still within the same folderPath
   if (absolutePath.startsWith(folderPath)) {
     return absolutePath;
   }
@@ -52,7 +68,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    const { file: filePath, path: folderPath, content } = await request.json();
+    const { filePath: filePath, folderPath: folderPath, content } = await request.json();
 
     if (!filePath || !folderPath || content === undefined) {
       return NextResponse.json({ error: 'Path and content are required' }, { status: 400 });
