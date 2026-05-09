@@ -99,6 +99,11 @@ export async function GET(request: Request) {
             return entry.name.endsWith('.log') ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
           }
 
+          if (mode === 'system') {
+            // Return only LOG FILES for 'logs' mode
+            return (entry.name.endsWith('.yaml') || entry.name.endsWith('.json')) ? { name: entry.name, type: 'file', path: relativePath, updatedAt: stats.mtimeMs } : null;
+          }
+
           // If no mode matched, return null (file doesn't match any filter)
           return null;
         }

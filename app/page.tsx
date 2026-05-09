@@ -415,7 +415,8 @@ export default function HermesControl() {
     fetchData('/api/files?mode=specs', setSpecsTree, 'files');
     fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/files?mode=logs', setLogsTree, 'files');
-    fetchData('/api/system', setSystemTree, 'files');
+    fetchData('/api/files?mode=system', setSystemTree, 'files');
+    //fetchData('/api/system', setSystemTree, 'files');
     fetchData('/api/dron', setDronTree, 'files');
     fetchData('/api/jobs', setJobs, 'jobs').then(data => {
       if (Array.isArray(data) && data.length > 0) setSelectedJobId(data[0].id);
