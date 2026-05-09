@@ -2,12 +2,12 @@
 
 ***
 ## Dron Files
-- Dashboard files have full path
-- Dron/System Files do not, but they do expandable tree
-- therefore POST /api/file/content writes to the wrong Directory
-- SOLUTIONS: 
-  - refactor all FILES code to use the same system?
-    - I don't want handle special handling for Dashboard & Dron & System.
+* GET & POST /api/file/content uses the wrong Directory for Dashboard & Dron (becaue resolveRelativePath() uses getWorkspacePath())*
+
+  api/dron/content is handling getDronPth()
+  api/file/content is using getWorkspacePath()
+
+- delete api/system & api/dron
 ***
 
 ## Dron Tool

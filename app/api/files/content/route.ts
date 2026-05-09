@@ -1,17 +1,16 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getWorkspacePath, getDashboardPath } from '../../../lib/paths';
+import { getWorkspacePath, getDashboardPath, getDronPath } from '../../../lib/paths';
 
-function resolveFilePath(filePath: string): string | null {
-  if (filePath.startsWith(getDashboardPath())){
-    return filePath; // Already an absolute path to the Dashboard folder, which is outside the workspace but allowed
-  }
-  
+function resolveFilePath(folderPath: string, filePath: string): string | null {
+  /*if (path.startsWith(getWorkspacePath()) || path.startsWith(getDashboardPath()) || path.startsWith(getDronPath())) {
+    return path;
+  }*/
+
   // resolve Relative Paths
-  const workspacePath = getWorkspacePath();
-  const absolutePath = path.resolve(workspacePath, filePath);
-  if (absolutePath.startsWith(workspacePath)) {
+  const absolutePath = path.resolve(folderPath, filePath);
+  if (absolutePath.startsWith(folderPath)) {
     return absolutePath;
   }
   
@@ -24,14 +23,16 @@ function resolveFilePath(filePath: string): string | null {
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const filePath = searchParams.get('path');
+  const filePath = searchParams.get('file');
+  const folderPath = searchParams.get('path');
 
   if (!filePath) {
-    return NextResponse.json({ error: 'Path is required' }, { status: 400 });
+    return NextResponse.json({ error: 'File is required' }, { status: 400 });
   }
 
   try {
-    const absolutePath = resolveFilePath(filePath);
+    const absolutePath = resolveFilePath(folderPath, filePath);
+    console.log('Resolved absolute path:', absolutePath);
 
     if (!absolutePath) {
       return NextResponse.json({ error: 'Access denied: Path outside allowed scope' }, { status: 403 });
@@ -51,22 +52,18 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    const { path: relativePath, content } = await request.json();
+    const { file: filePath, path: folderPath, content } = await request.json();
 
-    if (!relativePath || content === undefined) {
+    if (!filePath || !folderPath || content === undefined) {
       return NextResponse.json({ error: 'Path and content are required' }, { status: 400 });
     }
 
-    const absolutePath = resolveFilePath(relativePath);
+    const absolutePath = resolveFilePath(folderPath, filePath);
     console.log('Resolved absolute path:', absolutePath);
-
-    /*if (!absolutePath) {
-      return NextResponse.json({ error: 'Access denied: Path outside allowed scope' }, { status: 403 });
-    }*/
 
     await fs.writeFile(absolutePath, content, 'utf8');
 
-    return NextResponse.json({ success: true, path: relativePath });
+    return NextResponse.json({ success: true, path: absolutePath });
   } catch (error: any) {
     console.error('File Write Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

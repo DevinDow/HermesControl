@@ -35,7 +35,7 @@ const highlightMatches = (text: any, search: string) => {
 
 export function FileViewerRight({
   selectedFilePath,
-  activeTab,
+  selectedFileFolder,
   isEditing,
   setIsEditing,
   setEditContent,
@@ -95,7 +95,11 @@ export function FileViewerRight({
           
           {/* Filename */}
           <h2 className="text-lg font-semibold text-[#FFBF00]">{selectedFilePath.split('/').pop()}</h2>
-          
+          <div>
+            <h3 className="text-sm text-[#888888]">{selectedFileFolder}</h3>
+            <h3 className="text-sm text-[#888888]">{selectedFilePath}</h3>
+          </div>
+
           {/* Only show Edit button when not already editing */}
           {!isEditing && (
             <button
