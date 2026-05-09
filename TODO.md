@@ -1,5 +1,15 @@
 # TODO
 
+***
+## Dron Files
+- Dashboard files have full path
+- Dron/System Files do not, but they do expandable tree
+- therefore POST /api/file/content writes to the wrong Directory
+- SOLUTIONS: 
+  - refactor all FILES code to use the same system?
+    - I don't want handle special handling for Dashboard & Dron & System.
+***
+
 ## Dron Tool
 - TODO
 - Code

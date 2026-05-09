@@ -96,8 +96,8 @@ export function FileViewerRight({
           {/* Filename */}
           <h2 className="text-lg font-semibold text-[#FFBF00]">{selectedFilePath.split('/').pop()}</h2>
           
-          {/* Only show Edit button for certain tabs and when not already editing */}
-          {(activeTab === 'Dashboard' || activeTab === 'Docs' || activeTab === 'Memory' || activeTab === 'Specs') && !isEditing && (
+          {/* Only show Edit button when not already editing */}
+          {!isEditing && (
             <button
               onClick={() => { setEditContent(fileContent); setIsEditing(true); }}
               className="p-1.5 rounded-md hover:bg-[#1F1F1F] text-[#B8860B] hover:text-[#FFBF00] transition-all"
