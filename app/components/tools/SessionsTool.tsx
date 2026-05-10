@@ -348,9 +348,9 @@ export function SessionsToolRight ({
   console.log(`[SessionsToolRight] render — sessionStale=${sessionStale}, sessionNewLineCount=${sessionNewLineCount}, messages=${sessionData.messages?.length ?? 0}`);
 
   return (
-    <div className="p-2 space-y-2 overflow-y-auto">
+    <div className="flex flex-col h-full p-2">
       {/* Header row: icon | order toggle | title/info | Refresh History button */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pb-2 border-b border-[#1F1F1F] bg-[#0D0D0D]">
         <MessageSquare size={24} className="text-[#FFBF00]" />
 
         {/*
@@ -448,7 +448,7 @@ export function SessionsToolRight ({
       </div>
 
       {/* ─── MESSAGE LIST ─── */}
-      <div className="space-y-3">
+      <div className="flex-1 overflow-y-auto space-y-2 pt-2 pr-2">
         {sessionData.messages.length === 0 ? (
           <div className="text-[#B8860B]">No messages found in this session log.</div>
         ) : (

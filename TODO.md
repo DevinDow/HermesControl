@@ -11,7 +11,6 @@
 - so can read/edit HermesControl code
 
 ## Sessions
-- 1- scroll Session contents while keeping Title at the top
 - 1- Refresh Left should spin until complete
 - display File Modified DateTime
 - Should it use `hermes sessions list` or something else?
