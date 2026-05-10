@@ -6,8 +6,6 @@
 
 ## FileTree
 - 1- Shows Folder Name
-## FileViewer
-- 1- Show File Size
 
 ## Code Tool
 - so can read/edit HermesControl code
