@@ -11,14 +11,9 @@
 - so can read/edit HermesControl code
 
 ## Sessions
-- 1- Refresh Left should spin until complete
 - display File Modified DateTime
 - Should it use `hermes sessions list` or something else?
 - .jsonl?
-
-## Middle
-- 1-first improve Sessions Refresh (layout, spinner)
-- Refresh - pass in a function for Refresh then add a button that calls it
 
 ## Scripts
 - ScriptsToolLeft PLAY doesn't populate Cmd Tool
