@@ -944,6 +944,8 @@ export default function HermesControl() {
     }
   };
 
+  // Resets all selection states. Primarily used by the mobile 'Back' button
+  // to return from the Right Column (details) to the Middle Column (list).
   const clearSelection = () => {
     setSelectedFilePath(null);
     setSelectedSessionId(null);
@@ -954,6 +956,8 @@ export default function HermesControl() {
     setSelectedCmdId(null);
   };
 
+  // Helper to determine if any item is currently selected across all tools.
+  // Used for responsive layout: on mobile, a selection hides the list to show details.
   const hasSelection = !!(
     selectedFilePath ||
     selectedSessionId ||
@@ -1066,6 +1070,7 @@ export default function HermesControl() {
           {/* Middle Column */}
           <div className={cn(
             "w-full sm:w-[260px] md:w-[280px] lg:w-[320px] flex flex-col gap-3",
+            // Mobile-first responsive: hide the list if an item is selected, unless on larger screens
             hasSelection ? "hidden sm:flex" : "flex"
           )}>
             <div className="flex items-center gap-2 mb-4">
@@ -1104,8 +1109,10 @@ export default function HermesControl() {
           {/* Right Column */}
           <div className={cn(
             "flex-1 bg-[#0D0D0D] border border-[#1F1F1F] rounded-xl flex flex-col shadow-2xl overflow-hidden",
+            // Mobile-first responsive: hide the details panel if nothing is selected, unless on larger screens
             !hasSelection ? "hidden sm:flex" : "flex"
           )}>
+            {/* Mobile-only "Back" button: replaces navigation when viewing details on small screens */}
             {hasSelection && (
               <div className="flex items-center p-2 border-b border-[#1F1F1F] sm:hidden bg-[#0A0A0A]/50 backdrop-blur-md">
                 <button
