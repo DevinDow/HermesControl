@@ -5,7 +5,9 @@
   - weather_spec.md has both Markdown & HTML
 
 ## FileTree
-- Shows Folder Name
+- 1- Shows Folder Name
+## FileViewer
+- 1- Show File Size
 
 ## Code Tool
 - so can read/edit HermesControl code

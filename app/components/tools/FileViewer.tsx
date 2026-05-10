@@ -88,17 +88,24 @@ export function FileViewerRight({
     }
   };
 
+  const selectedFileName = selectedFilePath.split('/').pop() || '';
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="p-6 border-b border-[#1F1F1F] bg-[#0D0D0D] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          
-          {/* Filename */}
-          <h2 className="text-lg font-semibold text-[#FFBF00]">{selectedFilePath.split('/').pop()}</h2>
-          <div>
-            <h3 className="text-sm text-[#888888]">{selectedFileFolder}</h3>
-            <h3 className="text-sm text-[#888888]">{selectedFilePath}</h3>
-          </div>
+          {/* Filename & Path in a vertical flex container */}
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold text-[#FFBF00] leading-tight">
+              {selectedFileName}
+            </h2>
+            <h3 className="text-[11px] text-[#888888] opacity-80">
+              {selectedFileFolder}
+            </h3>
+            <h3 className="text-[11px] text-[#666666] font-mono truncate max-w-xs">
+              {selectedFilePath}
+            </h3>
+          </div>          
 
           {/* Only show Edit button when not already editing */}
           {!isEditing && (
