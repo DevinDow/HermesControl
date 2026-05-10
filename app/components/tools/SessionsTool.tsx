@@ -12,30 +12,17 @@ import { formatRelativeTime, formatSessionTime } from './utils/dateFormatting';
 //     matchesFilter   — fn(text) used to highlight rows matching the search box
 //     selectedSessionId — id of whichever row is currently highlighted
 //     setSelectedSessionId — callback to tell page.tsx which session to show
-//     refreshSessions  — re-fetches the session LIST (sidebar) from the server
-//     timeTick        — counter from page.tsx that increments every 60s; included
-//                       in React.memo deps so the component re-renders on tick,
-//                       recalculating formatRelativeTime() without any API call
-//     sessionsRefreshCount — incremented on each "Refresh List" click; forces a
-//                       remount so fresh lastActive / updatedAt values from the
-//                       API are displayed
 // =============================================================================
 function SessionsToolLeft_ ({
   sessions,
   matchesFilter,
   selectedSessionId,
   setSelectedSessionId,
-  refreshSessions,
-  timeTick,
-  sessionsRefreshCount,
 }: {
   sessions: any[];
   matchesFilter: (text: string) => boolean;
   selectedSessionId: string | null;
   setSelectedSessionId: (id: string) => void;
-  refreshSessions?: () => void;
-  timeTick: number;
-  sessionsRefreshCount: number;
 }) {
   // NOTE: We display session.updatedAt (ISO timestamp) via formatRelativeTime()
   // rather than session.lastActive (pre-formatted relative string from the CLI).
@@ -46,16 +33,7 @@ function SessionsToolLeft_ ({
   return (
     <>
 
-      {/* REFRESH button — reloads the LIST of sessions in the sidebar */}
-      {refreshSessions && (
-        <button
-          onClick={refreshSessions}
-          className="w-full flex items-center justify-center gap-2 p-2 mb-2 rounded-lg border border-[#1F1F1F] bg-[#111111] hover:bg-[#1A1A1A] disabled:opacity-50 disabled:cursor-not-allowed text-[#8A8A8A] hover:text-[#EDEDED] transition-all text-xs font-medium focus:outline-none"
-        >
-          <RefreshCw size={14} />
-          Refresh List
-        </button>
-      )}
+
 
       {/* SESSIONS matching FILTER */}
       {(sessions || []).filter((session: any) => {

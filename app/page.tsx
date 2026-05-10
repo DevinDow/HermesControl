@@ -8,6 +8,7 @@ import {
   BrainCog,
   Settings,
   Search,
+  RefreshCw,
   ChevronLeft,
   Terminal,
   Clock,
@@ -253,6 +254,41 @@ export default function HermesControl() {
   };
 
   // navItems[] defines the left sidebar buttons and their icons
+
+  const handleMiddleColumnRefresh = async () => {
+    const tabLoadingKey = activeTab.toLowerCase();
+    setLoading(prev => ({ ...prev, [tabLoadingKey]: true }));
+    
+    try {
+      if (activeTab === 'Dashboard') await fetchData('/api/files?mode=dashboard', setDashboardTree, 'files');
+      else if (activeTab === 'Docs') await fetchData('/api/files?mode=docs', setDocsTree, 'files');
+      else if (activeTab === 'Memory') await fetchData('/api/files?mode=memory', setMemoryTree, 'files');
+      else if (activeTab === 'Specs') await fetchData('/api/files?mode=specs', setSpecsTree, 'files');
+      else if (activeTab === 'Scripts') await fetchData('/api/files?mode=scripts', setScriptsTree, 'files');
+      else if (activeTab === 'Logs') await fetchData('/api/files?mode=logs', setLogsTree, 'files');
+      else if (activeTab === 'System') await fetchData('/api/files?mode=system', setSystemTree, 'files');
+      else if (activeTab === 'Dron') await fetchData('/api/files?mode=dron', setDronTree, 'files');
+      else if (activeTab === 'Jobs') await fetchData('/api/jobs', setJobs, 'jobs');
+      else if (activeTab === 'Sessions') {
+        setSessionsRefreshCount(c => c + 1);
+        await fetchData('/api/sessions', setSessions, 'sessions');
+      }
+      else if (activeTab === 'Cmd') await fetchData('/api/cmd', setCmdHistory, 'content');
+      else if (activeTab === 'Git') await fetchData('/api/git', setGitStatus, 'content');
+      else if (activeTab === 'Skills') await fetchData('/api/skills', setSkills, 'content');
+      else if (activeTab === 'Help') {
+        const data = await fetchData('/api/help', () => {}, 'content');
+        if (data) {
+          setHelpLinks(data.links || []);
+          setHelpShortcuts(data.shortcuts || []);
+          setHelpCli(data.cli || '');
+        }
+      }
+    } finally {
+      setLoading(prev => ({ ...prev, [tabLoadingKey]: false }));
+    }
+  };
+
   const navItems = [
     { name: 'Dashboard', icon: Activity },
     { name: 'Docs', icon: FileText },
@@ -869,7 +905,7 @@ export default function HermesControl() {
       case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedSystemFolders} setExpandedFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Dron': return <FileTree nodes={dronTree} collapsibleFolders={true} expandedFolders={expandedDronFolders} setExpandedFolders={setExpandedDronFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setViewingJobLog={setViewingJobLog} />;
-      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} refreshSessions={() => { fetchData('/api/sessions', setSessions, 'sessions'); setSessionsRefreshCount(c => c + 1); }} timeTick={timeTick} sessionsRefreshCount={sessionsRefreshCount} />;
+      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
       case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
         const data = await fetchData('/api/git', setGitStatus, 'git');
@@ -1032,19 +1068,37 @@ export default function HermesControl() {
             "w-full sm:w-[260px] md:w-[280px] lg:w-[320px] flex flex-col gap-3",
             hasSelection ? "hidden sm:flex" : "flex"
           )}>
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#B8860B]" size={14} />
-              <input
-                type="text"
-                placeholder={`Filter ${activeTab.toLowerCase()}...`}
-                value={filterText}
-                onChange={(e) => setFilterText(e.target.value)}
-                className="bg-[#222222] border border-[#1F1F1F] rounded-md px-8 py-1.5 text-[12px] w-full focus:outline-none"
-              />
+            <div className="flex items-center gap-2 mb-4">
+
+              {/* Search Filter */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8A8A]" size={16} />
+                <input
+                  type="text"
+                  placeholder={`Filter ${activeTab}...`}
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                  className="w-full bg-[#111111] border border-[#1F1F1F] rounded-lg py-2 pl-10 pr-4 text-[13px] text-[#EDEDED] placeholder-[#8A8A8A] focus:outline-none focus:border-[#333333] transition-colors"
+                />
+              </div>
+
+              {/* Refresh Button */}
+              <button
+                onClick={handleMiddleColumnRefresh}
+                disabled={loading[activeTab.toLowerCase()]}
+                className="p-2 rounded-lg border border-[#1F1F1F] bg-[#111111] hover:bg-[#1A1A1A] text-[#8A8A8A] hover:text-[#EDEDED] transition-all disabled:opacity-50"
+                title="Refresh column"
+              >
+                <RefreshCw size={16} className={loading[activeTab.toLowerCase()] ? "animate-spin" : ""} />
+              </button>
+
             </div>
+
+            {/* Tool Left */}
             <div className="flex-1 overflow-y-auto space-y-1 pr-2">
               {renderMiddle()}
             </div>
+            
           </div>
 
           {/* Right Column */}
