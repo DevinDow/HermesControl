@@ -1,7 +1,7 @@
 # TODO
 
-*1- "Scripts" should use api/files
-
+* merge ScriptsTool to use File Tools?
+ 
 ## FileTree
 - 1- Shows Folder Name
 

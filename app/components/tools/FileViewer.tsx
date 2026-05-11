@@ -97,7 +97,7 @@ export function FileViewerRight({
       <div className="p-6 border-b border-[#1F1F1F] bg-[#0D0D0D] flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Filename & Path in a vertical flex container */}
-          <div className="flex flex-col text-[11px] text-[#888888]" font-mono>
+          <div className="flex flex-col text-[11px] text-[#888888] font-mono">
             <h2 className="text-lg font-semibold text-[#FFBF00] leading-tight">
               {selectedFileName}
             </h2>

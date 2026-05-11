@@ -5,41 +5,55 @@ import { getWorkspacePath, INTERNAL_FOLDERS_TO_SKIP, getDashboardPath, getDronPa
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const mode = searchParams.get('mode') || 'memory';
+  const mode = searchParams.get('mode') || '';
 
   try {
-    // Recursively traverses directory structure and filters files based on the current 'mode'
-    // Each call returns an ARRAY of FILE/DIRECTORY objects with metadata, which are then flattened and filtered according to the mode's criteria
-    async function getFiles(dir: string): Promise<any[]> {
-      // Normalize path separators to forward slashes for consistent path comparisons
-      const normalDir = dir.replace(/\\/g, '/');
-      
-      // Read all entries (files and directories) in the current directory
-      const entries = await fs.readdir(dir, { withFileTypes: true });
-      const files: any[] = [];
-      
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        const relativePath = path.relative(workspacePath, fullPath);
+    // getFileTree(dir) collect FILES & DIRECTORIES for `dir` (recurses into DIRECTORIES to store their `children`))
+    // returns hierarchical JSON array of FILES & DIRECTORIES with `name`, `type`, `path`, `updatedAt` (FILES only), and `children` (DIRECTORIES only)
+    async function getFileTree(dir: string): Promise<any[]> {
+      const dirEntries = await fs.readdir(dir, { withFileTypes: true });
+
+      const fileTree: any[] = [];
+      const dirNormalized = dir.replace(/\\/g, '/'); // Normalize path separators to forward slashes for consistent path comparisons
+      for (const entry of dirEntries) {
+        const entryFullPath = path.join(dir, entry.name);
+        const entryRelativePath = path.relative(workspacePath, entryFullPath);
 
         // handle DIRECTORY
         if (entry.isDirectory()) {
           if (INTERNAL_FOLDERS_TO_SKIP.includes(entry.name)) continue; // Skip internal folders like .git, node_modules, etc.
-          if (mode === 'dashboard') continue;// Don't recurse into subfolders for dashboard mode - only get top-level markdown files
-          if (mode === 'docs') continue; // Don't recurse into subfolders for docs mode - only get top-level markdown files
-          if (mode === 'memory' && entry.name !== 'memories' && !normalDir.includes('/memories')) continue; // Only include 'memories' folder and its contents for memory mode
-          if (mode === 'logs' && entry.name !== 'logs' && !normalDir.includes('/logs')) continue; // Only include 'logs' folder and its contents
-          if (mode === 'specs' && entry.name !== 'specs' && !normalDir.includes('/specs')) continue; // Only include 'specs' folder and its contents
+          
+          switch (mode) {
+            case 'dashboard':
+              if (entry.name !== 'app' && !dirNormalized.includes('/app')) continue; // Only include 'memories' folder and its contents for memory mode
+              break;
+            case 'docs':
+              continue; // Don't recurse into subfolders for docs mode - only get top-level markdown files
+            case 'memory':
+              if (entry.name !== 'memories' && !dirNormalized.includes('/memories')) continue; // Only include 'memories' folder and its contents for memory mode
+              break;
+            case 'specs':
+              if (entry.name !== 'specs' && !dirNormalized.includes('/specs')) continue; // Only include 'specs' folder and its contents
+              break;
+            case 'scripts':
+              if (entry.name !== 'scripts' && !dirNormalized.includes('/scripts')) continue; // Only include 'scripts' folder and its contents
+              break;
+            case 'logs':
+              if (entry.name !== 'logs' && !dirNormalized.includes('/logs')) continue; // Only include 'logs' folder and its contents
+              break;
+            case 'system':
+              break; // recurse all subfolders
+          }
           //console.log('Fetching directory:', fullPath);
 
-          // Recursively get FILES from this SUBDIRECTORY - this will return an array of FILE/DIRECTORY objects for the subdirectory, which we will attach as 'children' to this directory object
-          const children = await getFiles(fullPath);
-          // Skip EMPTY DIRECTORIES
-          if (children.length > 0) {
-            files.push({
+          // recurse getFileTree() for this DIRECTORY
+          // - returns array of DIRECTORY/FILE objects for this DIRECTORY (which is attached as 'children' to this DIRECTORY object)
+          const children = await getFileTree(entryFullPath);
+          if (children.length > 0) { // only add this DIRECTORY if it has children (don't include empty folders in the file tree)
+            fileTree.push({
               name: entry.name,
               type: 'directory',
-              path: relativePath,
+              path: entryRelativePath,
               children
             });
           }
@@ -48,39 +62,61 @@ export async function GET(request: Request) {
         // handle FILE
         else {
           // List of FILE EXTENSIONS that should be treated as code files
-          const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css', '.json', '.jsonl', '.gitignore', '.env', '.html', '.yaml', '.yml'];
+          const codeExts = ['.sh', '.py', '.js', '.ts', '.tsx', '.css'];
           // Check if this FILE has a code extension
           const isCode = codeExts.some(ext => entry.name.endsWith(ext));
-          // Check if this is a SPEC FILE (ends with _spec.md or is in specs folder) but not code
-          const isSpec = (entry.name.endsWith('_spec.md') || normalDir.includes('/specs')) && !isCode;
-          // Check if this FILE is in the memories folder
-          const isMemoryFile = normalDir.includes('/memories');
 
-          // Filter FILES based on mode - only return FILES that match the mode's criteria
-          if (mode === 'dashboard' && !entry.name.endsWith('.md')) continue; // Only return MARKDOWN FILES for 'dashboard' mode
-          if (mode === 'docs' && !entry.name.endsWith('.md')) continue; // Only return MARKDOWN FILES for 'docs' mode
-          if (mode === 'memory' && !isMemoryFile && !entry.name.endsWith('.md') && !isSpec) continue; // Only return FILES in the memories folder or markdown/spec files for 'memory' mode  
-          if (mode === 'specs' && !isSpec) continue; // Only return SPEC FILES for 'specs' mode
-          if (mode === 'logs' && !entry.name.endsWith('.log')) continue; // Only return LOG FILES for 'logs' mode
-          if (mode === 'system' && !entry.name.endsWith('.yaml') && !entry.name.endsWith('.json')) continue; // Only return YAML and JSON FILES for 'system' mode
+          switch (mode) {
+            case 'dashboard':
+              if (!entry.name.endsWith('.md')) continue;
+              break;
+            case 'docs':
+              if (!entry.name.endsWith('.md')) continue;
+              break;
+            case 'memory':
+              if (!entry.name.endsWith('.md')) continue;
+              if (!dirNormalized.includes('/memories')) continue;
+              break;
+            case 'specs':
+              if (!entry.name.endsWith('_spec.md')) continue;
+              break;
+            case 'scripts':
+              if (!dirNormalized.includes('/scripts')) continue;
+              if (!isCode) continue;
+              break;
+            case 'logs':
+              if (!entry.name.endsWith('.log')) continue;
+              if (!dirNormalized.includes('/logs')) continue;
+              break;
+            case 'system':
+              if (!entry.name.endsWith('.yaml') && !entry.name.endsWith('.json')) continue;
+              break;
+          }
 
-          const stats = await fs.stat(fullPath);
-          files.push({
+          const stats = await fs.stat(entryFullPath);
+          fileTree.push({
             name: entry.name,
             type: 'file',
-            path: relativePath,
+            path: entryRelativePath,
             updatedAt: stats.mtimeMs
           });
         }
       }
       
-      // Sort: directories then files, alphabetically
-      return files.sort((a, b) => {
-        if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
+      // sort this `fileTree[]` DIRECTORIES then FILES, alphabetically
+      const dirContentsSorted = fileTree.sort((a, b) => {
+        if (a.type !== b.type)
+          return a.type === 'directory' ? -1 : 1;
         return a.name.localeCompare(b.name);
       });
+
+      // return `dirContentsSorted[]` for this `dir` (each SUBDIRECTORY (with `children[]`) plus each FILE)
+      return dirContentsSorted;
     }
 
+    // 'dashboard' mode uses getDashboardPath()
+    // 'dron' mode uses getDronPath()
+    // all other modes use getWorkspacePath()
     let workspacePath = getWorkspacePath();
     if (mode === 'dashboard') {
       workspacePath = getDashboardPath();
@@ -88,7 +124,7 @@ export async function GET(request: Request) {
     if (mode === 'dron') {
       workspacePath = getDronPath();
     }
-    let fileTree = await getFiles(workspacePath);
+    let fileTree = await getFileTree(workspacePath);
 
     // Return the final JSON payload of files
     return NextResponse.json(fileTree);
