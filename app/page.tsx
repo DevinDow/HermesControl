@@ -827,9 +827,7 @@ export default function HermesControl() {
       } else if (activeTab === 'Skills' && selectedSkillId) {
         const [origin, name] = selectedSkillId.split(':');
         url = `/api/skills/content?origin=${origin}&name=${encodeURIComponent(name)}&filename=${encodeURIComponent(selectedSkillFile || 'SKILL.md')}`;
-      } else if (activeTab === 'Scripts' && selectedFilePath) {
-        url = `/api/scripts/content?path=${encodeURIComponent(selectedFilePath)}`;
-      } else if (['Docs', 'Memory', 'Specs', 'Logs', 'System'].includes(activeTab) && selectedFilePath) {
+      } else if (['Docs', 'Memory', 'Specs', 'Scripts', 'Logs', 'System'].includes(activeTab) && selectedFilePath) {
         url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getWorkspacePath())} `;
       } else if (activeTab === 'Dashboard' && selectedFilePath) {
         url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDashboardPath())} `;
