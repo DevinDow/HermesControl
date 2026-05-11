@@ -453,9 +453,7 @@ export default function HermesControl() {
     fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/files?mode=logs', setLogsTree, 'files');
     fetchData('/api/files?mode=system', setSystemTree, 'files');
-    //fetchData('/api/system', setSystemTree, 'files');
     fetchData('/api/files?mode=dron', setDronTree, 'files');
-    //fetchData('/api/dron', setDronTree, 'files');
     fetchData('/api/jobs', setJobs, 'jobs').then(data => {
       if (Array.isArray(data) && data.length > 0) setSelectedJobId(data[0].id);
     });
@@ -831,14 +829,12 @@ export default function HermesControl() {
         url = `/api/skills/content?origin=${origin}&name=${encodeURIComponent(name)}&filename=${encodeURIComponent(selectedSkillFile || 'SKILL.md')}`;
       } else if (activeTab === 'Scripts' && selectedFilePath) {
         url = `/api/scripts/content?path=${encodeURIComponent(selectedFilePath)}`;
-      } else if (activeTab === 'System' && selectedFilePath) {
-        url = `/api/system/content?path=${encodeURIComponent(selectedFilePath)}`;
-      } else if (['Docs', 'Memory', 'Specs', 'Logs'].includes(activeTab) && selectedFilePath) {
-        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getWorkspacePath())} `; // Memory/Specs/Docs/Logs all use the same content endpoint with different initial trees
+      } else if (['Docs', 'Memory', 'Specs', 'Logs', 'System'].includes(activeTab) && selectedFilePath) {
+        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getWorkspacePath())} `;
       } else if (activeTab === 'Dashboard' && selectedFilePath) {
-        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDashboardPath())} `; // Memory/Specs/Docs/Logs all use the same content endpoint with different initial trees
+        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDashboardPath())} `;
       } else if (activeTab === 'Dron' && selectedFilePath) {
-        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDronPath())} `; // Memory/Specs/Docs/Logs all use the same content endpoint with different initial trees
+        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDronPath())} `;
       }
 
       if (!url) return;
