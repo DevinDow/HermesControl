@@ -880,40 +880,88 @@ export default function HermesControl() {
   const selectedSkill = (skills?.workspace || []).find(s => s.id === selectedSkillId) || (skills?.system || []).find(s => s.id === selectedSkillId);
   const selectedCmd = (cmdHistory || []).find(c => c.id === selectedCmdId);
 
+  // `matchesFilter()` checks if `text` matches `filterText` (case-insensitive substring match)
+  // passed to MIDDLE column Components
+  // used to SKIP items that don't MATCH `filterText`
   const matchesFilter = (text: string) => {
     if (!filterText) return true;
     if (!text) return false;
     return text.toLowerCase().includes(filterText.toLowerCase());
   };
 
-
-
   // Render page's MIDDLE column based on active tab
+  // returns ___ToolLeft or FileTree Component
   const renderMiddle = () => {
     switch (activeTab) {
-      case 'Dashboard': return <FileTree nodes={dashboardTree} collapsibleFolders={true} expandedFolders={expandedFolders_Dashboard} setExpandedFolders={setExpandedFolders_Dashboard} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Docs': return <FileTree nodes={docsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Memory': return <FileTree nodes={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Specs': return <FileTree nodes={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedFolders_System} setExpandedFolders={setExpandedFolders_System} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Dron': return <FileTree nodes={dronTree} collapsibleFolders={true} expandedFolders={expandedFolders_Dron} setExpandedFolders={setExpandedFolders_Dron} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setViewingJobLog={setViewingJobLog} />;
-      case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
-      case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;
-      case 'Git': return <GitToolLeft gitStatus={gitStatus} selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} setSelectedGitCommit={setSelectedGitCommit} gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} refreshGitStatus={async () => {
-        const data = await fetchData('/api/git', setGitStatus, 'git');
-        if (data) {
-          setGitStatus(data);
-          fetch('/api/git/pulse').then(r => r.json()).then(d => {
-            setGitFingerprint(d.fingerprint);
-            setGitStale(false);
-          }).catch(() => { });
-        }
-      }} />;
-      case 'Skills': return <SkillsToolLeft skills={skills} matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} selectedSkillId={selectedSkillId} />;
-      case 'Help': return <HelpToolLeft setSelectedHelpId={setSelectedHelpId} setSelectedJobId={setSelectedJobId} setSelectedFilePath={setSelectedFilePath} selectedHelpId={selectedHelpId} />;
+
+      case 'Dashboard': return <FileTree nodes={dashboardTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+        collapsibleFolders={true} expandedFolders={expandedFolders_Dashboard} setExpandedFolders={setExpandedFolders_Dashboard} />;
+
+      case 'Docs': return <FileTree nodes={docsTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+
+      case 'Memory': return <FileTree nodes={memoryTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+
+      case 'Specs': return <FileTree nodes={specsTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+
+      case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+        setActiveTab={setActiveTab} />;
+
+      case 'Logs': return <FileTree nodes={logsTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+
+      case 'System': return <FileTree nodes={systemTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+        collapsibleFolders={true} expandedFolders={expandedFolders_System} setExpandedFolders={setExpandedFolders_System} />;
+
+      case 'Dron': return <FileTree nodes={dronTree} 
+        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+        collapsibleFolders={true} expandedFolders={expandedFolders_Dron} setExpandedFolders={setExpandedFolders_Dron} />;
+
+      case 'Jobs': return <JobsToolLeft jobs={jobs} 
+        matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} 
+        setViewingJobLog={setViewingJobLog} />;
+
+      case 'Sessions': return <SessionsToolLeft sessions={sessions} 
+        matchesFilter={matchesFilter} 
+        selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
+
+      case 'Cmd': return <CmdToolLeft 
+        selectedCmdId={selectedCmdId} setSelectedCmdId={setSelectedCmdId} 
+        setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} />;
+
+      case 'Git': return <GitToolLeft 
+        gitStatus={gitStatus} 
+        selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} 
+        selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} 
+        setSelectedGitCommit={setSelectedGitCommit} 
+        gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} 
+        refreshGitStatus={async () => {
+          const data = await fetchData('/api/git', setGitStatus, 'git');
+          if (data) {
+            setGitStatus(data);
+            fetch('/api/git/pulse').then(r => r.json()).then(d => {
+              setGitFingerprint(d.fingerprint);
+              setGitStale(false);
+            }).catch(() => { });
+          }
+        }} />;
+
+      case 'Skills': return <SkillsToolLeft skills={skills} 
+        matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} 
+        setSelectedJobId={setSelectedJobId} 
+        setSelectedFilePath={setSelectedFilePath} 
+        selectedSkillId={selectedSkillId} />;
+
+      case 'Help': return <HelpToolLeft 
+        selectedHelpId={selectedHelpId} setSelectedHelpId={setSelectedHelpId} 
+        setSelectedJobId={setSelectedJobId} 
+        setSelectedFilePath={setSelectedFilePath} />;
+
       default: return null;
     }
   };
@@ -1094,14 +1142,14 @@ export default function HermesControl() {
 
             </div>
 
-            {/* Tool Left */}
+            {/* MIDDLE column renders ___ToolLeft */}
             <div className="flex-1 overflow-y-auto space-y-1 pr-2">
               {renderMiddle()}
             </div>
             
           </div>
 
-          {/* Right Column */}
+          {/* RIGHT column renders ___ToolRight */}
           <div className={cn(
             "flex-1 bg-[#0D0D0D] border border-[#1F1F1F] rounded-xl flex flex-col shadow-2xl overflow-hidden",
             // Mobile-first responsive: hide the details panel if nothing is selected, unless on larger screens

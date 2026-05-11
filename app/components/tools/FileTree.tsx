@@ -8,13 +8,12 @@ import { formatRelativeTime } from './utils/dateFormatting';
 //   - nodes: array of file/folder nodes to render
 export function FileTree({ 
   nodes, 
+  matchesFilter,
+  selectedFilePath,
+  setSelectedFilePath,
   collapsibleFolders = false, 
   expandedFolders, 
-  setExpandedFolders, 
-  filterText,
-  matchesFilter,
-  setSelectedFilePath,
-  selectedFilePath
+  setExpandedFolders
 }: any) {
   return (
     <>
@@ -34,7 +33,6 @@ export function FileTree({
               collapsibleFolders={collapsibleFolders} 
               expandedFolders={expandedFolders}
               setExpandedFolders={setExpandedFolders}
-              filterText={filterText}
               matchesFilter={matchesFilter}
               setSelectedFilePath={setSelectedFilePath}
               selectedFilePath={selectedFilePath}
