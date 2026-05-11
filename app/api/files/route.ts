@@ -22,10 +22,12 @@ export async function GET(request: Request) {
         // handle DIRECTORY
         if (entry.isDirectory()) {
           if (INTERNAL_FOLDERS_TO_SKIP.includes(entry.name)) continue; // Skip internal folders like .git, node_modules, etc.
-          
+
+          //console.log(`* DIRECTORY ENTRY '${entryRelativePath}' in '${dirNormalized}'`);
+
           switch (mode) {
             case 'dashboard':
-              if (entry.name !== 'app' && !dirNormalized.includes('/app')) continue; // Only include 'memories' folder and its contents for memory mode
+              if (entryRelativePath != 'app' && !dirNormalized.includes('/app')) continue; // only include getDashboardPath() and its 'app' folder
               break;
             case 'docs':
               continue; // Don't recurse into subfolders for docs mode - only get top-level markdown files
@@ -44,7 +46,8 @@ export async function GET(request: Request) {
             case 'system':
               break; // recurse all subfolders
           }
-          //console.log('Fetching directory:', fullPath);
+
+          //console.log(`** recursing & adding DIRECTORY ENTRY ${entryFullPath} **`);
 
           // recurse getFileTree() for this DIRECTORY
           // - returns array of DIRECTORY/FILE objects for this DIRECTORY (which is attached as 'children' to this DIRECTORY object)
@@ -66,9 +69,11 @@ export async function GET(request: Request) {
           // Check if this FILE has a code extension
           const isCode = codeExts.some(ext => entry.name.endsWith(ext));
 
+          //console.log(`* FILE ENTRY '${entryRelativePath}' in '${dirNormalized}'`);
+
           switch (mode) {
             case 'dashboard':
-              if (!entry.name.endsWith('.md')) continue;
+              if (!dirNormalized.includes('/app') && !entry.name.endsWith('.md')) continue; // include '.md' files in getDashboardPath() + ALL in 'app' SUBDIRECTORY
               break;
             case 'docs':
               if (!entry.name.endsWith('.md')) continue;
@@ -92,6 +97,8 @@ export async function GET(request: Request) {
               if (!entry.name.endsWith('.yaml') && !entry.name.endsWith('.json')) continue;
               break;
           }
+
+          //console.log(`*** adding FILE ENTRY ${entryFullPath} ***`);
 
           const stats = await fs.stat(entryFullPath);
           fileTree.push({
