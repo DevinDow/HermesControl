@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, Folder, FileText, Parentheses, ScrollText, Braces, Brackets, FileCode, FileCog } from 'lucide-react';
+import { ChevronRight, Folder, FileText, Parentheses, ScrollText, Braces, Brackets, FileCode, FileCog, ChevronsLeftRight, Terminal } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { formatRelativeTime } from './utils/dateFormatting';
 
@@ -97,7 +97,9 @@ export function FileTree({
 
           const iconMap = {
             md: ScrollText,
+            html: ChevronsLeftRight,
             py: Parentheses,
+            sh: Terminal,
             json: Braces,
             jsonl: Brackets,
             log: FileCog,

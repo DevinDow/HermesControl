@@ -450,6 +450,7 @@ export default function HermesControl() {
     fetchData('/api/files?mode=dashboard', setDashboardTree, 'files');
     fetchData('/api/files?mode=docs', setDocsTree, 'files');
     fetchData('/api/files?mode=specs', setSpecsTree, 'files');
+// ** TODO ** fetchData('/api/files?mode=scripts', setScriptsTree, 'files');
     fetchData('/api/scripts', setScriptsTree, 'files');
     fetchData('/api/files?mode=logs', setLogsTree, 'files');
     fetchData('/api/files?mode=system', setSystemTree, 'files');
