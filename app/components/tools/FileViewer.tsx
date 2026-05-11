@@ -188,7 +188,14 @@ export function FileViewerRight({
               spellCheck={false}
               autoFocus
             />
-          ) : (selectedFilePath.endsWith('.md') === false) ? (
+          ) : (selectedFilePath.endsWith('.md') === true) ? (
+            <MarkdownRenderer content={preprocessContent(fileContent)} search={fileSearch} />
+          ) : (selectedFilePath.endsWith('.html') === true) ? (
+            <div 
+              className="prose lg:prose-xl whitespace-pre-wrap"
+              dangerouslySetInnerHTML={{ __html: preprocessContent(fileContent) }} 
+            />
+            ) : (
             <pre className="bg-[#080808] border border-[#1F1F1F] p-6 rounded-xl overflow-x-auto text-[12px] font-mono text-[#FFF8DC] leading-relaxed">
               {(() => {
                 try {
@@ -203,8 +210,6 @@ export function FileViewerRight({
                 }
               })()}
             </pre>
-          ) : (
-            <MarkdownRenderer content={preprocessContent(fileContent)} search={fileSearch} />
           )
         }
       </div>
