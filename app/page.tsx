@@ -63,8 +63,9 @@ export default function HermesControl() {
   const [systemTree, setSystemTree] = useState<any[]>([]);
   const [dronTree, setDronTree] = useState<any[]>([]);
   const [scriptsTree, setScriptsTree] = useState<any[]>([]);
-  const [expandedSystemFolders, setExpandedSystemFolders] = useState<Set<string>>(new Set());
-  const [expandedDronFolders, setExpandedDronFolders] = useState<Set<string>>(new Set());
+  const [expandedFolders_Dashboard, setExpandedFolders_Dashboard] = useState<Set<string>>(new Set());
+  const [expandedFolders_System, setExpandedFolders_System] = useState<Set<string>>(new Set());
+  const [expandedFolders_Dron, setExpandedFolders_Dron] = useState<Set<string>>(new Set());
   const [cmdHistory, setCmdHistory] = useState<any[]>([]);
   const [gitStatus, setGitStatus] = useState<{
     commits: any[],
@@ -813,7 +814,7 @@ export default function HermesControl() {
 
       // 2. Resolve URL based on state
       let url = '';
-      if ((activeTab === 'Sessions' || activeTab === 'History') && selectedSessionId) {
+      if (activeTab === 'Sessions' && selectedSessionId) {
         url = `/api/sessions/content?id=${selectedSessionId}`;
       } else if (activeTab === 'Jobs' && selectedJobId && viewingJobLog) {
         const job = jobs.find(j => j.id === selectedJobId);
@@ -890,14 +891,14 @@ export default function HermesControl() {
   // Render page's MIDDLE column based on active tab
   const renderMiddle = () => {
     switch (activeTab) {
-      case 'Dashboard': return <FileTree nodes={dashboardTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
+      case 'Dashboard': return <FileTree nodes={dashboardTree} collapsibleFolders={true} expandedFolders={expandedFolders_Dashboard} setExpandedFolders={setExpandedFolders_Dashboard} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Docs': return <FileTree nodes={docsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Memory': return <FileTree nodes={memoryTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Specs': return <FileTree nodes={specsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} setActiveTab={setActiveTab} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Logs': return <FileTree nodes={logsTree} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedSystemFolders} setExpandedFolders={setExpandedSystemFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
-      case 'Dron': return <FileTree nodes={dronTree} collapsibleFolders={true} expandedFolders={expandedDronFolders} setExpandedFolders={setExpandedDronFolders} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
+      case 'System': return <FileTree nodes={systemTree} collapsibleFolders={true} expandedFolders={expandedFolders_System} setExpandedFolders={setExpandedFolders_System} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
+      case 'Dron': return <FileTree nodes={dronTree} collapsibleFolders={true} expandedFolders={expandedFolders_Dron} setExpandedFolders={setExpandedFolders_Dron} matchesFilter={matchesFilter} setSelectedFilePath={setSelectedFilePath} selectedFilePath={selectedFilePath} />;
       case 'Jobs': return <JobsToolLeft jobs={jobs} matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} setViewingJobLog={setViewingJobLog} />;
       case 'Sessions': return <SessionsToolLeft sessions={sessions} matchesFilter={matchesFilter} selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
       case 'Cmd': return <CmdToolLeft setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} setSelectedCmdId={setSelectedCmdId} selectedCmdId={selectedCmdId} />;

@@ -67,7 +67,7 @@ export function FileTree({
                   <span className="uppercase tracking-wider">{node.name}</span>
                 </button>
                 
-                {/* CHILDREN (if expanded) */}
+                {/* render CHILDREN if `isExpanded` */}
                 {isExpanded && (
                   <div className="ml-2 border-l border-[#1F1F1F]">
                     {children}
