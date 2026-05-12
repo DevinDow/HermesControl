@@ -92,7 +92,6 @@ export function JobsToolLeft({
                 )}>
                   <span className={cn("font-bold mr-1", (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : "text-[#FFBF00]")}>{timeStr} -</span>
                   {job.name}
-                  {job.state === 'paused' && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-[#B8860B]">(Paused)</span>}
                 </span>
               </div>
             </button>
