@@ -45,22 +45,24 @@ export function JobsToolLeft({
             className={cn(
               "w-full text-left p-3 rounded-lg border transition-all group", 
               selectedJobId === job.id ? "bg-[#222222] border-[#1F1F1F]" : "border-transparent hover:bg-[#222222]/50",
-              !job.enabled && "opacity-60"
+              (!job.enabled || job.state === 'paused') && "opacity-60"
             )}
           >
             <div className="flex items-start gap-3 mb-1">
               <div className={cn(
                 "p-1.5 rounded bg-[#161616] border border-[#1F1F1F] shrink-0", 
-                !job.enabled ? "text-[#B8860B]" : (job.state?.lastStatus === 'error' ? "text-red-500" : "text-[#FFBF00]")
+                (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : (job.state?.lastStatus === 'error' ? "text-red-500" : "text-[#FFBF00]")
               )}>
                 <Clock size={14} />
               </div>
               <span className={cn(
                 "text-[13px] font-medium break-words whitespace-pre-wrap leading-tight",
-                !job.enabled ? "text-[#888888]" : "text-[#FFF8DC]"
+                (!job.enabled || job.state === 'paused') ? "text-[#888888]" : "text-[#FFF8DC]",
+                !job.enabled && "line-through"
               )}>
-                <span className={cn("font-bold mr-1", !job.enabled ? "text-[#B8860B]" : "text-[#FFBF00]")}>{timeStr} -</span>
+                <span className={cn("font-bold mr-1", (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : "text-[#FFBF00]")}>{timeStr} -</span>
                 {job.name}
+                {job.state === 'paused' && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-[#B8860B]">(Paused)</span>}
               </span>
             </div>
           </button>
@@ -79,6 +81,7 @@ export function JobsToolRight({
   const CRON_REGEX = /^((((\d+,)+\d+|(\d+(\/|-|#)\d+)|(\d+L?)|(\*(\/\d+)?)|(L(-\d+)?)|(\?)|([A-Z]{3}(-[A-Z]{3})?)) ?){5,7})$/;
   const [editedSchedule, setEditedSchedule] = useState('');
   const [editedEnabled, setEditedEnabled] = useState(false);
+  const [editedPaused, setEditedPaused] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isValid, setIsValid] = useState(true);
   const [outputFiles, setOutputFiles] = useState<string[]>([]);
@@ -92,6 +95,7 @@ export function JobsToolRight({
     if (selectedJob) {
       setEditedSchedule(selectedJob.schedule.expr);
       setEditedEnabled(selectedJob.enabled);
+      setEditedPaused(selectedJob.state === 'paused');
       setIsValid(true);
     }
   }, [selectedJob]);
@@ -110,6 +114,7 @@ export function JobsToolRight({
       return;
     }
 
+    {/* OUTPUT FILES for selected Job */}
     const loadOutputFiles = async () => {
       setLoadingOutputs(true);
       setOutputError(null);
@@ -169,7 +174,9 @@ export function JobsToolRight({
 
   if (!selectedJob) return <div className="p-8 text-[#B8860B]">Select a job to view details</div>;
 
-  const isDirty = editedSchedule !== selectedJob.schedule.expr || editedEnabled !== selectedJob.enabled;
+  const isDirty = editedSchedule !== selectedJob.schedule.expr || 
+                 editedEnabled !== selectedJob.enabled || 
+                 editedPaused !== (selectedJob.state === 'paused');
 
   const handleSave = async () => {
     if (!isDirty || !isValid || isSaving) return;
@@ -177,6 +184,12 @@ export function JobsToolRight({
     try {
       const scheduleChanged = editedSchedule !== selectedJob.schedule.expr;
       const enabledChanged = editedEnabled !== selectedJob.enabled;
+      const pausedChanged = editedPaused !== (selectedJob.state === 'paused');
+
+      let statusAction = undefined;
+      if (pausedChanged) {
+        statusAction = editedPaused ? 'pause' : 'resume';
+      }
 
       const res = await fetch('/api/jobs', {
         method: 'PATCH',
@@ -184,7 +197,8 @@ export function JobsToolRight({
         body: JSON.stringify({
           id: selectedJob.id,
           enabled: enabledChanged ? editedEnabled : undefined,
-          scheduleExpr: scheduleChanged ? editedSchedule : undefined
+          scheduleExpr: scheduleChanged ? editedSchedule : undefined,
+          statusAction
         })
       });
       if (!res.ok) {
@@ -203,6 +217,7 @@ export function JobsToolRight({
   const handleReset = () => {
     setEditedSchedule(selectedJob.schedule.expr);
     setEditedEnabled(selectedJob.enabled);
+    setEditedPaused(selectedJob.state === 'paused');
   };
 
   return (
@@ -235,6 +250,8 @@ export function JobsToolRight({
       </div>
       <div className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5 space-y-4">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+
+          {/* SCHEDULE Editor */}
           <div>
             <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Schedule</div>
             <input 
@@ -256,33 +273,56 @@ export function JobsToolRight({
               <div className="text-[11px] text-red-500 mt-1 font-medium">Invalid cron expression</div>
             )}
           </div>
-          <div>
-            <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Status</div>
+
+          {/* Status Toggles : ACTIVE/PAUSED & ENABLED/DISABLED */}
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setEditedPaused(!editedPaused)}
+              className={cn(
+                "flex items-center gap-2 p-1 text-[13px] font-bold uppercase transition-colors group",
+                editedPaused ? "text-[#888888]" : "text-amber-500"
+              )}
+            >
+              <div className={cn(
+                "w-5 h-10 rounded-full relative transition-colors",
+                editedPaused ? "bg-[#161616] border border-[#1F1F1F]" : "bg-amber-500/20 border border-amber-500/50"
+              )}>
+                <div className={cn(
+                  "absolute left-0.5 w-[14px] h-[14px] rounded-full transition-all",
+                  editedPaused ? "bottom-0.5 bg-[#888888]" : "top-0.5 bg-amber-500"
+                )} />
+              </div>
+              {editedPaused ? 'Paused' : 'Active'}
+            </button>
             <button 
               onClick={() => setEditedEnabled(!editedEnabled)}
               className={cn(
-                "flex items-center gap-2 text-[13px] font-bold uppercase transition-colors group",
+                "flex items-center gap-2 p-1 text-[13px] font-bold uppercase transition-colors group",
                 editedEnabled ? "text-green-500" : "text-red-400"
               )}
             >
               <div className={cn(
-                "w-10 h-5 rounded-full relative transition-colors",
+                "w-5 h-10 rounded-full relative transition-colors",
                 editedEnabled ? "bg-green-500/20 border border-green-500/50" : "bg-red-500/20 border border-red-500/50"
               )}>
                 <div className={cn(
-                  "absolute top-0.5 w-[14px] h-[14px] rounded-full transition-all",
-                  editedEnabled ? "right-0.5 bg-green-500" : "left-0.5 bg-red-400"
+                  "absolute left-0.5 w-[14px] h-[14px] rounded-full transition-all",
+                  editedEnabled ? "top-0.5 bg-green-500" : "bottom-0.5 bg-red-400"
                 )} />
               </div>
               {editedEnabled ? 'Enabled' : 'Disabled'}
             </button>
           </div>
+
+          {/* LAST STATUS */}
           <div>
             <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Last Status</div>
             <div className="text-[13px] text-[#FFF8DC] uppercase font-bold text-body-cornsilk/60">
               {selectedJob.last_status}
             </div>
           </div>
+
+          {/* LAST ERROR */}
           <div>
             <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Last Error</div>
             <div className="text-[13px] font-bold text-red-500">
@@ -290,6 +330,8 @@ export function JobsToolRight({
             </div>
           </div>
         </div>
+
+        {/* PROMPT with clickable spec links */}
         <div>
           <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-2">Instructions</div>
           <pre className="text-[13px] text-[#FFF8DC] font-mono whitespace-pre-wrap">
@@ -314,6 +356,7 @@ export function JobsToolRight({
         </div>
       </div>
 
+      {/* OUTPUT FILES for selected Job */}
       <div className="bg-[#222222] border border-[#1F1F1F] rounded-xl p-5 space-y-4">
         <div className="text-[11px] font-bold text-[#B8860B] uppercase tracking-widest mb-3">Outputs</div>
         {loadingOutputs ? (
@@ -362,5 +405,3 @@ export function JobsToolRight({
     </div>
   );
 }
-
-

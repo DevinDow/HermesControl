@@ -31,13 +31,13 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { id, enabled, scheduleExpr, thinking } = await request.json();
+    const { id, enabled, scheduleExpr, thinking, statusAction } = await request.json();
     if (!id) {
       return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
     }
 
-    if (scheduleExpr !== undefined) {
-      // Use Hermes CLI to update schedule if provided
+    if (statusAction === 'pause' || statusAction === 'resume' || scheduleExpr !== undefined) {
+      // Use Hermes CLI to update schedule or status if provided
       try {
         const { exec } = require('child_process');
         const { promisify } = require('util');
@@ -69,17 +69,25 @@ export async function PATCH(request: NextRequest) {
           }
         } catch (e) {}
 
-        const cmd = `hermes cron edit ${id} --schedule "${scheduleExpr}"`;
-        await execAsync(cmd, {
-          env: {
-            ...envVars,
-            PATH: `${process.env.PATH}:${os.homedir()}/.npm-global/bin`
-          }
-        });
+        const commonEnv = {
+          ...envVars,
+          PATH: `${process.env.PATH}:${os.homedir()}/.npm-global/bin`
+        };
+
+        if (scheduleExpr !== undefined) {
+          const cmd = `hermes cron edit ${id} --schedule "${scheduleExpr}"`;
+          await execAsync(cmd, { env: commonEnv });
+        }
+
+        if (statusAction === 'pause') {
+          await execAsync(`hermes cron pause ${id}`, { env: commonEnv });
+        } else if (statusAction === 'resume') {
+          await execAsync(`hermes cron resume ${id}`, { env: commonEnv });
+        }
       } catch (cliError: any) {
-        console.error('Failed to update schedule via CLI:', cliError);
+        console.error('Failed to update job via CLI:', cliError);
         return NextResponse.json({ 
-          error: `Failed to update schedule via CLI: ${cliError.message}` 
+          error: `Failed to update job via CLI: ${cliError.message}` 
         }, { status: 500 });
       }
     }

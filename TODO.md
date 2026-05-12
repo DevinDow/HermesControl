@@ -21,7 +21,6 @@
 
 ## Jobs
 - Play Button to trigger Job `hermes cron run job_id`
-- `hermes cron pause/resume job_id`
 
 ## Logs
 - long lines
