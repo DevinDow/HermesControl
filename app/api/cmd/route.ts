@@ -65,6 +65,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { command } = await request.json();
+    console.log('Received command:', command);
     
     if (!command) {
       return NextResponse.json({ error: 'Command is required' }, { status: 400 });

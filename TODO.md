@@ -19,9 +19,6 @@
 ## Memory
 - Tree for MemoryToolLeft
 
-## Jobs
-- Play Button to trigger Job `hermes cron run job_id`
-
 ## Logs
 - long lines
   - expandable like Sessions?

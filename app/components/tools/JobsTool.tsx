@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Clock, Loader2, Save, X, Check, ToggleLeft, ToggleRight, Brain } from 'lucide-react';
+import { Clock, Loader2, Save, X, Check, ToggleLeft, ToggleRight, Brain, Play } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -8,9 +8,36 @@ export function JobsToolLeft({
   matchesFilter, 
   selectedJobId, 
   setSelectedJobId, 
-  setViewingJobLog 
+  setViewingJobLog,
+  refreshJobs
 }: any) {
-  
+  const [runningJobId, setRunningJobId] = useState<string | null>(null);
+
+  const handleRunJob = async (e: React.MouseEvent, jobId: string) => {
+    e.stopPropagation();
+    if (runningJobId) return;
+    
+    setRunningJobId(jobId);
+    try {
+      const res = await fetch('/api/cmd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: `hermes cron run ${jobId}` })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to trigger job run');
+      }
+      // Give it a moment to show success
+      setTimeout(() => setRunningJobId(null), 2000);
+      refreshJobs?.();
+    } catch (err: any) {
+      console.error('Run job failed:', err);
+      alert(`Failed to run job: ${err.message}`);
+      setRunningJobId(null);
+    }
+  };
+
   return (
     <>
       {(jobs || []).filter((j: any) => matchesFilter(j.name)).map((job: any) => {
@@ -43,12 +70,12 @@ export function JobsToolLeft({
               setViewingJobLog(false); 
             }} 
             className={cn(
-              "w-full text-left p-3 rounded-lg border transition-all group", 
+              "w-full text-left p-3 rounded-lg border transition-all group relative", 
               selectedJobId === job.id ? "bg-[#222222] border-[#1F1F1F]" : "border-transparent hover:bg-[#222222]/50",
               (!job.enabled || job.state === 'paused') && "opacity-60"
             )}
           >
-            <div className="flex items-start gap-3 mb-1">
+            <div className="flex items-start gap-3 mb-1 pr-8">
               <div className={cn(
                 "p-1.5 rounded bg-[#161616] border border-[#1F1F1F] shrink-0", 
                 (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : (job.state?.lastStatus === 'error' ? "text-red-500" : "text-[#FFBF00]")
@@ -65,6 +92,18 @@ export function JobsToolLeft({
                 {job.state === 'paused' && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-[#B8860B]">(Paused)</span>}
               </span>
             </div>
+            
+            <button
+              onClick={(e) => handleRunJob(e, job.id)}
+              disabled={!!runningJobId}
+              className={cn(
+                "absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-[#161616] border border-[#1F1F1F] text-[#FFBF00] hover:text-body-cornsilk transition-all opacity-0 group-hover:opacity-100",
+                runningJobId === job.id && "opacity-100 text-green-500"
+              )}
+              title="Run Job Now"
+            >
+              {runningJobId === job.id ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} fill="currentColor" />}
+            </button>
           </button>
         );
       })}
