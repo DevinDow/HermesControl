@@ -73,7 +73,7 @@ export function JobsToolLeft({
                 setViewingJobLog(false); 
               }} 
               className={cn(
-                "w-full text-left p-3 rounded-lg border transition-all", 
+                "w-full text-left p-2 rounded-lg border transition-all", 
                 selectedJobId === job.id ? "bg-[#222222] border-[#1F1F1F]" : "border-transparent hover:bg-[#222222]/50",
                 (!job.enabled || job.state === 'paused') && "opacity-60"
               )}

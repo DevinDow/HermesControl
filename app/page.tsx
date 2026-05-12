@@ -169,6 +169,7 @@ export default function HermesControl() {
 
   // Session-specific search
   const [sessionSearch, setSessionSearch] = useState<string>('');
+  const [pendingCommand, setPendingCommand] = useState<string>('');
 
   // ===========================================================================
   // SESSION STALENESS STATE  (explainer below)
@@ -909,7 +910,7 @@ export default function HermesControl() {
 
       case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} 
         matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
-        setActiveTab={setActiveTab} />;
+        setActiveTab={setActiveTab} setPendingCommand={setPendingCommand} />;
 
       case 'Logs': return <FileTree nodes={logsTree} 
         matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
@@ -932,7 +933,8 @@ export default function HermesControl() {
 
       case 'Cmd': return <CmdToolLeft 
         selectedCmdId={selectedCmdId} setSelectedCmdId={setSelectedCmdId} 
-        setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory} />;
+        setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory}
+        initialCommand={pendingCommand} onCommandConsumed={() => setPendingCommand('')} />;
 
       case 'Git': return <GitToolLeft 
         gitStatus={gitStatus} 

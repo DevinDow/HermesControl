@@ -8,10 +8,19 @@ export function CmdToolLeft({
   cmdHistory, 
   setSelectedCmdId, 
   selectedCmdId, 
-  setCmdHistory
+  setCmdHistory,
+  initialCommand = '',
+  onCommandConsumed
 }: any) {
   const [favorites, setFavorites] = React.useState<string[]>([]);
   const [commandInput, setCommandInput] = React.useState('');
+
+  React.useEffect(() => {
+    if (initialCommand) {
+      setCommandInput(initialCommand);
+      onCommandConsumed?.();
+    }
+  }, [initialCommand, onCommandConsumed]);
 
   const fetchFavorites = React.useCallback(async () => {
     try {

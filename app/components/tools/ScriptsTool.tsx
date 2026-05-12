@@ -2,7 +2,7 @@ import React from 'react';
 import { Play } from 'lucide-react';
 import { FileTree } from './FileTree';
 
-export function ScriptsToolLeft({ scriptsTree, setActiveTab, ...props }: any) {
+export function ScriptsToolLeft({ scriptsTree, setActiveTab, setPendingCommand, ...props }: any) {
   // Enhanced render function to inject the Execute button
   const renderScriptsWithExecute = (nodes: any[]) => {
 
@@ -39,16 +39,8 @@ export function ScriptsToolLeft({ scriptsTree, setActiveTab, ...props }: any) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                setPendingCommand(`python3 ${node.path}`);
                 setActiveTab('Cmd');
-                // Use a short delay to ensure the Cmd tab is rendered and the input is available
-                setTimeout(() => {
-                  const cmdInput = document.querySelector('input[name="command"]') as HTMLInputElement;
-                  if (cmdInput) {
-                    const fullPath = node.path.startsWith('/') ? node.path : `workspace/${node.path}`;
-                    cmdInput.value = `python3 ${fullPath}`;
-                    cmdInput.focus();
-                  }
-                }, 100);
               }}
               className="p-1.5 rounded bg-[#222222] border border-[#1F1F1F] text-[#B8860B] hover:text-[#FFBF00] hover:border-[#FFBF00]/30 opacity-0 group-hover:opacity-100 transition-all"
               title="Execute Script"
