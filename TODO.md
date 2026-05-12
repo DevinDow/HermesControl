@@ -13,9 +13,6 @@
 - Should it use `hermes sessions list` or something else?
 - .jsonl?
 
-## Scripts
-- ScriptsToolLeft PLAY doesn't populate Cmd Tool
-
 ## Memory
 - Tree for MemoryToolLeft
 
