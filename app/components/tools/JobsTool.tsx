@@ -63,35 +63,39 @@ export function JobsToolLeft({
         }
 
         return (
-          <button 
+          <div 
             key={job.id} 
-            onClick={() => { 
-              setSelectedJobId(job.id); 
-              setViewingJobLog(false); 
-            }} 
-            className={cn(
-              "w-full text-left p-3 rounded-lg border transition-all group relative", 
-              selectedJobId === job.id ? "bg-[#222222] border-[#1F1F1F]" : "border-transparent hover:bg-[#222222]/50",
-              (!job.enabled || job.state === 'paused') && "opacity-60"
-            )}
+            className="relative group"
           >
-            <div className="flex items-start gap-3 mb-1 pr-8">
-              <div className={cn(
-                "p-1.5 rounded bg-[#161616] border border-[#1F1F1F] shrink-0", 
-                (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : (job.state?.lastStatus === 'error' ? "text-red-500" : "text-[#FFBF00]")
-              )}>
-                <Clock size={14} />
+            <button 
+              onClick={() => { 
+                setSelectedJobId(job.id); 
+                setViewingJobLog(false); 
+              }} 
+              className={cn(
+                "w-full text-left p-3 rounded-lg border transition-all", 
+                selectedJobId === job.id ? "bg-[#222222] border-[#1F1F1F]" : "border-transparent hover:bg-[#222222]/50",
+                (!job.enabled || job.state === 'paused') && "opacity-60"
+              )}
+            >
+              <div className="flex items-start gap-3 mb-1 pr-8">
+                <div className={cn(
+                  "p-1.5 rounded bg-[#161616] border border-[#1F1F1F] shrink-0", 
+                  (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : (job.state?.lastStatus === 'error' ? "text-red-500" : "text-[#FFBF00]")
+                )}>
+                  <Clock size={14} />
+                </div>
+                <span className={cn(
+                  "text-[13px] font-medium break-words whitespace-pre-wrap leading-tight",
+                  (!job.enabled || job.state === 'paused') ? "text-[#888888]" : "text-[#FFF8DC]",
+                  !job.enabled && "line-through"
+                )}>
+                  <span className={cn("font-bold mr-1", (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : "text-[#FFBF00]")}>{timeStr} -</span>
+                  {job.name}
+                  {job.state === 'paused' && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-[#B8860B]">(Paused)</span>}
+                </span>
               </div>
-              <span className={cn(
-                "text-[13px] font-medium break-words whitespace-pre-wrap leading-tight",
-                (!job.enabled || job.state === 'paused') ? "text-[#888888]" : "text-[#FFF8DC]",
-                !job.enabled && "line-through"
-              )}>
-                <span className={cn("font-bold mr-1", (!job.enabled || job.state === 'paused') ? "text-[#B8860B]" : "text-[#FFBF00]")}>{timeStr} -</span>
-                {job.name}
-                {job.state === 'paused' && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-[#B8860B]">(Paused)</span>}
-              </span>
-            </div>
+            </button>
             
             <button
               onClick={(e) => handleRunJob(e, job.id)}
@@ -104,7 +108,7 @@ export function JobsToolLeft({
             >
               {runningJobId === job.id ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} fill="currentColor" />}
             </button>
-          </button>
+          </div>
         );
       })}
     </>
