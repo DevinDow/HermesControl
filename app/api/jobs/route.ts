@@ -36,6 +36,54 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
     }
 
+    if (scheduleExpr !== undefined) {
+      // Use Hermes CLI to update schedule if provided
+      try {
+        const { exec } = require('child_process');
+        const { promisify } = require('util');
+        const execAsync = promisify(exec);
+        const os = require('os');
+        
+        const path = require('path');
+        const workspacePath = require('../../lib/paths').getWorkspacePath();
+        const envPath = path.join(workspacePath, '.env');
+        
+        let envVars = { ...process.env };
+        try {
+          const fs = require('fs');
+          if (fs.existsSync(envPath)) {
+            const content = fs.readFileSync(envPath, 'utf8');
+            content.split('\n').forEach((line: string) => {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed.startsWith('#')) return;
+              const firstEq = trimmed.indexOf('=');
+              if (firstEq !== -1) {
+                const key = trimmed.substring(0, firstEq).trim();
+                let value = trimmed.substring(firstEq + 1).trim();
+                if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                  value = value.substring(1, value.length - 1);
+                }
+                envVars[key] = value;
+              }
+            });
+          }
+        } catch (e) {}
+
+        const cmd = `hermes cron edit ${id} --schedule "${scheduleExpr}"`;
+        await execAsync(cmd, {
+          env: {
+            ...envVars,
+            PATH: `${process.env.PATH}:${os.homedir()}/.npm-global/bin`
+          }
+        });
+      } catch (cliError: any) {
+        console.error('Failed to update schedule via CLI:', cliError);
+        return NextResponse.json({ 
+          error: `Failed to update schedule via CLI: ${cliError.message}` 
+        }, { status: 500 });
+      }
+    }
+
     const cronPath = getCronPath();
     const filePath = path.join(cronPath, 'jobs.json');
     const fileContent = await fs.readFile(filePath, 'utf8');
@@ -48,6 +96,8 @@ export async function PATCH(request: NextRequest) {
 
     const job = data.jobs[jobIndex];
     if (enabled !== undefined) job.enabled = enabled;
+    // Note: scheduleExpr was already handled via CLI if it existed, 
+    // but we can still update the JSON just to be sure if CLI didn't reload yet.
     if (scheduleExpr !== undefined) job.schedule.expr = scheduleExpr;
     if (thinking !== undefined) job.payload.thinking = thinking;
     

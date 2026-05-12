@@ -175,13 +175,16 @@ export function JobsToolRight({
     if (!isDirty || !isValid || isSaving) return;
     setIsSaving(true);
     try {
+      const scheduleChanged = editedSchedule !== selectedJob.schedule.expr;
+      const enabledChanged = editedEnabled !== selectedJob.enabled;
+
       const res = await fetch('/api/jobs', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: selectedJob.id,
-          enabled: editedEnabled,
-          scheduleExpr: editedSchedule
+          enabled: enabledChanged ? editedEnabled : undefined,
+          scheduleExpr: scheduleChanged ? editedSchedule : undefined
         })
       });
       if (!res.ok) {

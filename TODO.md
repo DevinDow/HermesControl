@@ -21,7 +21,6 @@
 
 ## Jobs
 - Play Button to trigger Job `hermes cron run job_id`
-- `hermes cron edit --schedule "" job_id` to save schedule changes that update "next_run_at"
 - `hermes cron pause/resume job_id`
 
 ## Logs
