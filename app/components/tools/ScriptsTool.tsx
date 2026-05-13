@@ -4,8 +4,8 @@ import { FileTree } from './FileTree';
 
 // Recursively renders a FILETREE structure as interactive UI components
 // Parameters:
-//   - nodes: array of file/folder nodes to render
-// Returns: a div containing a hierarchical div[] (each div has children div[] or div w/ 2 buttons)
+//   - scriptsTree: array of file/folder nodes to render
+// Returns: calls recursive renderScriptsTreeWithExecute(), returns a div containing a hierarchical div[] (each div has children div[] or div w/ 2 buttons)
 export function ScriptsToolLeft({ 
   scriptsTree, 
   setActiveTab, 
@@ -16,7 +16,7 @@ export function ScriptsToolLeft({
   // recursives for DIRECTORY CHILDREN
   // renders each FILE with "PLAY" button to execute it in the Cmd Tool
   // Returns: hierarchical div[] (each div has children div[] or div w/ 2 buttons)
-  const renderScriptsWithExecute = (nodes: any[]) => {
+  const renderScriptsTreeWithExecute = (nodes: any[]) => {
 
     {/* Iterate over each node (FILE or DIRECTORY) and render accordingly (returns div[]) */}
     return nodes.map((node: any) => {
@@ -34,7 +34,7 @@ export function ScriptsToolLeft({
 
             {/* CHILDREN recursively */}
             <div className="ml-2 border-l border-[#1F1F1F]">
-              {renderScriptsWithExecute(node.children)}
+              {renderScriptsTreeWithExecute(node.children)}
             </div>
           </div>
         );
@@ -67,8 +67,8 @@ export function ScriptsToolLeft({
   };
 
   return (
-    <div className="space-y-1">
-      {renderScriptsWithExecute(scriptsTree)}
-    </div>
+    <>
+      {renderScriptsTreeWithExecute(scriptsTree)}
+    </>
   );
 }
