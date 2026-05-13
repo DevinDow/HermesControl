@@ -2,11 +2,20 @@ import React from 'react';
 import { Play } from 'lucide-react';
 import { FileTree } from './FileTree';
 
-export function ScriptsToolLeft({ scriptsTree, setActiveTab, setPendingCommand, ...props }: any) {
-  // Enhanced render function to inject the Execute button
+// 
+export function ScriptsToolLeft({ 
+  scriptsTree, 
+  setActiveTab, 
+  setPendingCommand, 
+  ...props 
+}: any) {
+
+  // recursives for DIRECTORY CHILDREN
+  // renders each FILE with "PLAY" button to execute it in the Cmd Tool
+  // Returns: hierarchical div[] (each div has children div[] or div w/ 2 buttons)
   const renderScriptsWithExecute = (nodes: any[]) => {
 
-    {/* Iterate over each node (FILE or DIRECTORY) and render accordingly */}
+    {/* Iterate over each node (FILE or DIRECTORY) and render accordingly (returns div[]) */}
     return nodes.map((node: any) => {
 
       // DIRECTORY

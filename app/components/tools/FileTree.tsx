@@ -3,9 +3,10 @@ import { ChevronRight, Folder, FileText, Parentheses, ScrollText, Braces, Bracke
 import { cn } from '../../lib/utils';
 import { formatRelativeTime } from './utils/dateFormatting';
 
-// Recursively renders a file tree structure as interactive UI components
+// Recursively renders a FILETREE structure as interactive UI components
 // Parameters:
 //   - nodes: array of file/folder nodes to render
+// Returns: hierarchical div[] (each div has children div[] or button)
 export function FileTree({ 
   nodes, 
   matchesFilter,
