@@ -443,12 +443,7 @@ export default function HermesControl() {
   useEffect(() => {
     setIsMounted(true);
     // Initial data load for all tools
-    fetchData('/api/files?mode=memory', setMemoryTree, 'files').then(data => {
-      if (Array.isArray(data) && data.length > 0 && activeTab === 'Memory') {
-        const firstFile = data[0].type === 'file' ? data[0] : data[0].children?.[0];
-        if (firstFile) setSelectedFilePath(firstFile.path);
-      }
-    });
+    fetchData('/api/files?mode=memory', setMemoryTree, 'files');
     fetchData('/api/files?mode=dashboard', setDashboardTree, 'files');
     fetchData('/api/files?mode=docs', setDocsTree, 'files');
     fetchData('/api/files?mode=specs', setSpecsTree, 'files');
@@ -1045,13 +1040,14 @@ export default function HermesControl() {
                 setViewingJobLog(false);
 
                 // Preselect an Item per Tool
-                //if (item.name === 'Dashboard') setSelectedFilePath(null);
-                //if (item.name === 'Docs') setSelectedFilePath(null);
-                if (item.name === 'Memory') setSelectedFilePath('MEMORY.md');
+                if (item.name === 'Dashboard') setSelectedFilePath('TODO.md');
+                if (item.name === 'Docs') setSelectedFilePath('TODO.md');
+                if (item.name === 'Memory') setSelectedFilePath('memories/MEMORY.md');
                 //if (item.name === 'Specs') setSelectedSpec(null);
                 //if (item.name === 'Scripts') setSelectedScript(null);
                 //if (item.name === 'Logs') setSelectedLog(null);
                 if (item.name === 'System') setSelectedFilePath('config.yaml');
+                if (item.name === 'Dron') setSelectedFilePath('TODO.md');
                 //if (item.name === 'Jobs' && (jobs?.length || 0) > 0) setSelectedJobId(jobs[0].id);
                 if (item.name === 'Cmd') {
                   if (cmdHistory.length === 0) {
