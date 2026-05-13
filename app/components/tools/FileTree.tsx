@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, Folder, FileText, Parentheses, ScrollText, Braces, Brackets, FileCode, FileCog, ChevronsLeftRight, Terminal } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Parentheses, ScrollText, Braces, Brackets, FileCode, FileCog, ChevronsLeftRight, Terminal } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { formatRelativeTime } from './utils/dateFormatting';
 
@@ -47,6 +47,7 @@ export function FileTree({
                 {/* FOLDER - clickable to expand/collapse */}
                 <button
                   onClick={() => {
+                    {/* adds/removes from expandedFolders */}
                     setExpandedFolders((prev: Set<string>) => {
                       const next = new Set(prev);
                       if (next.has(node.path)) 
@@ -61,8 +62,18 @@ export function FileTree({
                     isExpanded ? "text-[#FFBF00]" : "text-[#B8860B]"
                   )}
                 >
-                  <ChevronRight size={12} className={cn("transition-transform", isExpanded ? "rotate-90" : "")} />
-                  <Folder size={12} />
+
+                  {isExpanded ? (
+                    <>
+                      <ChevronDown size={12} />
+                      <FolderOpen size={12} />
+                    </>
+                  ) : (
+                    <>
+                      <ChevronRight size={12} />
+                      <Folder size={12} />
+                    </>
+                  )}
                   <span className="uppercase tracking-wider">{node.name}</span>
                 </button>
                 
@@ -80,7 +91,7 @@ export function FileTree({
           return (
             <div key={node.path}>
               <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
-                <Folder size={12} />
+                <FolderOpen size={12} />
                 {node.name}
               </div>
               <div className="ml-2 border-l border-[#1F1F1F]">
