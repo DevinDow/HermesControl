@@ -1,8 +1,11 @@
 import React from 'react';
-import { Play } from 'lucide-react';
+import { FolderOpen, Play } from 'lucide-react';
 import { FileTree } from './FileTree';
 
-// 
+// Recursively renders a FILETREE structure as interactive UI components
+// Parameters:
+//   - nodes: array of file/folder nodes to render
+// Returns: a div containing a hierarchical div[] (each div has children div[] or div w/ 2 buttons)
 export function ScriptsToolLeft({ 
   scriptsTree, 
   setActiveTab, 
@@ -25,6 +28,7 @@ export function ScriptsToolLeft({
 
             {/* FOLDER */}
             <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
+              <FolderOpen size={12} />
               {node.name}
             </div>
 
