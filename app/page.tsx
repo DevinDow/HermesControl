@@ -837,22 +837,28 @@ export default function HermesControl() {
       setLoading(prev => ({ ...prev, content: true }));
 
       try {
-        const res = await fetch(contentUrlToFetch);
+        const response = await fetch(contentUrlToFetch);
+        
+        // Parse response as text first, then JSON to handle errors consistently
+        const fetchedText = await response.text();
         let fetchedData: any;
-
         try {
-          fetchedData = await res.json();
-        } catch (e) {
+          fetchedData = JSON.parse(fetchedText);
+        } catch {
           fetchedData = null;
         }
 
-        if (!res.ok) {
-          setContentError(fetchedData?.error || `Error ${res.status}: ${res.statusText}`);
-          setLoading(prev => ({ ...prev, content: false }));
+        // Simplify error message extraction with type-safe object checking
+        if (!response.ok) { // ! 200-299
+          const error = (typeof fetchedData === 'object' && fetchedData !== null && 'error' in fetchedData)
+            ? (fetchedData as { error: string }).error
+            : `Error ${response.status}: ${response.statusText}`;
+          setContentError(error);
           return;
         }
 
         if (activeTab === 'Git') {
+          //const fetchedGitDataRecord = fetchedData as Record<string, unknown> | null;
           if (selectedGitCommit) {
             setGitDiff({ staged: null, unstaged: null, untracked: null, commit: fetchedData });
           } else {
@@ -861,11 +867,27 @@ export default function HermesControl() {
         } else {
           setFileContent(fetchedData.content || '');
         }
+
+        /* is this cleaner?
+        let fetchedData: unknown; // change line above to this? Replace `any` type with `unknown` and add proper type guards
+        if (activeTab === 'Git') {
+          // Refactor Git diff state update using ternary operator
+          const fetchedGitDataRecord = fetchedData as Record<string, unknown> | null;
+          setGitDiff(selectedGitCommit
+            ? { staged: null, unstaged: null, untracked: null, commit: fetchedGitDataRecord }
+            : { staged: fetchedGitDataRecord?.staged ?? null, unstaged: fetchedGitDataRecord?.unstaged ?? null, untracked: fetchedGitDataRecord?.untracked ?? null, commit: null }
+          );
+        } else {
+          // Improve file content extraction with type-safe fallback
+          setFileContent((typeof fetchedData === 'object' && fetchedData !== null && 'content' in fetchedData)
+            ? (fetchedData as { content: string }).content
+            : '');
+        }*/
       } catch (err) {
-        console.error(`Fetch failed:`, err);
+        console.error('Fetch failed:', err);
         setContentError('Failed to load content.');
       } finally {
-        setLoading(prev => ({ ...prev, content: false }));
+        setLoading(prev => ({ ...prev, content: false })); // handles setLoading(content: false) after any path the code takes
       }
     }
 
