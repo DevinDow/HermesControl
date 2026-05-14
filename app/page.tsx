@@ -53,6 +53,9 @@ export default function HermesControl() {
   // These arrays hold the raw data fetched from the backend API routes.
   // They populate the middle column lists.
   // ============================================================================
+  const [dronTree, setDronTree] = useState<any[]>([]);
+  const [expandedFolders_Dron, setExpandedFolders_Dron] = useState<Set<string>>(new Set());
+  const [expandedFolders_Dashboard, setExpandedFolders_Dashboard] = useState<Set<string>>(new Set());
   const [dashboardTree, setDashboardTree] = useState<any[]>([]);
   const [docsTree, setDocsTree] = useState<any[]>([]);
   const [memoryTree, setMemoryTree] = useState<any[]>([]);
@@ -61,11 +64,8 @@ export default function HermesControl() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [logsTree, setLogsTree] = useState<any[]>([]);
   const [systemTree, setSystemTree] = useState<any[]>([]);
-  const [dronTree, setDronTree] = useState<any[]>([]);
-  const [scriptsTree, setScriptsTree] = useState<any[]>([]);
-  const [expandedFolders_Dashboard, setExpandedFolders_Dashboard] = useState<Set<string>>(new Set());
   const [expandedFolders_System, setExpandedFolders_System] = useState<Set<string>>(new Set());
-  const [expandedFolders_Dron, setExpandedFolders_Dron] = useState<Set<string>>(new Set());
+  const [scriptsTree, setScriptsTree] = useState<any[]>([]);
   const [cmdHistory, setCmdHistory] = useState<any[]>([]);
   const [gitStatus, setGitStatus] = useState<{
     commits: any[],
@@ -262,14 +262,14 @@ export default function HermesControl() {
     setLoading(prev => ({ ...prev, [tabLoadingKey]: true }));
     
     try {
-      if (activeTab === 'Dashboard') await fetchData('/api/files?mode=dashboard', setDashboardTree, 'files');
+      if (activeTab === 'Dron') await fetchData('/api/files?mode=dron', setDronTree, 'files');
+      else if (activeTab === 'Dashboard') await fetchData('/api/files?mode=dashboard', setDashboardTree, 'files');
       else if (activeTab === 'Docs') await fetchData('/api/files?mode=docs', setDocsTree, 'files');
       else if (activeTab === 'Memory') await fetchData('/api/files?mode=memory', setMemoryTree, 'files');
       else if (activeTab === 'Specs') await fetchData('/api/files?mode=specs', setSpecsTree, 'files');
       else if (activeTab === 'Scripts') await fetchData('/api/files?mode=scripts', setScriptsTree, 'files');
       else if (activeTab === 'Logs') await fetchData('/api/files?mode=logs', setLogsTree, 'files');
       else if (activeTab === 'System') await fetchData('/api/files?mode=system', setSystemTree, 'files');
-      else if (activeTab === 'Dron') await fetchData('/api/files?mode=dron', setDronTree, 'files');
       else if (activeTab === 'Jobs') await fetchData('/api/jobs', setJobs, 'jobs');
       else if (activeTab === 'Sessions') {
         setSessionsRefreshCount(c => c + 1);
@@ -292,6 +292,7 @@ export default function HermesControl() {
   };
 
   const navItems = [
+    { name: 'Dron', icon: BrainCog },
     { name: 'Dashboard', icon: Activity },
     { name: 'Docs', icon: FileText },
     { name: 'Memory', icon: Brain },
@@ -299,7 +300,6 @@ export default function HermesControl() {
     { name: 'Scripts', icon: Parentheses },
     { name: 'Logs', icon: Activity },
     { name: 'System', icon: Settings },
-    { name: 'Dron', icon: BrainCog },
     { name: 'Jobs', icon: Clock },
     { name: 'Sessions', icon: Users },
     { name: 'Cmd', icon: Terminal },
@@ -443,6 +443,7 @@ export default function HermesControl() {
   useEffect(() => {
     setIsMounted(true);
     // Initial data load for all tools
+    fetchData('/api/files?mode=dron', setDronTree, 'files');
     fetchData('/api/files?mode=memory', setMemoryTree, 'files');
     fetchData('/api/files?mode=dashboard', setDashboardTree, 'files');
     fetchData('/api/files?mode=docs', setDocsTree, 'files');
@@ -450,7 +451,6 @@ export default function HermesControl() {
     fetchData('/api/files?mode=scripts', setScriptsTree, 'files');
     fetchData('/api/files?mode=logs', setLogsTree, 'files');
     fetchData('/api/files?mode=system', setSystemTree, 'files');
-    fetchData('/api/files?mode=dron', setDronTree, 'files');
     fetchData('/api/jobs', setJobs, 'jobs').then(data => {
       if (Array.isArray(data) && data.length > 0) setSelectedJobId(data[0].id);
     });
@@ -809,57 +809,57 @@ export default function HermesControl() {
       setSessionNewLineCount(0);
 
       // 2. Resolve URL based on state
-      let url = '';
-      if (activeTab === 'Sessions' && selectedSessionId) {
-        url = `/api/sessions/content?id=${selectedSessionId}`;
+      let contentUrlToFetch = '';
+      if (activeTab === 'Dron' && selectedFilePath) {
+        contentUrlToFetch = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDronPath())} `;
+      } else if (activeTab === 'Dashboard' && selectedFilePath) {
+        contentUrlToFetch = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDashboardPath())} `;
+      } else if (['Docs', 'Memory', 'Specs', 'Scripts', 'Logs', 'System'].includes(activeTab) && selectedFilePath) {
+        contentUrlToFetch = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getWorkspacePath())} `;
+      } else if (activeTab === 'Sessions' && selectedSessionId) {
+        contentUrlToFetch = `/api/sessions/content?id=${selectedSessionId}`;
       } else if (activeTab === 'Jobs' && selectedJobId && viewingJobLog) {
         const job = jobs.find(j => j.id === selectedJobId);
         if (job?.state?.lastSessionId) {
-          url = `/api/sessions/content?id=${job.state.lastSessionId}`;
+          contentUrlToFetch = `/api/sessions/content?id=${job.state.lastSessionId}`;
         }
       } else if (activeTab === 'Git' && selectedGitCommit) {
-        url = `/api/git/diff?commit=${selectedGitCommit}`;
+        contentUrlToFetch = `/api/git/diff?commit=${selectedGitCommit}`;
       } else if (activeTab === 'Git' && selectedGitFile) {
-        url = `/api/git/diff?file=${encodeURIComponent(selectedGitFile)}`;
+        contentUrlToFetch = `/api/git/diff?file=${encodeURIComponent(selectedGitFile)}`;
       } else if (activeTab === 'Skills' && selectedSkillId) {
         const [origin, name] = selectedSkillId.split(':');
-        url = `/api/skills/content?origin=${origin}&name=${encodeURIComponent(name)}&filename=${encodeURIComponent(selectedSkillFile || 'SKILL.md')}`;
-      } else if (['Docs', 'Memory', 'Specs', 'Scripts', 'Logs', 'System'].includes(activeTab) && selectedFilePath) {
-        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getWorkspacePath())} `;
-      } else if (activeTab === 'Dashboard' && selectedFilePath) {
-        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDashboardPath())} `;
-      } else if (activeTab === 'Dron' && selectedFilePath) {
-        url = `/api/files/content?file=${encodeURIComponent(selectedFilePath)}&path=${encodeURIComponent(getDronPath())} `;
+        contentUrlToFetch = `/api/skills/content?origin=${origin}&name=${encodeURIComponent(name)}&filename=${encodeURIComponent(selectedSkillFile || 'SKILL.md')}`;
       }
 
-      if (!url) return;
+      if (!contentUrlToFetch) return;
 
       setLoading(prev => ({ ...prev, content: true }));
 
       try {
-        const res = await fetch(url);
-        let data: any;
+        const res = await fetch(contentUrlToFetch);
+        let fetchedData: any;
 
         try {
-          data = await res.json();
+          fetchedData = await res.json();
         } catch (e) {
-          data = null;
+          fetchedData = null;
         }
 
         if (!res.ok) {
-          setContentError(data?.error || `Error ${res.status}: ${res.statusText}`);
+          setContentError(fetchedData?.error || `Error ${res.status}: ${res.statusText}`);
           setLoading(prev => ({ ...prev, content: false }));
           return;
         }
 
         if (activeTab === 'Git') {
           if (selectedGitCommit) {
-            setGitDiff({ staged: null, unstaged: null, untracked: null, commit: data });
+            setGitDiff({ staged: null, unstaged: null, untracked: null, commit: fetchedData });
           } else {
-            setGitDiff({ staged: data.staged, unstaged: data.unstaged, untracked: data.untracked, commit: null });
+            setGitDiff({ staged: fetchedData.staged, unstaged: fetchedData.unstaged, untracked: fetchedData.untracked, commit: null });
           }
         } else {
-          setFileContent(data.content || '');
+          setFileContent(fetchedData.content || '');
         }
       } catch (err) {
         console.error(`Fetch failed:`, err);
@@ -890,82 +890,98 @@ export default function HermesControl() {
   const renderMiddle = () => {
     switch (activeTab) {
 
-      case 'Dashboard': return <FileTree nodes={dashboardTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
-        collapsibleFolders={true} expandedFolders={expandedFolders_Dashboard} setExpandedFolders={setExpandedFolders_Dashboard} />;
+      case 'Dron': 
+        return <FileTree nodes={dronTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          collapsibleFolders={true} expandedFolders={expandedFolders_Dron} setExpandedFolders={setExpandedFolders_Dron} />;
 
-      case 'Docs': return <FileTree nodes={docsTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+      case 'Dashboard': 
+        return <FileTree nodes={dashboardTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          collapsibleFolders={true} expandedFolders={expandedFolders_Dashboard} setExpandedFolders={setExpandedFolders_Dashboard} />;
 
-      case 'Memory': return <FileTree nodes={memoryTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+      case 'Docs': 
+        return <FileTree nodes={docsTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
-      case 'Specs': return <FileTree nodes={specsTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+      case 'Memory': 
+        return <FileTree nodes={memoryTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
-      case 'Scripts': return <ScriptsToolLeft scriptsTree={scriptsTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
-        setActiveTab={setActiveTab} setPendingCommand={setPendingCommand} />;
+      case 'Specs': 
+        return <FileTree nodes={specsTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
-      case 'Logs': return <FileTree nodes={logsTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+      case 'Scripts': 
+        return <ScriptsToolLeft scriptsTree={scriptsTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          setActiveTab={setActiveTab} setPendingCommand={setPendingCommand} />;
 
-      case 'System': return <FileTree nodes={systemTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
-        collapsibleFolders={true} expandedFolders={expandedFolders_System} setExpandedFolders={setExpandedFolders_System} />;
+      case 'Logs': 
+        return <FileTree nodes={logsTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
-      case 'Dron': return <FileTree nodes={dronTree} 
-        matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
-        collapsibleFolders={true} expandedFolders={expandedFolders_Dron} setExpandedFolders={setExpandedFolders_Dron} />;
+      case 'System': 
+        return <FileTree nodes={systemTree} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          collapsibleFolders={true} expandedFolders={expandedFolders_System} setExpandedFolders={setExpandedFolders_System} />;
 
-      case 'Jobs': return <JobsToolLeft jobs={jobs} 
-        matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} 
-        setViewingJobLog={setViewingJobLog} />;
+      case 'Jobs': 
+        return <JobsToolLeft jobs={jobs} 
+          matchesFilter={matchesFilter} selectedJobId={selectedJobId} setSelectedJobId={setSelectedJobId} 
+          setViewingJobLog={setViewingJobLog} />;
 
-      case 'Sessions': return <SessionsToolLeft sessions={sessions} 
-        matchesFilter={matchesFilter} 
-        selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
+      case 'Sessions': 
+        return <SessionsToolLeft sessions={sessions} 
+          matchesFilter={matchesFilter} 
+          selectedSessionId={selectedSessionId} setSelectedSessionId={setSelectedSessionId} />;
 
-      case 'Cmd': return <CmdToolLeft 
-        selectedCmdId={selectedCmdId} setSelectedCmdId={setSelectedCmdId} 
-        setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory}
-        initialCommand={pendingCommand} onCommandConsumed={() => setPendingCommand('')} />;
+      case 'Cmd': 
+        return <CmdToolLeft 
+          selectedCmdId={selectedCmdId} setSelectedCmdId={setSelectedCmdId} 
+          setLoading={setLoading} loading={loading} cmdHistory={cmdHistory} setCmdHistory={setCmdHistory}
+          initialCommand={pendingCommand} onCommandConsumed={() => setPendingCommand('')} />;
 
-      case 'Git': return <GitToolLeft 
-        gitStatus={gitStatus} 
-        selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} 
-        selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} 
-        setSelectedGitCommit={setSelectedGitCommit} 
-        gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} 
-        refreshGitStatus={async () => {
-          const data = await fetchData('/api/git', setGitStatus, 'git');
-          if (data) {
-            setGitStatus(data);
-            fetch('/api/git/pulse').then(r => r.json()).then(d => {
-              setGitFingerprint(d.fingerprint);
-              setGitStale(false);
-            }).catch(() => { });
-          }
-        }} />;
+      case 'Git': 
+        return <GitToolLeft 
+          gitStatus={gitStatus} 
+          selectedGitFile={selectedGitFile} setSelectedGitFile={setSelectedGitFile} 
+          selectedGitType={selectedGitType} setSelectedGitType={setSelectedGitType} 
+          setSelectedGitCommit={setSelectedGitCommit} 
+          gitStale={gitStale} selectedGitCommit={selectedGitCommit} setGitDiff={setGitDiff} 
+          refreshGitStatus={async () => {
+            const data = await fetchData('/api/git', setGitStatus, 'git');
+            if (data) {
+              setGitStatus(data);
+              fetch('/api/git/pulse').then(r => r.json()).then(d => {
+                setGitFingerprint(d.fingerprint);
+                setGitStale(false);
+              }).catch(() => { });
+            }
+          }} />;
 
-      case 'Skills': return <SkillsToolLeft skills={skills} 
-        matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} 
-        setSelectedJobId={setSelectedJobId} 
-        setSelectedFilePath={setSelectedFilePath} 
-        selectedSkillId={selectedSkillId} />;
+      case 'Skills': 
+        return <SkillsToolLeft skills={skills} 
+          matchesFilter={matchesFilter} setSelectedSkillId={setSelectedSkillId} setSelectedSkillFile={setSelectedSkillFile} 
+          setSelectedJobId={setSelectedJobId} 
+          setSelectedFilePath={setSelectedFilePath} 
+          selectedSkillId={selectedSkillId} />;
 
-      case 'Help': return <HelpToolLeft 
-        selectedHelpId={selectedHelpId} setSelectedHelpId={setSelectedHelpId} 
-        setSelectedJobId={setSelectedJobId} 
-        setSelectedFilePath={setSelectedFilePath} />;
+      case 'Help': 
+        return <HelpToolLeft 
+          selectedHelpId={selectedHelpId} setSelectedHelpId={setSelectedHelpId} 
+          setSelectedJobId={setSelectedJobId} 
+          setSelectedFilePath={setSelectedFilePath} />;
 
-      default: return null;
+      default: 
+        return null;
     }
   };
 
   // Render page's RIGHT column based on active tab and selection states
   const renderRight = () => {
     switch (activeTab) {
+      case 'Dron': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getDronPath()} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Dashboard': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getDashboardPath()} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Docs': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getWorkspacePath()} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Memory': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getWorkspacePath()} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
@@ -973,7 +989,6 @@ export default function HermesControl() {
       case 'Scripts': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getWorkspacePath()} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Logs': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getWorkspacePath()} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'System': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getWorkspacePath()} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
-      case 'Dron': return <FileViewerRight selectedFilePath={selectedFilePath} selectedFileFolder={getDronPath()} activeTab={activeTab} isEditing={isEditing} setIsEditing={setIsEditing} setEditContent={setEditContent} fileContent={fileContent} saveLoading={saveLoading} setSaveLoading={setSaveLoading} fileSearch={fileSearch} setFileSearch={setFileSearch} setCurrentMatchIndex={setCurrentMatchIndex} matchCount={matchCount} setMatchCount={setMatchCount} currentMatchIndex={currentMatchIndex} loading={loading} editContent={editContent} setFileContent={setFileContent} />;
       case 'Jobs': return <JobsToolRight selectedJob={selectedJob} viewingJobLog={viewingJobLog} setViewingJobLog={setViewingJobLog} fileContent={fileContent} historyLimit={historyLimit} loading={loading} setActiveTab={setActiveTab} setSelectedFilePath={setSelectedFilePath} refreshJobs={() => fetchData('/api/jobs', setJobs, 'jobs')} />;
       case 'Sessions': return <SessionsToolRight selectedSession={sessions.find(s => s.id === selectedSessionId)} sessionStale={sessionStale} sessionNewLineCount={sessionNewLineCount} handleRefreshSession={handleRefreshSession} refreshTrigger={sessionRefreshTrigger} />;
       case 'Cmd': return <CmdToolRight selectedCmd={selectedCmd} />;
@@ -1040,6 +1055,7 @@ export default function HermesControl() {
                 setViewingJobLog(false);
 
                 // Preselect an Item per Tool
+                if (item.name === 'Dron') setSelectedFilePath('TODO.md');
                 if (item.name === 'Dashboard') setSelectedFilePath('TODO.md');
                 if (item.name === 'Docs') setSelectedFilePath('TODO.md');
                 if (item.name === 'Memory') setSelectedFilePath('memories/MEMORY.md');
@@ -1047,7 +1063,6 @@ export default function HermesControl() {
                 //if (item.name === 'Scripts') setSelectedScript(null);
                 //if (item.name === 'Logs') setSelectedLog(null);
                 if (item.name === 'System') setSelectedFilePath('config.yaml');
-                if (item.name === 'Dron') setSelectedFilePath('TODO.md');
                 //if (item.name === 'Jobs' && (jobs?.length || 0) > 0) setSelectedJobId(jobs[0].id);
                 if (item.name === 'Cmd') {
                   if (cmdHistory.length === 0) {
