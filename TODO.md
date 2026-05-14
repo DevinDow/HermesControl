@@ -1,26 +1,19 @@
 # TODO
 
-* merge ScriptsTool to use File Tools?
+## Dron
+  - 1- moved to the top of Dashboard
+
+## Logs
+- 1- huge files should be truncated or else they freeze app
 
 ## FileTree
 - 1- Shows Folder Name
   - page renderMiddle(): fileFolder={getDashboardPath()}
   - FileTree: render it at the top
-  - *** or can it be done in page Middle???
+  - remove from FileViewer
 
-## Sessions
-- display File Modified DateTime
-- Should it use `hermes sessions list` or something else?
-- .jsonl?
-
-## Memory
-- Tree for MemoryToolLeft
-
-## Logs
-- long lines
-  - expandable like Sessions?
-  - limit to 25 lines so can scroll horizontally?
-  - or just use Trackpad?
+## Git
+  - pick Hermes OR Dashboard OR Dron (nothing else should change? SystemStatus)
 
 ## Tools CLEANUP
 ### SkillsToolLeft
@@ -31,4 +24,3 @@
 - Refactor?
 - can Git-specific code move in to GitTool?  SystemStatus also uses git
 - can `refreshGitStatus()` be replaced with `setGitStale()` = true?
-
