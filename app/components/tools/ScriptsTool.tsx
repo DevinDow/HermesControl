@@ -8,6 +8,7 @@ import { FileTree } from './FileTree';
 // Returns: calls recursive renderScriptsTreeWithExecute(), returns a div containing a hierarchical div[] (each div has children div[] or div w/ 2 buttons)
 export function ScriptsToolLeft({ 
   scriptsTree, 
+  folderPath,
   setActiveTab, 
   setPendingCommand, 
   ...props 
@@ -27,7 +28,7 @@ export function ScriptsToolLeft({
           <div key={node.path}>
 
             {/* FOLDER */}
-            <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
+            <div className="flex items-center gap-2 px-2 py-2 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
               <FolderOpen size={12} />
               {node.name}
             </div>
@@ -68,6 +69,10 @@ export function ScriptsToolLeft({
 
   return (
     <>
+      <div className="text-sm font-semibold text-[#FFBF00]">
+        {folderPath}
+      </div>
+
       {renderScriptsTreeWithExecute(scriptsTree)}
     </>
   );
