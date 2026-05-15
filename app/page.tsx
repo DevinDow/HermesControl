@@ -865,7 +865,10 @@ export default function HermesControl() {
             setGitDiff({ staged: fetchedData.staged, unstaged: fetchedData.unstaged, untracked: fetchedData.untracked, commit: null });
           }
         } else {
-          setFileContent(fetchedData.content || '');
+          // limit size of fetchedData.content to 1MB
+          const MAX_LENGTH = 10_000;
+          const truncatedContent = fetchedData.content.length < MAX_LENGTH ? fetchedData.content : fetchedData.content.slice(0, MAX_LENGTH) + `\n... TRUNCATED TO ${MAX_LENGTH}`;
+          setFileContent(truncatedContent || '');
         }
 
         /* is this cleaner?
