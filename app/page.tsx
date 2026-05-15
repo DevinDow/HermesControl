@@ -913,38 +913,38 @@ export default function HermesControl() {
     switch (activeTab) {
 
       case 'Dron': 
-        return <FileTree nodes={dronTree} 
+        return <FileTree nodes={dronTree} folderPath={getDronPath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
           collapsibleFolders={true} expandedFolders={expandedFolders_Dron} setExpandedFolders={setExpandedFolders_Dron} />;
 
       case 'Dashboard': 
-        return <FileTree nodes={dashboardTree} 
+        return <FileTree nodes={dashboardTree} folderPath={getDashboardPath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
           collapsibleFolders={true} expandedFolders={expandedFolders_Dashboard} setExpandedFolders={setExpandedFolders_Dashboard} />;
 
       case 'Docs': 
-        return <FileTree nodes={docsTree} 
+        return <FileTree nodes={docsTree} folderPath={getWorkspacePath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
       case 'Memory': 
-        return <FileTree nodes={memoryTree} 
+        return <FileTree nodes={memoryTree} folderPath={getWorkspacePath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
       case 'Specs': 
-        return <FileTree nodes={specsTree} 
+        return <FileTree nodes={specsTree} folderPath={getWorkspacePath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
       case 'Scripts': 
-        return <ScriptsToolLeft scriptsTree={scriptsTree} 
+        return <ScriptsToolLeft scriptsTree={scriptsTree} folderPath={getWorkspacePath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
           setActiveTab={setActiveTab} setPendingCommand={setPendingCommand} />;
 
       case 'Logs': 
-        return <FileTree nodes={logsTree} 
+        return <FileTree nodes={logsTree} folderPath={getWorkspacePath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
 
       case 'System': 
-        return <FileTree nodes={systemTree} 
+        return <FileTree nodes={systemTree} folderPath={getWorkspacePath()} 
           matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
           collapsibleFolders={true} expandedFolders={expandedFolders_System} setExpandedFolders={setExpandedFolders_System} />;
 
@@ -1151,7 +1151,7 @@ export default function HermesControl() {
             // Mobile-first responsive: hide the list if an item is selected, unless on larger screens
             hasSelection ? "hidden sm:flex" : "flex"
           )}>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2">
 
               {/* Search Filter */}
               <div className="relative flex-1">
@@ -1178,7 +1178,7 @@ export default function HermesControl() {
             </div>
 
             {/* MIDDLE column renders ___ToolLeft */}
-            <div className="flex-1 overflow-y-auto space-y-1 pr-2">
+            <div className="overflow-y-auto pr-2">
               {renderMiddle()}
             </div>
             

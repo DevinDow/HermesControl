@@ -101,8 +101,6 @@ export function FileViewerRight({
             <h2 className="text-lg font-semibold text-[#FFBF00] leading-tight">
               {selectedFileName}
             </h2>
-            <div>{selectedFileFolder}</div>
-            <div>{selectedFilePath}</div>
             <div>{selectedFileSizeKB}</div>
           </div>
 

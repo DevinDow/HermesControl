@@ -9,6 +9,7 @@ import { formatRelativeTime } from './utils/dateFormatting';
 // Returns: calls recursive renderFileTree(), which returns hierarchical div[] (each div has children div[] or button)
 export function FileTree({ 
   nodes, 
+  folderPath,
   matchesFilter,
   selectedFilePath,
   setSelectedFilePath,
@@ -146,6 +147,10 @@ export function FileTree({
 
   return (
     <>
+      <div className="text-sm font-semibold text-[#FFBF00]">
+        {folderPath}
+      </div>
+
       {renderFileTree(nodes)}
     </>
   );
