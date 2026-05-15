@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Parentheses, ScrollText, Braces, Brackets, FileCode, FileCog, ChevronsLeftRight, Terminal } from 'lucide-react';
+import { Folder, FolderOpen, FileText, Parentheses, ScrollText, Braces, Brackets, FileCode, FileCog, ChevronsLeftRight, Terminal } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { formatRelativeTime } from './utils/dateFormatting';
 
@@ -48,19 +48,17 @@ export function FileTree({
                   });
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold transition-all hover:bg-[#222222]/50 group",
+                  "w-full flex items-center gap-2 px-2 py-2 text-[11px] font-bold transition-all hover:bg-[#222222]/50 group",
                   isExpanded ? "text-[#FFBF00]" : "text-[#B8860B]"
                 )}
               >
 
                 {isExpanded ? (
                   <>
-                    <ChevronDown size={12} />
                     <FolderOpen size={12} />
                   </>
                 ) : (
                   <>
-                    <ChevronRight size={12} />
                     <Folder size={12} />
                   </>
                 )}
@@ -69,7 +67,7 @@ export function FileTree({
               
               {/* render CHILDREN if `isExpanded` */}
               {isExpanded && (
-                <div className="ml-2 border-l border-[#1F1F1F]">
+                <div className="ml-2 pl-2 border-l border-[#888888]">
                   {renderFileTree(node.children)}
                 </div>
               )}
@@ -80,11 +78,11 @@ export function FileTree({
         // FOLDER is always-expanded section header
         return (
           <div key={node.path}>
-            <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
+            <div className="flex items-center gap-2 px-2 py-2 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
               <FolderOpen size={12} />
               {node.name}
             </div>
-            <div className="ml-2 border-l border-[#1F1F1F]">
+            <div className="ml-2 pl-2 border-l border-[#888888]">
               {renderFileTree(node.children)}
             </div>
           </div>
@@ -115,9 +113,9 @@ export function FileTree({
               setSelectedFilePath(node.path); 
             }}
             className={cn(
-              "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex flex-col gap-0.5 border border-transparent group",
+              "w-full text-left px-2 py-1 rounded-md text-[13px] transition-all flex flex-col border border-transparent group",
               selectedFilePath === node.path
-                ? "bg-[#222222] text-[#FFF8DC] border-[#1F1F1F]"
+                ? "bg-[#222222] text-[#FFF8DC] border-[#333333]"
                 : "text-[#B8860B] hover:text-[#FFF8DC] hover:bg-[#222222]/50"
             )}
           >
@@ -135,7 +133,7 @@ export function FileTree({
             {node.updatedAt && (() => {
               const { text, color } = formatRelativeTime(node.updatedAt);
               return (
-                <div className={cn("text-[10px] font-mono ml-5 transition-colors", color)} suppressHydrationWarning>
+                <div className={cn("text-[10px] font-mono ml-6 transition-colors", color)} suppressHydrationWarning>
                   {text}
                 </div>
               );
