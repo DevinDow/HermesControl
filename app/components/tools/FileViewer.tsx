@@ -8,7 +8,19 @@ const ListContext = React.createContext<'ordered' | 'unordered' | null>(null);
 
 const preprocessContent = (text: string) => {
   // Replace silcrow symbols (§) with markdown horizontal rules
-  return text.replace(/§/g, '\n---\n');
+  text = text.replace(/§/g, '\n---\n');
+
+  // limit size of fetchedData.content to 10k ... 10k
+  const MAX_LENGTH = 10_000;
+  if (text.length < MAX_LENGTH * 2) {
+    return text;
+  }
+
+  const truncatedText = text.slice(0, MAX_LENGTH) + 
+    `\n\n---\n\n...\n# TRUNCATED ${(text.length-MAX_LENGTH*2).toLocaleString()} characters\n...\n\n---\n\n` + 
+    text.slice(-MAX_LENGTH);
+
+  return truncatedText;
 };
 
 const highlightMatches = (text: any, search: string) => {
@@ -191,7 +203,7 @@ export function FileViewerRight({
           ) : (selectedFilePath.endsWith('.html') === true) ? (
             <div 
               className="prose lg:prose-xl whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: preprocessContent(fileContent) }} 
+              dangerouslySetInnerHTML={{ __html: fileContent}} 
             />
             ) : (
             <pre className="bg-[#080808] border border-[#1F1F1F] p-6 rounded-xl overflow-x-auto text-[12px] font-mono text-[#FFF8DC] leading-relaxed">

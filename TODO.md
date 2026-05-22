@@ -1,7 +1,6 @@
 # TODO
 
 ## FileViewer
-- 1- Truncated should show first 10k & last 10k
 - 1- Refresh button
 
 ## FileTree
