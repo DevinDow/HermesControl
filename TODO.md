@@ -1,10 +1,7 @@
 # TODO
 
-## FileViewer
-- 1- Refresh button
-
 ## FileTree
-- 1- path is button to collapse all by deleteing all from {expanded}
+- 1- path (top) -> button to collapse all by deleteing all from {expanded}
 
 ## Markdown Viewer
 _SPACE_ between bullets makes grey?

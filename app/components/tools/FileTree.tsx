@@ -13,6 +13,7 @@ export function FileTree({
   matchesFilter,
   selectedFilePath,
   setSelectedFilePath,
+  onReselectFile,
   collapsibleFolders = false, 
   expandedFolders, 
   setExpandedFolders
@@ -109,8 +110,12 @@ export function FileTree({
         return (
           <button
             key={node.path}
-            onClick={() => { 
-              setSelectedFilePath(node.path); 
+            onClick={() => {
+              if (selectedFilePath === node.path) {
+                onReselectFile?.();
+              } else {
+                setSelectedFilePath(node.path);
+              }
             }}
             className={cn(
               "w-full text-left px-2 py-1 rounded-md text-[13px] transition-all flex flex-col border border-transparent group",

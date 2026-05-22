@@ -141,6 +141,8 @@ export default function HermesControl() {
   // Changes to these states trigger the 'fetchContent' useEffect to load details.
   // ============================================================================
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
+  // Incremented when the user re-clicks the already-selected file in FileTree
+  const [fileContentRefreshTrigger, setFileContentRefreshTrigger] = useState(0);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedCmdId, setSelectedCmdId] = useState<string | null>(null);
@@ -892,7 +894,7 @@ export default function HermesControl() {
     }
 
     fetchContent();
-  }, [selectedFilePath, selectedSessionId, selectedSkillId, selectedSkillFile, activeTab, historyLimit, viewingJobLog, selectedGitFile, selectedGitCommit, gitFingerprint]);
+  }, [selectedFilePath, fileContentRefreshTrigger, selectedSessionId, selectedSkillId, selectedSkillFile, activeTab, historyLimit, viewingJobLog, selectedGitFile, selectedGitCommit, gitFingerprint]);
 
   const selectedJob = jobs.find(j => j.id === selectedJobId);
   const selectedSkill = (skills?.workspace || []).find(s => s.id === selectedSkillId) || (skills?.system || []).find(s => s.id === selectedSkillId);
@@ -914,38 +916,46 @@ export default function HermesControl() {
 
       case 'Dron': 
         return <FileTree nodes={dronTree} folderPath={getDronPath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)}
           collapsibleFolders={true} expandedFolders={expandedFolders_Dron} setExpandedFolders={setExpandedFolders_Dron} />;
 
       case 'Dashboard': 
         return <FileTree nodes={dashboardTree} folderPath={getDashboardPath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)}
           collapsibleFolders={true} expandedFolders={expandedFolders_Dashboard} setExpandedFolders={setExpandedFolders_Dashboard} />;
 
       case 'Docs': 
         return <FileTree nodes={docsTree} folderPath={getWorkspacePath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)} />;
 
       case 'Memory': 
         return <FileTree nodes={memoryTree} folderPath={getWorkspacePath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)} />;
 
       case 'Specs': 
         return <FileTree nodes={specsTree} folderPath={getWorkspacePath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)} />;
 
       case 'Scripts': 
         return <ScriptsToolLeft scriptsTree={scriptsTree} folderPath={getWorkspacePath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)}
           setActiveTab={setActiveTab} setPendingCommand={setPendingCommand} />;
 
       case 'Logs': 
         return <FileTree nodes={logsTree} folderPath={getWorkspacePath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} />;
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)} />;
 
       case 'System': 
         return <FileTree nodes={systemTree} folderPath={getWorkspacePath()} 
-          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath} 
+          matchesFilter={matchesFilter} selectedFilePath={selectedFilePath} setSelectedFilePath={setSelectedFilePath}
+          onReselectFile={() => setFileContentRefreshTrigger(t => t + 1)}
           collapsibleFolders={true} expandedFolders={expandedFolders_System} setExpandedFolders={setExpandedFolders_System} />;
 
       case 'Jobs': 
