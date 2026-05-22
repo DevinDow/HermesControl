@@ -865,9 +865,12 @@ export default function HermesControl() {
             setGitDiff({ staged: fetchedData.staged, unstaged: fetchedData.unstaged, untracked: fetchedData.untracked, commit: null });
           }
         } else {
-          // limit size of fetchedData.content to 1MB
+          // limit size of fetchedData.content to 10k ... 10k
           const MAX_LENGTH = 10_000;
-          const truncatedContent = fetchedData.content.length < MAX_LENGTH ? fetchedData.content : fetchedData.content.slice(0, MAX_LENGTH) + `\n... TRUNCATED TO ${MAX_LENGTH}`;
+          const truncatedContent = fetchedData.content.length < MAX_LENGTH * 2 ? fetchedData.content : 
+            fetchedData.content.slice(0, MAX_LENGTH) + 
+            `\n\n---\n\n... TRUNCATED ${(fetchedData.content.length-MAX_LENGTH*2).toLocaleString()} characters ...\n\n---\n\n` + 
+            fetchedData.content.slice(-MAX_LENGTH);
           setFileContent(truncatedContent || '');
         }
 
