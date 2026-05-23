@@ -98,14 +98,14 @@ export function MarkdownRenderer({
         },
         ol: ({ children, ...props }: any) => (
           <ListContext.Provider value="ordered">
-            <ol className="list-none [counter-reset:li] mb-4" {...props}>
+            <ol className="list-none [counter-reset:li]" {...props}>
               {children}
             </ol>
           </ListContext.Provider>
         ),
         ul: ({ children, ...props }: any) => (
           <ListContext.Provider value="unordered">
-            <ul className="list-none mb-4" {...props}>
+            <ul className="list-none" {...props}>
               {children}
             </ul>
           </ListContext.Provider>
@@ -113,8 +113,8 @@ export function MarkdownRenderer({
         li: ({ children, ...props }: any) => {
           const listType = React.useContext(ListContext);
           return (
-            <li className={cn('flex gap-3 text-[14px] text-[#FFF8DC] mb-2', listType === 'ordered' && '[counter-increment:li]')} {...props}>
-              <span className="text-[#FFBF00] mt-1.5 font-mono min-w-[1.5em] text-right">
+            <li className={cn('flex gap-2 text-[14px] text-[#FFF8DC]', listType === 'ordered' && '[counter-increment:li]')} {...props}>
+              <span className="text-[#FFBF00] font-mono min-w-[1.5em] text-right">
                 {listType === 'ordered' ? <span className="before:content-[counter(li)'.']" /> : '•'}
               </span>
               <div className="flex-1">{highlightMatches(children, search)}</div>
