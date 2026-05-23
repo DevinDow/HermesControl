@@ -1,8 +1,5 @@
 # TODO
 
-## FileTree
-- 1- path (top) -> button to collapse all by deleteing all from {expanded}
-
 ## Markdown Viewer
 _SPACE_ between bullets makes grey?
 - 3

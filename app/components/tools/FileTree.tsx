@@ -150,9 +150,13 @@ export function FileTree({
 
   return (
     <>
-      <div className="text-sm font-semibold text-[#FFBF00]">
+      <button
+        className={cn("text-sm font-semibold transition-all p-2 pl-1 hover:bg-[#222222]/50 group text-[#FFBF00]")}
+        onClick={() => setExpandedFolders(new Set())}
+        title="Collapse all folders"
+      >
         {folderPath}
-      </div>
+      </button>
 
       {renderFileTree(nodes)}
     </>
