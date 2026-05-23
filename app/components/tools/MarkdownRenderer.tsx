@@ -59,7 +59,7 @@ export function MarkdownRenderer({
           </h4>
         ),
         p: (props: any) => (
-          <p className="mb-4 leading-relaxed text-gray-400 ml-2 h2:ml-6 h3:ml-10" {...props}>
+          <p className="leading-relaxed h2:ml-6 h3:ml-10" {...props}>
             {highlightMatches(props.children, search)}
           </p>
         ),
