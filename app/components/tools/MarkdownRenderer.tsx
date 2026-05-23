@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import { cn } from '../../lib/utils';
 
 const highlightMatches = (text: any, search?: string) => {
@@ -36,7 +37,7 @@ export function MarkdownRenderer({
 }) {
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
+      remarkPlugins={[remarkGfm, remarkBreaks]}
       components={{
         h1: (props: any) => (
           <h1 className="text-2xl font-bold text-body-cornsilk mt-12 mb-8 border-b border-[#1F1F1F] pb-4 first:mt-0" {...props}>

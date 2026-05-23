@@ -1,16 +1,5 @@
 # TODO
 
-## Markdown Viewer
-_SPACE_ between bullets makes grey?
-- 3
-  - indentions
-    - spacing
-      - 4
-  - test
-    - test2
-
-- test3
-
 ## Dron session.md Viewer
 - Context?  SKIP?
 - Prompt
