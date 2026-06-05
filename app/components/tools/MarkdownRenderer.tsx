@@ -40,22 +40,22 @@ export function MarkdownRenderer({
       remarkPlugins={[remarkGfm, remarkBreaks]}
       components={{
         h1: (props: any) => (
-          <h1 className="text-2xl font-bold text-body-cornsilk mt-12 mb-8 border-b border-[#1F1F1F] pb-4 first:mt-0" {...props}>
+          <h1 className="text-2xl font-bold text-body-cornsilk mt-12 mb-8 border-b-2 border-[#FFBF00] pb-4 first:mt-0" {...props}>
             {highlightMatches(props.children, search)}
           </h1>
         ),
         h2: (props: any) => (
-          <h2 className="text-lg font-bold text-body-cornsilk mt-8 mb-4 border-l-2 border-[#FFBF00] pl-4 first:mt-0" {...props}>
+          <h2 className="text-lg font-bold text-body-cornsilk mt-8 mb-2 border-b border-[#FFBF00] first:mt-0" {...props}>
             {highlightMatches(props.children, search)}
           </h2>
         ),
         h3: (props: any) => (
-          <h3 className="text-base font-bold text-body-cornsilk mt-4 mb-3 ml-2 border-l border-gray-700 pl-4 first:mt-0" {...props}>
+          <h3 className="text-base font-bold text-body-cornsilk mt-4 mb-2 border-b border-gray-500 first:mt-0" {...props}>
             {highlightMatches(props.children, search)}
           </h3>
         ),
         h4: (props: any) => (
-          <h4 className="text-sm font-bold text-gray-300 mt-2 mb-2 ml-6 first:mt-0" {...props}>
+          <h4 className="text-sm font-bold text-body-cornsilk mt-3 mb-2 border-b border-gray-800  first:mt-0" {...props}>
             {highlightMatches(props.children, search)}
           </h4>
         ),

@@ -1,13 +1,12 @@
 # TODO
 
 ## Dron session.md Viewer
-- Context?  SKIP?
-- Prompt
-  - Response
-- Other
-- Buttons?  No
-- reversed?  YES
-
+- Context section
+  - h1 chunks
+- Conversation section
+  - h2 chunks
+- collapsible
+- reversible
 
 ## Git
   - pick Hermes OR Dashboard OR Dron (nothing else should change? SystemStatus)
