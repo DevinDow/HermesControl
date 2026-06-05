@@ -55,9 +55,19 @@ export function MarkdownRenderer({
           </h3>
         ),
         h4: (props: any) => (
-          <h4 className="text-sm font-bold text-body-cornsilk mt-6 mb-2 border-b border-gray-800  first:mt-0" {...props}>
+          <h4 className="text-sm font-bold text-body-cornsilk mt-6 mb-2 border-b border-gray-700  first:mt-0" {...props}>
             {highlightMatches(props.children, search)}
           </h4>
+        ),
+        h5: (props: any) => (
+          <h5 className="text-xs font-bold text-body-cornsilk mt-5 mb-2 border-b border-gray-800  first:mt-0" {...props}>
+            {highlightMatches(props.children, search)}
+          </h5>
+        ),
+        h6: (props: any) => (
+          <h6 className="text-xs text-body-cornsilk mt-4 mb-2 border-b border-gray-800  first:mt-0" {...props}>
+            {highlightMatches(props.children, search)}
+          </h6>
         ),
         p: (props: any) => (
           <p className="leading-relaxed h2:ml-6 h3:ml-10" {...props}>
