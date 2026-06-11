@@ -39,11 +39,13 @@ export async function GET() {
       updateAvailable: !!updateString,
     });
   } catch (error) {
+    console.error('Error executing `hermes version`:', error);
+    
     return NextResponse.json({
       version: null,
       versionNumber: null,
       versionDate: null,
-      error: 'Unable to execute hermes version',
+      error: error instanceof Error ? error.message : 'Unable to execute hermes version',
     }, { status: 500 });
   }
 }

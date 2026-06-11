@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
   const sessionsDir = getSessionsPath();
   const fileName = `session_${id}.json`;
   const filePath = join(sessionsDir, fileName);
+  console.log('  Reading session file:', filePath);
 
   try {
     const content = await readFile(filePath, 'utf8');
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Failed to read session file:', error);
+
     return NextResponse.json({ error: error.message }, { status: 404 });
   }
 }

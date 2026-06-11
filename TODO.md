@@ -1,5 +1,11 @@
 # TODO
 
+## ScriptsToolLeft(FileTree) spacing
+
+## Markdown
+  - not handling indent spaces & newlines (agenda.md)
+  - should .md handle Telegram's Markdown?
+
 ## Dron session.md Viewer
 - Context section
   - h1 chunks

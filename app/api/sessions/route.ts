@@ -57,9 +57,10 @@ export async function GET() {
     
     return NextResponse.json(sessions);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error executing `hermes sessions list`:', error);
+
     return NextResponse.json(
-      { error: message },
+      { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
