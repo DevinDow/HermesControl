@@ -6,14 +6,14 @@ const execAsync = promisify(exec);
 
 export async function GET() {
   try {
-    const { stdout } = await execAsync('hermes status');
+    const { stdout } = await execAsync('/home/devin/.local/bin/hermes status');
     return new Response(stdout, {
       headers: {'Content-Type': 'text/plain; charset=utf-8',},
     });
   } catch (error) {
     console.error('Error executing `hermes status`:', error);
 
-    return new Response('Hermes status unavailable: ' + error.message, {
+    return new Response('`hermes status` failed: ' + error.message, {
       status: 500,
       headers: {'Content-Type': 'text/plain; charset=utf-8',},
     });

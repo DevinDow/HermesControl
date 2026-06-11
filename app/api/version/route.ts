@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export async function GET() {
   try {
-    const { stdout } = await execAsync('hermes version');
+    const { stdout } = await execAsync('/home/devin/.local/bin/hermes version');
     const lines = stdout.trim().split('\n');
     const firstLine = lines[0] ?? '';
     const versionMatch = firstLine.match(/Hermes Agent\s+([^\s]+)\s+\(([^)]+)\)/);

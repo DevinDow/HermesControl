@@ -18,7 +18,7 @@ Cron Jobs and Watchdog Process   Darvis (OpenClaw) had a HEARTBEAT.  Do   6h ago
 */
 export async function GET() {
   try {
-    const { stdout } = await execAsync('hermes sessions list', { encoding: 'utf8' });
+    const { stdout } = await execAsync('/home/devin/.local/bin/hermes sessions list', { encoding: 'utf8' });
     
     const lines = stdout.split('\n').filter(Boolean);
     

@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export async function GET() {
   try {
-    const { stdout: helpOut } = await execAsync('hermes --help');
+    const { stdout: helpOut } = await execAsync('/home/devin/.local/bin/hermes --help');
     return NextResponse.json({ content: helpOut });
   } catch (error) {
     return NextResponse.json({ content: "Hermes CLI is not available in the current environment.\nMock response: Not running." });

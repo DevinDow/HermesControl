@@ -11,7 +11,7 @@ const execAsync = promisify(exec);
 export async function POST() {
   try {
     // Note: 'hermes update' often pulls from pnpm/npm and may restart the gateway service.
-    const { stdout, stderr } = await execAsync('hermes update');
+    const { stdout, stderr } = await execAsync('/home/devin/.local/bin/hermes update');
     
     return NextResponse.json({
       success: true,
