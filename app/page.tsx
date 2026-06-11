@@ -45,7 +45,7 @@ export default function HermesControl() {
   // ============================================================================
 
   // Tracks the currently selected tool in the left sidebar (e.g., 'Docs', 'Jobs', 'Sessions')
-  const [activeTab, setActiveTab] = useState('Dashboard');
+  const [activeTab, setActiveTab] = useState('Dron');
   const [isMounted, setIsMounted] = useState(false);
 
   // ============================================================================
