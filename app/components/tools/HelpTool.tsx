@@ -5,30 +5,28 @@ import { cn } from '../../lib/utils';
 export function HelpToolLeft({ setSelectedHelpId, setSelectedJobId, setSelectedFilePath, setSelectedSessionId, selectedHelpId }: any) {
   return (
     <div className="space-y-4">
-      <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
-                      Resources
-                    </div>
-                    {[
-                      { id: 'Links', name: 'External Links', icon: LinkIcon },
-                      { id: 'Shortcuts', name: 'Keyboard Shortcuts', icon: Terminal },
-                      { id: 'CLI', name: 'CLI Reference', icon: Zap }
-                    ].map(item => (
-                      <button
-                        key={item.id}
-                        onClick={() => { setSelectedHelpId(item.id); setSelectedJobId(null); setSelectedFilePath(null); setSelectedSessionId(null); }}
-                        className={cn(
-                          "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",
-                          selectedHelpId === item.id ? "bg-[#222222] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
-                        )}
-                      >
-                        <item.icon size={14} className={selectedHelpId === item.id ? "text-[#FFBF00]" : "text-[#B8860B]"} />
-                        <span className="truncate">{item.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+      <div>
+        <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-bold text-[#FFBF00] uppercase tracking-wider">
+          Resources
+        </div>
+        {[
+          { id: 'Links', name: 'External Links', icon: LinkIcon },
+          { id: 'Shortcuts', name: 'Keyboard Shortcuts', icon: Terminal },
+          { id: 'CLI', name: 'CLI Reference', icon: Zap }
+        ].map(item => (
+          <button
+            key={item.id}
+            onClick={() => { setSelectedHelpId(item.id); setSelectedJobId(null); setSelectedFilePath(null); setSelectedSessionId(null); }}
+            className={cn(
+              "w-full text-left px-3 py-2 rounded-md text-[13px] transition-all flex items-center gap-2 group",
+              selectedHelpId === item.id ? "bg-[#222222] text-body-cornsilk border border-[#1F1F1F]" : "text-[#B8860B] hover:text-[#FFF8DC] border border-transparent"
+            )}
+          >
+            <item.icon size={14} className={selectedHelpId === item.id ? "text-[#FFBF00]" : "text-[#B8860B]"} />
+            <span className="truncate">{item.name}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1001,9 +1001,11 @@ export default function HermesControl() {
 
       case 'Help': 
         return <HelpToolLeft 
-          selectedHelpId={selectedHelpId} setSelectedHelpId={setSelectedHelpId} 
+          setSelectedHelpId={setSelectedHelpId}
           setSelectedJobId={setSelectedJobId} 
-          setSelectedFilePath={setSelectedFilePath} />;
+          setSelectedFilePath={setSelectedFilePath}
+          setSelectedSessionId={setSelectedSessionId}
+          selectedHelpId={selectedHelpId} />;
 
       default: 
         return null;
