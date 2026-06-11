@@ -15,8 +15,12 @@ export async function GET() {
       status = statusLine.split('Status:')[1].trim();
       online = status.includes('running');
     }*/
-    const command = 'systemctl --user is-active hermes-gateway.service 2>/dev/null || true';
+
+    // Tell systemctl exactly which user's systemd manager to query
+    // XDG_RUNTIME_DIR=/run/user/1000
+    const command = 'XDG_RUNTIME_DIR=/run/user/1000 systemctl --user is-active hermes-gateway.service 2>/dev/null || true';
     const { stdout } = await execAsync(command);
+    console.log('   Hermes Gateway Service Status:', stdout.trim());
     const status = stdout.trim() || 'inactive';
     const online = status === 'active';
     return NextResponse.json({ online, status });
