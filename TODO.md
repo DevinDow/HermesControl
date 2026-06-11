@@ -1,7 +1,5 @@
 # TODO
 
-## ScriptsToolLeft(FileTree) spacing
-
 ## Markdown
   - not handling indent spaces & newlines (agenda.md)
   - should .md handle Telegram's Markdown?
