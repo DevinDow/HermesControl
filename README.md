@@ -99,6 +99,12 @@ Hermes Control runs on port **3000** by default. You can launch it using the hel
    *Dashboard runs on port 3000.*
    *Note: If the port is already in use, you can clear it with: `fuser -k 3000/tcp`*
 
+### prevent Chrome "Not secure" warning
+
+chrome://flags/
+Insecure origins treated as secure
+http://samsungzorin:3000
+
 ## Data Collection Features
 
 ### 🌡️ Activity Thermal Layer
